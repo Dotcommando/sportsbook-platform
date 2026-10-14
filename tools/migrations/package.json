@@ -1,0 +1,19 @@
+{
+  "name": "@sportsbook/migrations",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@sportsbook/persistence": "workspace:*",
+    "pg": "8.23.1"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "lint": "eslint .",
+    "migrate": "tsx migrate.ts",
+    "test-postgres": "tsx test/postgres.integration.ts"
+  },
+  "nx": { "name": "migrations", "tags": ["scope:tooling", "type:tool"] }
+}

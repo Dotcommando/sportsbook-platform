@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/adapters/outbound/persistence/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  relationMode = "prisma"
+}
+
+model PlayerOutboxEvents {
+  playerOutboxEventId String @id @map("player_outbox_event_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  messageId String @map("message_id") @db.Uuid
+  eventType String @map("event_type")
+  subjectId String @map("subject_id") @db.Uuid
+  payload Json @map("payload")
+  occurredAt DateTime @map("occurred_at") @db.Timestamptz(6)
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+  attemptCount Int @map("attempt_count")
+  nextAttemptAt DateTime @map("next_attempt_at") @db.Timestamptz(6)
+  leaseId String? @map("lease_id") @db.Uuid
+  leaseUntil DateTime? @map("lease_until") @db.Timestamptz(6)
+  @@map("player_outbox_events")
+}
+
+model PlayerInboxEvents {
+  playerInboxEventId String @id @map("player_inbox_event_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  source String @map("source")
+  messageId String @map("message_id") @db.Uuid
+  payloadHash String @map("payload_hash")
+  receivedAt DateTime @map("received_at") @db.Timestamptz(6)
+  processedAt DateTime? @map("processed_at") @db.Timestamptz(6)
+  status String @map("status")
+  @@map("player_inbox_events")
+}
+
+model Players {
+  playerId String @id @map("player_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  externalRef String? @map("external_ref")
+  status String @map("status")
+  registeredAt DateTime @map("registered_at") @db.Timestamptz(6)
+  activatedAt DateTime? @map("activated_at") @db.Timestamptz(6)
+  closedAt DateTime? @map("closed_at") @db.Timestamptz(6)
+  version BigInt @map("version")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("players")
+}
+
+model PlayerProfiles {
+  playerId String @id @map("player_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  firstNameEnc Bytes? @map("first_name_enc")
+  lastNameEnc Bytes? @map("last_name_enc")
+  birthDateEnc Bytes? @map("birth_date_enc")
+  residenceCountry String? @map("residence_country") @db.Char(2)
+  nationalityCountry String? @map("nationality_country") @db.Char(2)
+  locale String @map("locale")
+  timeZone String @map("time_zone")
+  encryptionKeyId String @map("encryption_key_id")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("player_profiles")
+}
+
+model PlayerContacts {
+  playerContactId String @id @map("player_contact_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  playerId String @map("player_id") @db.Uuid
+  kind String @map("kind")
+  valueEnc Bytes @map("value_enc")
+  valueHmac Bytes @map("value_hmac")
+  isPrimary Boolean @map("is_primary")
+  verifiedAt DateTime? @map("verified_at") @db.Timestamptz(6)
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("player_contacts")
+}
+
+model PlayerKycCases {
+  kycCaseId String @id @map("kyc_case_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  playerId String @map("player_id") @db.Uuid
+  requiredLevel String @map("required_level")
+  status String @map("status")
+  policyVersion String @map("policy_version")
+  decisionCode String? @map("decision_code")
+  openedAt DateTime @map("opened_at") @db.Timestamptz(6)
+  decidedAt DateTime? @map("decided_at") @db.Timestamptz(6)
+  validUntil DateTime? @map("valid_until") @db.Timestamptz(6)
+  version BigInt @map("version")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("player_kyc_cases")
+}
+
+model PlayerKycChecks {
+  kycCheckId String @id @map("kyc_check_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  playerId String @map("player_id") @db.Uuid
+  kycCaseId String @map("kyc_case_id") @db.Uuid
+  checkType String @map("check_type")
+  attemptNo Int @map("attempt_no")
+  provider String @map("provider")
+  providerCheckRef String? @map("provider_check_ref")
+  status String @map("status")
+  resultCode String? @map("result_code")
+  evidenceRef String? @map("evidence_ref")
+  requestedAt DateTime @map("requested_at") @db.Timestamptz(6)
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
+  @@map("player_kyc_checks")
+}
+
+model PlayerRestrictions {
+  playerRestrictionId String @id @map("player_restriction_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  playerId String @map("player_id") @db.Uuid
+  restrictionType String @map("restriction_type")
+  status String @map("status")
+  reasonCode String @map("reason_code")
+  source String @map("source")
+  startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+  endsAt DateTime? @map("ends_at") @db.Timestamptz(6)
+  clearedAt DateTime? @map("cleared_at") @db.Timestamptz(6)
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("player_restrictions")
+}
+
+model PlayerCommands {
+  playerCommandId String @id @map("player_command_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  operation String @map("operation")
+  payloadHash String @map("payload_hash")
+  actorId String @map("actor_id") @db.Uuid
+  actorKind String @map("actor_kind")
+  playerId String? @map("player_id") @db.Uuid
+  semanticInput Json @map("semantic_input")
+  stableChildIds Json @map("stable_child_ids")
+  responseSnapshot Json? @map("response_snapshot")
+  state String @map("state")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("player_commands")
+}

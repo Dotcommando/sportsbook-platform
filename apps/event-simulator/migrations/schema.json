@@ -1,0 +1,538 @@
+{
+  "service": "events",
+  "tables": [
+    {
+      "name": "event_outbox_events",
+      "columns": [
+        {
+          "name": "event_outbox_event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "message_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_type",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "subject_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "attempt_count",
+          "type": "integer",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "next_attempt_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "lease_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "message_id"
+          ],
+          "name": "event_outbox_message_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "next_attempt_at",
+            "event_outbox_event_id"
+          ],
+          "name": "event_outbox_pending_idx",
+          "where": "published_at IS NULL"
+        }
+      ],
+      "checks": [
+        "attempt_count >= 0"
+      ]
+    },
+    {
+      "name": "event_inbox_events",
+      "columns": [
+        {
+          "name": "event_inbox_event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "message_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "received_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "processed_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "source",
+            "message_id"
+          ],
+          "name": "event_inbox_message_uq",
+          "unique": true
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "event_runs",
+      "columns": [
+        {
+          "name": "run_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "seed",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "profile_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "simulated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "clock_seq",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [],
+      "checks": [
+        "clock_seq >= 1"
+      ]
+    },
+    {
+      "name": "event_match_states",
+      "columns": [
+        {
+          "name": "event_state_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "run_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "phase",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "phase_seq",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "snapshot",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "run_id",
+            "event_id"
+          ],
+          "name": "event_match_identity_uq",
+          "unique": true
+        }
+      ],
+      "checks": [
+        "phase_seq >= 1",
+        "phase IN ('PRE_MATCH','LIVE','HALF_TIME','SUSPENDED','FINISHED')"
+      ]
+    },
+    {
+      "name": "event_quote_snapshots",
+      "columns": [
+        {
+          "name": "quote_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "run_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "market_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "selection_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "quote_version",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "odds",
+          "type": "numeric(18,8)",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "valid_until",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "run_id",
+            "selection_id",
+            "quote_version"
+          ],
+          "name": "event_quote_version_uq",
+          "unique": true
+        }
+      ],
+      "checks": [
+        "quote_version >= 1",
+        "odds > 1 AND odds <= 1000",
+        "state IN ('OPEN','SUSPENDED','CLOSED')"
+      ]
+    },
+    {
+      "name": "event_results",
+      "columns": [
+        {
+          "name": "result_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "run_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "result_seq",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "snapshot",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "run_id",
+            "event_id",
+            "result_seq"
+          ],
+          "name": "event_result_version_uq",
+          "unique": true
+        }
+      ],
+      "checks": [
+        "result_seq >= 1"
+      ]
+    },
+    {
+      "name": "event_commands",
+      "columns": [
+        {
+          "name": "event_command_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "operation",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actor_kind",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "semantic_input",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "stable_child_ids",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "response_snapshot",
+          "type": "jsonb",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "request_id"
+          ],
+          "name": "event_command_request_uq",
+          "unique": true
+        }
+      ],
+      "checks": []
+    }
+  ]
+}

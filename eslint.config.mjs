@@ -17,7 +17,7 @@ export default [
       '**/node_modules/**',
       '**/dist/**',
       '**/coverage/**',
-      '.tmp/**',
+      '**/.tmp/**',
       'data/**',
       '.serena/**',
       '.git/**',

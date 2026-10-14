@@ -1,0 +1,902 @@
+{
+  "service": "ledger",
+  "tables": [
+    {
+      "name": "ledger_outbox_events",
+      "columns": [
+        {
+          "name": "ledger_outbox_event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "message_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_type",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "subject_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "attempt_count",
+          "type": "integer",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "next_attempt_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "lease_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "message_id"
+          ],
+          "name": "ledger_outbox_message_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "next_attempt_at",
+            "ledger_outbox_event_id"
+          ],
+          "name": "ledger_outbox_pending_idx",
+          "where": "published_at IS NULL"
+        }
+      ],
+      "checks": [
+        "attempt_count >= 0"
+      ]
+    },
+    {
+      "name": "ledger_inbox_events",
+      "columns": [
+        {
+          "name": "ledger_inbox_event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "message_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "received_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "processed_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "source",
+            "message_id"
+          ],
+          "name": "ledger_inbox_message_uq",
+          "unique": true
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "wallets",
+      "columns": [
+        {
+          "name": "wallet_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "currency",
+          "type": "character(3)",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "player_id",
+            "currency"
+          ],
+          "name": "wallet_owner_currency_uq",
+          "unique": true
+        }
+      ],
+      "checks": [
+        "status IN ('ACTIVE','CLOSED')"
+      ]
+    },
+    {
+      "name": "ledger_accounts",
+      "columns": [
+        {
+          "name": "account_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "wallet_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "currency",
+          "type": "character(3)",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "account_kind",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "normal_side",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "wallet_id",
+            "account_kind"
+          ],
+          "name": "ledger_account_wallet_idx"
+        },
+        {
+          "columns": [
+            "operator_id",
+            "wallet_id",
+            "account_kind"
+          ],
+          "name": "ledger_wallet_account_uq",
+          "unique": true,
+          "where": "wallet_id IS NOT NULL"
+        },
+        {
+          "columns": [
+            "operator_id",
+            "currency",
+            "account_kind"
+          ],
+          "name": "ledger_system_account_uq",
+          "unique": true,
+          "where": "wallet_id IS NULL"
+        }
+      ],
+      "checks": [
+        "account_kind IN ('AVAILABLE','RESERVED','WITHDRAWAL_HOLD','CLEARING','REVENUE','EXPENSE')",
+        "normal_side IN ('DEBIT','CREDIT')",
+        "status IN ('ACTIVE','CLOSED')"
+      ]
+    },
+    {
+      "name": "ledger_account_balances",
+      "columns": [
+        {
+          "name": "account_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "balance_minor",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [],
+      "checks": [
+        "version >= 1"
+      ]
+    },
+    {
+      "name": "ledger_transactions",
+      "columns": [
+        {
+          "name": "ledger_transaction_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "transaction_type",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "business_ref",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "currency",
+          "type": "character(3)",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "posted_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "correlation_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "request_id"
+          ],
+          "name": "ledger_transaction_request_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "business_ref",
+            "created_at",
+            "ledger_transaction_id"
+          ],
+          "name": "ledger_transaction_business_idx"
+        }
+      ],
+      "checks": [
+        "status IN ('POSTED','REJECTED')",
+        "transaction_type IN ('DEPOSIT','RESERVE_STAKE','SETTLE_WIN','SETTLE_LOSS','CANCEL_RESERVATION','WITHDRAWAL_HOLD','WITHDRAWAL_COMPLETE','WITHDRAWAL_REJECT')",
+        "(status = 'POSTED' AND posted_at IS NOT NULL) OR (status = 'REJECTED' AND posted_at IS NULL)"
+      ]
+    },
+    {
+      "name": "ledger_entries",
+      "columns": [
+        {
+          "name": "ledger_entry_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "ledger_transaction_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "account_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "currency",
+          "type": "character(3)",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "side",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "amount_minor",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "posted_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "entry_no",
+          "type": "integer",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "ledger_transaction_id",
+            "entry_no"
+          ],
+          "name": "ledger_entry_sequence_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "account_id",
+            "posted_at",
+            "ledger_entry_id"
+          ],
+          "name": "ledger_entry_account_page_idx"
+        }
+      ],
+      "checks": [
+        "side IN ('DEBIT','CREDIT')",
+        "amount_minor > 0",
+        "entry_no >= 1"
+      ]
+    },
+    {
+      "name": "ledger_bet_reservations",
+      "columns": [
+        {
+          "name": "bet_reservation_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "bet_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "wallet_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "stake_minor",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "currency",
+          "type": "character(3)",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "reservation_transaction_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "settlement_transaction_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "settlement_seq",
+          "type": "bigint",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "bet_id"
+          ],
+          "name": "ledger_reservation_bet_uq",
+          "unique": true
+        }
+      ],
+      "checks": [
+        "stake_minor > 0",
+        "version >= 1",
+        "status IN ('RESERVED','WON','LOST','CANCELED')"
+      ]
+    },
+    {
+      "name": "ledger_withdrawals",
+      "columns": [
+        {
+          "name": "withdrawal_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "wallet_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "amount_minor",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "currency",
+          "type": "character(3)",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "provider_ref",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "hold_transaction_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "completion_transaction_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "reason_code",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "request_id"
+          ],
+          "name": "ledger_withdrawal_request_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "provider_ref"
+          ],
+          "name": "ledger_withdrawal_provider_uq",
+          "unique": true,
+          "where": "provider_ref IS NOT NULL"
+        },
+        {
+          "columns": [
+            "operator_id",
+            "status",
+            "created_at"
+          ],
+          "name": "ledger_withdrawal_pending_idx"
+        }
+      ],
+      "checks": [
+        "amount_minor > 0",
+        "status IN ('HELD','COMPLETED','REJECTED')",
+        "provider_ref IS NULL OR (char_length(provider_ref) <= 128 AND provider_ref ~ '^[A-Za-z0-9][A-Za-z0-9._-]*:[A-Za-z0-9._:-]+$')"
+      ]
+    },
+    {
+      "name": "ledger_idempotency_records",
+      "columns": [
+        {
+          "name": "idempotency_record_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "operation",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actor_kind",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "semantic_input",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "stable_child_ids",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "response_snapshot",
+          "type": "jsonb",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "request_id"
+          ],
+          "name": "ledger_idempotency_request_uq",
+          "unique": true
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "ledger_reconciliation_runs",
+      "columns": [
+        {
+          "name": "ledger_reconciliation_run_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "run_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "checked_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "invariant_counts",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "details_ref",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "checked_at"
+          ],
+          "name": "ledger_reconciliation_time_idx"
+        }
+      ],
+      "checks": [
+        "status IN ('PASS','FAIL')"
+      ]
+    }
+  ]
+}

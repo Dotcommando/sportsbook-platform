@@ -1,0 +1,44 @@
+{
+  "name": "sportsbook-platform",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=24 <27",
+    "pnpm": "12.11.2"
+  },
+  "scripts": {
+    "build": "nx run-many -t build",
+    "typecheck": "nx run-many -t typecheck",
+    "test": "nx run-many -t test",
+    "lint": "eslint . && pnpm architecture",
+    "format": "eslint . --fix",
+    "architecture": "tsx tools/architecture/check.ts",
+    "graph": "nx graph --file=.tmp/dependency-graph.json",
+    "affected": "nx affected -t build,typecheck,test,lint",
+    "dev": "nx run",
+    "verify": "pnpm build && pnpm typecheck && pnpm test && pnpm lint && pnpm graph",
+    "contracts:generate": "node tools/contracts/generate.mjs",
+    "contracts:breaking": "node tools/contracts/breaking.mjs",
+    "test:postgres": "pnpm --filter @sportsbook/migrations test-postgres"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@stylistic/eslint-plugin": "5.10.0",
+    "@typescript-eslint/eslint-plugin": "8.71.2",
+    "@typescript-eslint/parser": "8.71.2",
+    "@types/node": "24.10.1",
+    "eslint": "9.39.5",
+    "eslint-plugin-simple-import-sort": "12.1.1",
+    "globals": "16.5.0",
+    "nx": "23.3.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "@nestjs/testing": "11.2.7",
+    "@bufbuild/buf": "1.73.0",
+    "ts-proto": "2.15.3",
+    "prisma": "7.10.0",
+    "@types/pg": "8.23.1"
+  }
+}

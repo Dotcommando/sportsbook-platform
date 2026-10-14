@@ -1,0 +1,24 @@
+version: v2
+inputs:
+  - directory: packages/contracts
+    paths:
+      - packages/contracts/proto/sportsbook/tooling
+plugins:
+  - local: [node, node_modules/ts-proto/protoc-gen-ts_proto]
+    out: packages/contract-spike-client/src/generated
+    opt:
+      - forceLong=bigint
+      - outputServices=grpc-js
+      - esModuleInterop=true
+      - importSuffix=.js
+      - useExactTypes=true
+      - unrecognizedEnum=true
+      - useOptionals=messages
+  - local: [node, node_modules/ts-proto/protoc-gen-ts_proto]
+    out: tools/contract-spike/generated
+    opt:
+      - nestJs=true
+      - addGrpcMetadata=true
+      - forceLong=bigint
+      - importSuffix=.js
+      - useExactTypes=true

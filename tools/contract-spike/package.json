@@ -1,0 +1,24 @@
+{
+  "name": "@sportsbook/contract-spike",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@sportsbook/contract-spike-client": "workspace:*",
+    "@grpc/grpc-js": "1.14.6",
+    "@nestjs/common": "11.2.7",
+    "@nestjs/microservices": "11.2.7",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "lint": "eslint test"
+  },
+  "nx": {
+    "name": "contract-spike",
+    "tags": ["scope:tooling", "type:tool"]
+  }
+}

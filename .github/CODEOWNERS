@@ -1,0 +1,5 @@
+# Contract changes require review by the repository owner.
+/packages/contracts/ @Dotcommando
+/packages/*-client/ @Dotcommando
+/tools/contracts/ @Dotcommando
+/docs/arch/protobuf-tooling.md @Dotcommando

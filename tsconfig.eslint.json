@@ -28,7 +28,7 @@
     "plans/**",
     "experiments/results/**",
     "artifacts/**",
-    ".tmp/**",
+    "**/.tmp/**",
     ".temp/**",
     "data/**"
   ]

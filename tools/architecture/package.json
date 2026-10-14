@@ -1,0 +1,16 @@
+{
+  "name": "@sportsbook/architecture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "lint": "eslint ."
+  },
+  "nx": {
+    "name": "architecture",
+    "tags": ["scope:tooling", "type:tool"]
+  }
+}

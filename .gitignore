@@ -1,4 +1,6 @@
 # compiled output
+/.nx/
+apps/*/src/adapters/outbound/persistence/generated/
 /dist
 /node_modules
 /build

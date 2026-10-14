@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package sportsbook.tooling.v1;
+
+// Offline test fixture; never registered by a platform service.
+service ProbeService {
+  rpc Exchange(ExchangeRequest) returns (ExchangeResponse);
+}
+
+enum ProbeStatus {
+  PROBE_STATUS_UNSPECIFIED = 0;
+  PROBE_STATUS_ACCEPTED = 1;
+}
+
+message ExchangeRequest {
+  int64 amount_minor = 1;
+  uint64 version = 2;
+  string currency = 3;
+  optional string reference = 4;
+  ProbeStatus status = 5;
+}
+
+message ExchangeResponse {
+  int64 amount_minor = 1;
+  uint64 version = 2;
+  ProbeStatus status = 3;
+}

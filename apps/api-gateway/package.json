@@ -1,0 +1,32 @@
+{
+  "name": "@sportsbook/api-gateway",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@nestjs/common": "11.2.7",
+    "@nestjs/core": "11.2.7",
+    "@sportsbook/observability": "workspace:*",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@sportsbook/ledger-client": "workspace:*",
+    "@sportsbook/testing": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "lint": "eslint .",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js"
+  },
+  "nx": {
+    "name": "api-gateway",
+    "tags": [
+      "scope:api-gateway",
+      "type:service"
+    ]
+  }
+}

@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/adapters/outbound/persistence/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  relationMode = "prisma"
+}
+
+model LedgerOutboxEvents {
+  ledgerOutboxEventId String @id @map("ledger_outbox_event_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  messageId String @map("message_id") @db.Uuid
+  eventType String @map("event_type")
+  subjectId String @map("subject_id") @db.Uuid
+  payload Json @map("payload")
+  occurredAt DateTime @map("occurred_at") @db.Timestamptz(6)
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+  attemptCount Int @map("attempt_count")
+  nextAttemptAt DateTime @map("next_attempt_at") @db.Timestamptz(6)
+  leaseId String? @map("lease_id") @db.Uuid
+  leaseUntil DateTime? @map("lease_until") @db.Timestamptz(6)
+  @@map("ledger_outbox_events")
+}
+
+model LedgerInboxEvents {
+  ledgerInboxEventId String @id @map("ledger_inbox_event_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  source String @map("source")
+  messageId String @map("message_id") @db.Uuid
+  payloadHash String @map("payload_hash")
+  receivedAt DateTime @map("received_at") @db.Timestamptz(6)
+  processedAt DateTime? @map("processed_at") @db.Timestamptz(6)
+  status String @map("status")
+  @@map("ledger_inbox_events")
+}
+
+model Wallets {
+  walletId String @id @map("wallet_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  playerId String @map("player_id") @db.Uuid
+  currency String @map("currency") @db.Char(3)
+  status String @map("status")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("wallets")
+}
+
+model LedgerAccounts {
+  accountId String @id @map("account_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  walletId String? @map("wallet_id") @db.Uuid
+  currency String @map("currency") @db.Char(3)
+  accountKind String @map("account_kind")
+  normalSide String @map("normal_side")
+  status String @map("status")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  @@map("ledger_accounts")
+}
+
+model LedgerAccountBalances {
+  accountId String @id @map("account_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  balanceMinor BigInt @map("balance_minor")
+  version BigInt @map("version")
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("ledger_account_balances")
+}
+
+model LedgerTransactions {
+  ledgerTransactionId String @id @map("ledger_transaction_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  transactionType String @map("transaction_type")
+  businessRef String @map("business_ref")
+  currency String @map("currency") @db.Char(3)
+  status String @map("status")
+  postedAt DateTime? @map("posted_at") @db.Timestamptz(6)
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  correlationId String @map("correlation_id") @db.Uuid
+  @@map("ledger_transactions")
+}
+
+model LedgerEntries {
+  ledgerEntryId String @id @map("ledger_entry_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  ledgerTransactionId String @map("ledger_transaction_id") @db.Uuid
+  accountId String @map("account_id") @db.Uuid
+  currency String @map("currency") @db.Char(3)
+  side String @map("side")
+  amountMinor BigInt @map("amount_minor")
+  postedAt DateTime @map("posted_at") @db.Timestamptz(6)
+  entryNo Int @map("entry_no")
+  @@map("ledger_entries")
+}
+
+model LedgerBetReservations {
+  betReservationId String @id @map("bet_reservation_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  betId String @map("bet_id") @db.Uuid
+  walletId String @map("wallet_id") @db.Uuid
+  stakeMinor BigInt @map("stake_minor")
+  currency String @map("currency") @db.Char(3)
+  status String @map("status")
+  reservationTransactionId String @map("reservation_transaction_id") @db.Uuid
+  settlementTransactionId String? @map("settlement_transaction_id") @db.Uuid
+  settlementSeq BigInt? @map("settlement_seq")
+  version BigInt @map("version")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("ledger_bet_reservations")
+}
+
+model LedgerWithdrawals {
+  withdrawalId String @id @map("withdrawal_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  walletId String @map("wallet_id") @db.Uuid
+  amountMinor BigInt @map("amount_minor")
+  currency String @map("currency") @db.Char(3)
+  status String @map("status")
+  providerRef String? @map("provider_ref")
+  holdTransactionId String @map("hold_transaction_id") @db.Uuid
+  completionTransactionId String? @map("completion_transaction_id") @db.Uuid
+  reasonCode String? @map("reason_code")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  resolvedAt DateTime? @map("resolved_at") @db.Timestamptz(6)
+  @@map("ledger_withdrawals")
+}
+
+model LedgerIdempotencyRecords {
+  idempotencyRecordId String @id @map("idempotency_record_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  operation String @map("operation")
+  payloadHash String @map("payload_hash")
+  actorId String @map("actor_id") @db.Uuid
+  actorKind String @map("actor_kind")
+  playerId String? @map("player_id") @db.Uuid
+  semanticInput Json @map("semantic_input")
+  stableChildIds Json @map("stable_child_ids")
+  responseSnapshot Json? @map("response_snapshot")
+  state String @map("state")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("ledger_idempotency_records")
+}
+
+model LedgerReconciliationRuns {
+  ledgerReconciliationRunId String @id @map("ledger_reconciliation_run_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  runId String @map("run_id") @db.Uuid
+  status String @map("status")
+  checkedAt DateTime @map("checked_at") @db.Timestamptz(6)
+  invariantCounts Json @map("invariant_counts")
+  detailsRef String? @map("details_ref")
+  @@map("ledger_reconciliation_runs")
+}

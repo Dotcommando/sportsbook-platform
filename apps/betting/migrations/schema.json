@@ -1,0 +1,896 @@
+{
+  "service": "betting",
+  "tables": [
+    {
+      "name": "bet_outbox_events",
+      "columns": [
+        {
+          "name": "bet_outbox_event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "message_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_type",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "subject_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "attempt_count",
+          "type": "integer",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "next_attempt_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "lease_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "message_id"
+          ],
+          "name": "bet_outbox_message_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "next_attempt_at",
+            "bet_outbox_event_id"
+          ],
+          "name": "bet_outbox_pending_idx",
+          "where": "published_at IS NULL"
+        }
+      ],
+      "checks": [
+        "attempt_count >= 0"
+      ]
+    },
+    {
+      "name": "bet_inbox_events",
+      "columns": [
+        {
+          "name": "bet_inbox_event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "message_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "received_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "processed_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "source",
+            "message_id"
+          ],
+          "name": "bet_inbox_message_uq",
+          "unique": true
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "bets",
+      "columns": [
+        {
+          "name": "bet_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "client_request_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "bet_type",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "stake_minor",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "currency",
+          "type": "character(3)",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "combined_odds",
+          "type": "numeric(18,8)",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "potential_payout_minor",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actual_payout_minor",
+          "type": "bigint",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "reservation_ref",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "rejection_code",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "source_channel",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "accepted_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "settled_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "client_request_id"
+          ],
+          "name": "bet_request_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "player_id",
+            "created_at",
+            "bet_id"
+          ],
+          "name": "bet_owner_page_idx"
+        },
+        {
+          "columns": [
+            "operator_id",
+            "status",
+            "created_at"
+          ],
+          "name": "bet_pending_idx"
+        }
+      ],
+      "checks": [
+        "stake_minor > 0",
+        "potential_payout_minor >= 0",
+        "actual_payout_minor IS NULL OR actual_payout_minor >= 0",
+        "version >= 1",
+        "bet_type IN ('SINGLE','MULTI')",
+        "status IN ('PENDING_RESERVATION','ACCEPTED','REJECTED','SETTLEMENT_PENDING','WON','LOST','VOID','CANCELED')",
+        "combined_odds IS NULL OR (combined_odds > 1 AND combined_odds <= 1000)"
+      ]
+    },
+    {
+      "name": "bet_legs",
+      "columns": [
+        {
+          "name": "bet_leg_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "bet_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "leg_no",
+          "type": "smallint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "market_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "selection_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "quote_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "quote_version",
+          "type": "bigint",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "accepted_odds",
+          "type": "numeric(18,8)",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "selection_snapshot",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "result_ref",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "bet_id",
+            "leg_no"
+          ],
+          "name": "bet_leg_number_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "event_id",
+            "status"
+          ],
+          "name": "bet_leg_event_idx"
+        },
+        {
+          "columns": [
+            "operator_id",
+            "bet_id"
+          ],
+          "name": "bet_leg_owner_idx"
+        }
+      ],
+      "checks": [
+        "leg_no >= 1",
+        "quote_version IS NULL OR quote_version >= 1",
+        "accepted_odds IS NULL OR (accepted_odds > 1 AND accepted_odds <= 1000)",
+        "status IN ('PENDING','WON','LOST','VOID')"
+      ]
+    },
+    {
+      "name": "bet_settlements",
+      "columns": [
+        {
+          "name": "bet_settlement_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "bet_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "result_ref",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "settlement_seq",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "decision",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payout_minor",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "ledger_command_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "attempt_count",
+          "type": "integer",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "applied_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "bet_id",
+            "settlement_seq"
+          ],
+          "name": "bet_settlement_sequence_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "ledger_command_id"
+          ],
+          "name": "bet_settlement_command_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "status",
+            "created_at"
+          ],
+          "name": "bet_settlement_pending_idx"
+        }
+      ],
+      "checks": [
+        "settlement_seq >= 1",
+        "payout_minor >= 0",
+        "attempt_count >= 0",
+        "decision IN ('WIN','LOSS','VOID')",
+        "status IN ('PENDING','APPLIED')"
+      ]
+    },
+    {
+      "name": "bet_state_changes",
+      "columns": [
+        {
+          "name": "bet_state_change_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "bet_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "from_status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "to_status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "reason_code",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "actor_type",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "correlation_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "bet_id",
+            "occurred_at"
+          ],
+          "name": "bet_state_history_idx"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "bet_commands",
+      "columns": [
+        {
+          "name": "bet_command_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "operation",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actor_kind",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "semantic_input",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "stable_child_ids",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "response_snapshot",
+          "type": "jsonb",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "bet_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "request_id"
+          ],
+          "name": "bet_command_request_uq",
+          "unique": true
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "bet_event_results",
+      "columns": [
+        {
+          "name": "bet_event_result_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "result_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "result_seq",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "snapshot",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "event_id",
+            "result_seq"
+          ],
+          "name": "bet_event_result_sequence_uq",
+          "unique": true
+        }
+      ],
+      "checks": [
+        "result_seq >= 1"
+      ]
+    },
+    {
+      "name": "bet_settlement_sweeps",
+      "columns": [
+        {
+          "name": "bet_settlement_sweep_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "result_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "cursor",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "lease_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "result_id"
+          ],
+          "name": "bet_sweep_result_uq",
+          "unique": true
+        }
+      ],
+      "checks": [
+        "version >= 1",
+        "state IN ('PENDING','COMPLETE')"
+      ]
+    }
+  ]
+}

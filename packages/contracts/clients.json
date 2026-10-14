@@ -1,0 +1,7 @@
+{
+  "ledger": "ledger-client",
+  "player": "player-client",
+  "events": "events-client",
+  "betting": "betting-client",
+  "tooling": "contract-spike-client"
+}

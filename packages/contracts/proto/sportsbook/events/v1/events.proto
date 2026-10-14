@@ -1,0 +1,522 @@
+syntax = "proto3";
+
+package sportsbook.events.v1;
+
+// Private service API. Validate required fields, scope and enum values at adapter boundaries.
+// UUIDs are canonical strings; instants are offset-qualified UTC strings; dates remain dates.
+// int64 money/version values decode as bigint and encode as decimal strings in JSON.
+service EventsService {
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse);
+  rpc GetMarkets(GetMarketsRequest) returns (GetMarketsResponse);
+  rpc ValidateSelectionQuote(ValidateSelectionQuoteRequest) returns (ValidateSelectionQuoteResponse);
+  rpc GetEventResult(GetEventResultRequest) returns (GetEventResultResponse);
+  rpc AdvanceMatchPhase(AdvanceMatchPhaseRequest) returns (AdvanceMatchPhaseResponse);
+  rpc CompleteEvent(CompleteEventRequest) returns (CompleteEventResponse);
+}
+
+enum AdvanceMatchPhaseRequestNextPhase {
+  ADVANCE_MATCH_PHASE_REQUEST_NEXT_PHASE_UNSPECIFIED = 0;
+  ADVANCE_MATCH_PHASE_REQUEST_NEXT_PHASE_LIVE = 1;
+  ADVANCE_MATCH_PHASE_REQUEST_NEXT_PHASE_HALF_TIME = 2;
+  ADVANCE_MATCH_PHASE_REQUEST_NEXT_PHASE_SUSPENDED = 3;
+}
+
+enum BetStateChangedEventFinancialState {
+  BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_UNSPECIFIED = 0;
+  BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_UNCONFIRMED = 1;
+  BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_RESERVED = 2;
+  BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_SETTLED = 3;
+  BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_REFUNDED = 4;
+}
+
+enum BetStatus {
+  BET_STATUS_UNSPECIFIED = 0;
+  BET_STATUS_PENDING_RESERVATION = 1;
+  BET_STATUS_ACCEPTED = 2;
+  BET_STATUS_REJECTED = 3;
+  BET_STATUS_SETTLEMENT_PENDING = 4;
+  BET_STATUS_WON = 5;
+  BET_STATUS_LOST = 6;
+  BET_STATUS_VOID = 7;
+  BET_STATUS_CANCELED = 8;
+}
+
+enum CallContextActorKind {
+  CALL_CONTEXT_ACTOR_KIND_UNSPECIFIED = 0;
+  CALL_CONTEXT_ACTOR_KIND_PLAYER = 1;
+  CALL_CONTEXT_ACTOR_KIND_SERVICE = 2;
+  CALL_CONTEXT_ACTOR_KIND_SYSTEM = 3;
+}
+
+enum Capability {
+  CAPABILITY_UNSPECIFIED = 0;
+  CAPABILITY_REGISTER_PLAYER = 1;
+  CAPABILITY_PROFILE_READ = 2;
+  CAPABILITY_PROFILE_WRITE = 3;
+  CAPABILITY_CONTACT_WRITE = 4;
+  CAPABILITY_CONTACT_VERIFY = 5;
+  CAPABILITY_MANAGE_PLAYER = 6;
+  CAPABILITY_MANAGE_KYC = 7;
+  CAPABILITY_DECIDE_KYC = 8;
+  CAPABILITY_KYC_STATUS = 9;
+  CAPABILITY_MANAGE_RESTRICTIONS = 10;
+  CAPABILITY_RESTRICTION_READ = 11;
+  CAPABILITY_EVALUATE_ELIGIBILITY = 12;
+  CAPABILITY_EVENT_READ = 13;
+  CAPABILITY_EVENT_RESULT_READ = 14;
+  CAPABILITY_QUOTE_VALIDATE = 15;
+  CAPABILITY_MATCH_CONTROL = 16;
+  CAPABILITY_PLACE_BET = 17;
+  CAPABILITY_BET_READ = 18;
+  CAPABILITY_CANCEL_BET = 19;
+  CAPABILITY_SETTLE_BET = 20;
+  CAPABILITY_RECOVER_BETS = 21;
+  CAPABILITY_RECONCILE_BETS = 22;
+  CAPABILITY_CREATE_WALLET = 23;
+  CAPABILITY_READ_WALLET = 24;
+  CAPABILITY_READ_JOURNAL = 25;
+  CAPABILITY_FUND_SYNTHETIC = 26;
+  CAPABILITY_WITHDRAW = 27;
+  CAPABILITY_PAYMENT_SIMULATOR = 28;
+  CAPABILITY_RESERVE_STAKE = 29;
+  CAPABILITY_CANCEL_RESERVATION = 30;
+  CAPABILITY_RECONCILE_LEDGER = 31;
+  CAPABILITY_PUBLISH_EVENTS = 32;
+  CAPABILITY_SYNTHETIC_KYC = 33;
+  CAPABILITY_READ_PLAYER_REFERENCE = 34;
+  CAPABILITY_DIAGNOSTICS = 35;
+}
+
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  ERROR_CODE_INVALID_INPUT = 1;
+  ERROR_CODE_AMOUNT_OUT_OF_RANGE = 2;
+  ERROR_CODE_CURRENCY_MISMATCH = 3;
+  ERROR_CODE_UNAUTHENTICATED = 4;
+  ERROR_CODE_PERMISSION_DENIED = 5;
+  ERROR_CODE_NOT_FOUND = 6;
+  ERROR_CODE_IDEMPOTENCY_CONFLICT = 7;
+  ERROR_CODE_VERSION_CONFLICT = 8;
+  ERROR_CODE_INSUFFICIENT_FUNDS = 9;
+  ERROR_CODE_INELIGIBLE = 10;
+  ERROR_CODE_STALE_QUOTE = 11;
+  ERROR_CODE_MARKET_CLOSED = 12;
+  ERROR_CODE_INVALID_STATE = 13;
+  ERROR_CODE_IN_PROGRESS = 14;
+  ERROR_CODE_OVERLOADED = 15;
+  ERROR_CODE_DEADLINE_EXCEEDED = 16;
+  ERROR_CODE_DEPENDENCY_UNAVAILABLE = 17;
+  ERROR_CODE_ADAPTER_CONTRACT_VIOLATION = 18;
+  ERROR_CODE_INVARIANT_VIOLATION = 19;
+}
+
+enum EventEnvelopeSource {
+  EVENT_ENVELOPE_SOURCE_UNSPECIFIED = 0;
+  EVENT_ENVELOPE_SOURCE_EVENTS = 1;
+  EVENT_ENVELOPE_SOURCE_PLAYER = 2;
+  EVENT_ENVELOPE_SOURCE_BETTING = 3;
+  EVENT_ENVELOPE_SOURCE_LEDGER = 4;
+}
+
+enum EventPhase {
+  EVENT_PHASE_UNSPECIFIED = 0;
+  EVENT_PHASE_PRE_MATCH = 1;
+  EVENT_PHASE_LIVE = 2;
+  EVENT_PHASE_HALF_TIME = 3;
+  EVENT_PHASE_SUSPENDED = 4;
+  EVENT_PHASE_FINISHED = 5;
+}
+
+enum EventResultOutcome {
+  EVENT_RESULT_OUTCOME_UNSPECIFIED = 0;
+  EVENT_RESULT_OUTCOME_HOME = 1;
+  EVENT_RESULT_OUTCOME_DRAW = 2;
+  EVENT_RESULT_OUTCOME_AWAY = 3;
+  EVENT_RESULT_OUTCOME_VOID = 4;
+}
+
+enum EventsCompleteEventOutputDelivery {
+  EVENTS_COMPLETE_EVENT_OUTPUT_DELIVERY_UNSPECIFIED = 0;
+  EVENTS_COMPLETE_EVENT_OUTPUT_DELIVERY_PENDING = 1;
+  EVENTS_COMPLETE_EVENT_OUTPUT_DELIVERY_ACKNOWLEDGED = 2;
+}
+
+enum EventSport {
+  EVENT_SPORT_UNSPECIFIED = 0;
+  EVENT_SPORT_FOOTBALL = 1;
+}
+
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED = 0;
+  EVENT_TYPE_PLAYER_REGISTERED = 1;
+  EVENT_TYPE_PLAYER_PROFILE_CHANGED = 2;
+  EVENT_TYPE_PLAYER_ELIGIBILITY_CHANGED = 3;
+  EVENT_TYPE_MATCH_PHASE_CHANGED = 4;
+  EVENT_TYPE_EVENT_RESULT = 5;
+  EVENT_TYPE_BET_STATE_CHANGED = 6;
+  EVENT_TYPE_LEDGER_POSTED = 7;
+  EVENT_TYPE_WITHDRAWAL_RESOLVED = 8;
+  EVENT_TYPE_WALLET_CREATED = 9;
+}
+
+enum ListEventsRequestPhase {
+  LIST_EVENTS_REQUEST_PHASE_UNSPECIFIED = 0;
+  LIST_EVENTS_REQUEST_PHASE_PRE_MATCH = 1;
+  LIST_EVENTS_REQUEST_PHASE_LIVE = 2;
+  LIST_EVENTS_REQUEST_PHASE_HALF_TIME = 3;
+  LIST_EVENTS_REQUEST_PHASE_SUSPENDED = 4;
+  LIST_EVENTS_REQUEST_PHASE_FINISHED = 5;
+}
+
+enum MarketState {
+  MARKET_STATE_UNSPECIFIED = 0;
+  MARKET_STATE_OPEN = 1;
+  MARKET_STATE_SUSPENDED = 2;
+  MARKET_STATE_CLOSED = 3;
+}
+
+enum MarketType {
+  MARKET_TYPE_UNSPECIFIED = 0;
+  MARKET_TYPE_MATCH_RESULT = 1;
+}
+
+enum PlayerCapability {
+  PLAYER_CAPABILITY_UNSPECIFIED = 0;
+  PLAYER_CAPABILITY_PLACE_BET = 1;
+  PLAYER_CAPABILITY_DEPOSIT = 2;
+  PLAYER_CAPABILITY_WITHDRAW = 3;
+}
+
+enum ProfileField {
+  PROFILE_FIELD_UNSPECIFIED = 0;
+  PROFILE_FIELD_FIRST_NAME = 1;
+  PROFILE_FIELD_LAST_NAME = 2;
+  PROFILE_FIELD_BIRTH_DATE = 3;
+  PROFILE_FIELD_RESIDENCE_COUNTRY = 4;
+  PROFILE_FIELD_NATIONALITY_COUNTRY = 5;
+  PROFILE_FIELD_LOCALE = 6;
+  PROFILE_FIELD_TIME_ZONE = 7;
+}
+
+enum QuoteSelection {
+  QUOTE_SELECTION_UNSPECIFIED = 0;
+  QUOTE_SELECTION_HOME = 1;
+  QUOTE_SELECTION_DRAW = 2;
+  QUOTE_SELECTION_AWAY = 3;
+}
+
+enum QuoteState {
+  QUOTE_STATE_UNSPECIFIED = 0;
+  QUOTE_STATE_OPEN = 1;
+  QUOTE_STATE_SUSPENDED = 2;
+  QUOTE_STATE_CLOSED = 3;
+}
+
+enum TransactionType {
+  TRANSACTION_TYPE_UNSPECIFIED = 0;
+  TRANSACTION_TYPE_DEPOSIT = 1;
+  TRANSACTION_TYPE_RESERVE_STAKE = 2;
+  TRANSACTION_TYPE_SETTLE_WIN = 3;
+  TRANSACTION_TYPE_SETTLE_LOSS = 4;
+  TRANSACTION_TYPE_CANCEL_RESERVATION = 5;
+  TRANSACTION_TYPE_WITHDRAWAL_HOLD = 6;
+  TRANSACTION_TYPE_WITHDRAWAL_COMPLETE = 7;
+  TRANSACTION_TYPE_WITHDRAWAL_REJECT = 8;
+}
+
+enum WithdrawalResolvedEventState {
+  WITHDRAWAL_RESOLVED_EVENT_STATE_UNSPECIFIED = 0;
+  WITHDRAWAL_RESOLVED_EVENT_STATE_COMPLETED = 1;
+  WITHDRAWAL_RESOLVED_EVENT_STATE_REJECTED = 2;
+}
+
+message EventEnvelope {
+  optional string message_id = 1;
+  optional EventEnvelopeSource source = 2;
+  optional EventType event_type = 3;
+  optional int32 schema_version = 4;
+  optional string operator_id = 5;
+  optional string correlation_id = 6;
+  optional string occurred_at = 7;
+  EventPayload payload = 8;
+}
+
+message EventPayload {
+  oneof payload {
+    PlayerRegisteredEvent player_registered_event = 1;
+    PlayerProfileChangedEvent player_profile_changed_event = 2;
+    PlayerEligibilityChangedEvent player_eligibility_changed_event = 3;
+    MatchPhaseChangedEvent match_phase_changed_event = 4;
+    EventResult event_result = 5;
+    BetStateChangedEvent bet_state_changed_event = 6;
+    LedgerPostedEvent ledger_posted_event = 7;
+    WithdrawalResolvedEvent withdrawal_resolved_event = 8;
+    WalletCreatedEvent wallet_created_event = 9;
+  }
+}
+
+message PlayerRegisteredEvent {
+  optional string player_id = 1;
+  optional string registered_at = 2;
+}
+
+message PlayerProfileChangedEvent {
+  optional string player_id = 1;
+  optional int64 version = 2;
+  repeated ProfileField changed_fields = 3;
+}
+
+message PlayerEligibilityChangedEvent {
+  optional string player_id = 1;
+  optional PlayerCapability capability = 2;
+  optional int64 player_version = 3;
+  optional string policy_version = 4;
+  optional string evaluated_at = 5;
+}
+
+message MatchPhaseChangedEvent {
+  optional string event_id = 1;
+  optional string run_id = 2;
+  optional EventPhase phase = 3;
+  optional int64 phase_seq = 4;
+  optional string simulated_at = 5;
+}
+
+message EventResult {
+  optional string result_id = 1;
+  optional string event_id = 2;
+  optional string run_id = 3;
+  optional int64 result_seq = 4;
+  optional int32 home_goals = 5;
+  optional int32 away_goals = 6;
+  optional EventResultOutcome outcome = 7;
+  optional string occurred_at = 8;
+}
+
+message BetStateChangedEvent {
+  optional string bet_id = 1;
+  optional string player_id = 2;
+  optional BetStatus status = 3;
+  optional int64 version = 4;
+  optional BetStateChangedEventFinancialState financial_state = 5;
+}
+
+message LedgerPostedEvent {
+  optional string transaction_id = 1;
+  optional string request_id = 2;
+  optional string business_ref = 3;
+  optional TransactionType transaction_type = 4;
+  optional string currency = 5;
+  optional int64 amount_minor = 6;
+}
+
+message WithdrawalResolvedEvent {
+  optional string withdrawal_id = 1;
+  optional string wallet_id = 2;
+  optional WithdrawalResolvedEventState state = 3;
+  optional string resolution_transaction_id = 4;
+}
+
+message WalletCreatedEvent {
+  optional string wallet_id = 1;
+  optional string player_id = 2;
+  optional string currency = 3;
+}
+
+message ListEventsRequest {
+  CallContext context = 1;
+  PageInput page = 2;
+  optional ListEventsRequestPhase phase = 3;
+}
+
+message CallContext {
+  optional string operator_id = 1;
+  optional string actor_id = 2;
+  optional CallContextActorKind actor_kind = 3;
+  optional string player_id = 4;
+  repeated Capability capabilities = 5;
+  optional string correlation_id = 6;
+  optional string deadline_at = 7;
+}
+
+message PageInput {
+  optional int32 limit = 1;
+  optional string cursor = 2;
+  optional string from = 3;
+  optional string to = 4;
+}
+
+message EventsListEventsOutput {
+  repeated Event events = 1;
+  optional string next_cursor = 2;
+  optional string observed_at = 3;
+}
+
+message Event {
+  optional string event_id = 1;
+  optional string run_id = 2;
+  optional EventSport sport = 3;
+  optional string home_team = 4;
+  optional string away_team = 5;
+  optional string starts_at = 6;
+  optional EventPhase phase = 7;
+  optional int64 phase_seq = 8;
+  optional string simulated_at = 9;
+  optional string result_ref = 10;
+}
+
+message Error {
+  optional ErrorCode code = 1;
+  optional string message = 2;
+  optional string correlation_id = 3;
+  repeated ErrorFields fields = 4;
+  optional bool retryable = 5;
+  optional bool outcome_unknown = 6;
+  optional int32 retry_after_ms = 7;
+}
+
+message ErrorFields {
+  optional string path = 1;
+  optional string code = 2;
+}
+
+message GetEventRequest {
+  CallContext context = 1;
+  optional string event_id = 2;
+}
+
+message EventsGetEventOutput {
+  Event event = 1;
+}
+
+message GetMarketsRequest {
+  CallContext context = 1;
+  optional string event_id = 2;
+}
+
+message EventsGetMarketsOutput {
+  repeated Market markets = 1;
+  optional string observed_at = 2;
+}
+
+message Market {
+  optional string market_id = 1;
+  optional string event_id = 2;
+  optional MarketType type = 3;
+  optional MarketState state = 4;
+  repeated Quote selections = 5;
+}
+
+message Quote {
+  optional string quote_id = 1;
+  optional int64 quote_version = 2;
+  optional string event_id = 3;
+  optional string market_id = 4;
+  optional string selection_id = 5;
+  optional QuoteSelection selection = 6;
+  optional string odds = 7;
+  optional string valid_until = 8;
+  optional QuoteState state = 9;
+}
+
+message ValidateSelectionQuoteRequest {
+  CallContext context = 1;
+  optional string player_id = 2;
+  optional string event_id = 3;
+  optional string market_id = 4;
+  optional string selection_id = 5;
+  optional string quote_id = 6;
+  optional int64 quote_version = 7;
+}
+
+message EventsValidateSelectionQuoteOutput {
+  Quote accepted_quote = 1;
+  optional string evaluated_at = 2;
+}
+
+message GetEventResultRequest {
+  CallContext context = 1;
+  optional string event_id = 2;
+}
+
+message EventsGetEventResultOutput {
+  EventResult result = 1;
+  optional bool ready = 2;
+}
+
+message AdvanceMatchPhaseRequest {
+  CallContext context = 1;
+  optional string request_id = 2;
+  optional string event_id = 3;
+  optional int64 expected_phase_seq = 4;
+  optional AdvanceMatchPhaseRequestNextPhase next_phase = 5;
+  optional string simulated_at = 6;
+}
+
+message EventsAdvanceMatchPhaseOutput {
+  Event event = 1;
+}
+
+message CompleteEventRequest {
+  CallContext context = 1;
+  optional string request_id = 2;
+  optional string event_id = 3;
+  optional int64 expected_phase_seq = 4;
+  EventResult result = 5;
+}
+
+message EventsCompleteEventOutput {
+  Event event = 1;
+  EventResult result = 2;
+  optional EventsCompleteEventOutputDelivery delivery = 3;
+}
+
+message ListEventsResponse {
+  oneof outcome {
+    EventsListEventsOutput value = 1;
+    Error error = 2;
+  }
+}
+
+message GetEventResponse {
+  oneof outcome {
+    EventsGetEventOutput value = 1;
+    Error error = 2;
+  }
+}
+
+message GetMarketsResponse {
+  oneof outcome {
+    EventsGetMarketsOutput value = 1;
+    Error error = 2;
+  }
+}
+
+message ValidateSelectionQuoteResponse {
+  oneof outcome {
+    EventsValidateSelectionQuoteOutput value = 1;
+    Error error = 2;
+  }
+}
+
+message GetEventResultResponse {
+  oneof outcome {
+    EventsGetEventResultOutput value = 1;
+    Error error = 2;
+  }
+}
+
+message AdvanceMatchPhaseResponse {
+  oneof outcome {
+    EventsAdvanceMatchPhaseOutput value = 1;
+    Error error = 2;
+  }
+}
+
+message CompleteEventResponse {
+  oneof outcome {
+    EventsCompleteEventOutput value = 1;
+    Error error = 2;
+  }
+}

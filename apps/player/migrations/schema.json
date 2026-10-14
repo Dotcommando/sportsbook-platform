@@ -1,0 +1,843 @@
+{
+  "service": "player",
+  "tables": [
+    {
+      "name": "player_outbox_events",
+      "columns": [
+        {
+          "name": "player_outbox_event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "message_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "event_type",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "subject_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "attempt_count",
+          "type": "integer",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "next_attempt_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "lease_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "message_id"
+          ],
+          "name": "player_outbox_message_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "next_attempt_at",
+            "player_outbox_event_id"
+          ],
+          "name": "player_outbox_pending_idx",
+          "where": "published_at IS NULL"
+        }
+      ],
+      "checks": [
+        "attempt_count >= 0"
+      ]
+    },
+    {
+      "name": "player_inbox_events",
+      "columns": [
+        {
+          "name": "player_inbox_event_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "message_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "received_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "processed_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "source",
+            "message_id"
+          ],
+          "name": "player_inbox_message_uq",
+          "unique": true
+        }
+      ],
+      "checks": []
+    },
+    {
+      "name": "players",
+      "columns": [
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "external_ref",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "registered_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "activated_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "external_ref"
+          ],
+          "name": "player_external_reference_uq",
+          "unique": true,
+          "where": "external_ref IS NOT NULL"
+        },
+        {
+          "columns": [
+            "operator_id",
+            "status",
+            "created_at"
+          ],
+          "name": "player_status_idx"
+        }
+      ],
+      "checks": [
+        "version >= 1",
+        "status IN ('REGISTERED','ACTIVE','SUSPENDED','CLOSED')"
+      ]
+    },
+    {
+      "name": "player_profiles",
+      "columns": [
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "first_name_enc",
+          "type": "bytea",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "last_name_enc",
+          "type": "bytea",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "birth_date_enc",
+          "type": "bytea",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "residence_country",
+          "type": "character(2)",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "nationality_country",
+          "type": "character(2)",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "locale",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "time_zone",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "encryption_key_id",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [],
+      "checks": []
+    },
+    {
+      "name": "player_contacts",
+      "columns": [
+        {
+          "name": "player_contact_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "kind",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "value_enc",
+          "type": "bytea",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "value_hmac",
+          "type": "bytea",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "is_primary",
+          "type": "boolean",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "verified_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "player_id",
+            "kind",
+            "value_hmac"
+          ],
+          "name": "player_contact_value_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "player_id",
+            "kind"
+          ],
+          "name": "player_contact_primary_uq",
+          "unique": true,
+          "where": "is_primary"
+        }
+      ],
+      "checks": [
+        "kind IN ('EMAIL','PHONE')"
+      ]
+    },
+    {
+      "name": "player_kyc_cases",
+      "columns": [
+        {
+          "name": "kyc_case_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "required_level",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "policy_version",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "decision_code",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "opened_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "decided_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "valid_until",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "player_id",
+            "opened_at"
+          ],
+          "name": "player_kyc_case_owner_idx"
+        },
+        {
+          "columns": [
+            "operator_id",
+            "status",
+            "opened_at"
+          ],
+          "name": "player_kyc_case_pending_idx"
+        }
+      ],
+      "checks": [
+        "version >= 1",
+        "required_level IN ('BASIC','ENHANCED')",
+        "status IN ('OPEN','IN_REVIEW','APPROVED','REJECTED','EXPIRED')"
+      ]
+    },
+    {
+      "name": "player_kyc_checks",
+      "columns": [
+        {
+          "name": "kyc_check_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "kyc_case_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "check_type",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "attempt_no",
+          "type": "integer",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "provider",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "provider_check_ref",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "result_code",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "evidence_ref",
+          "type": "text",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "requested_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "completed_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "kyc_case_id",
+            "check_type",
+            "attempt_no"
+          ],
+          "name": "player_kyc_check_attempt_uq",
+          "unique": true
+        },
+        {
+          "columns": [
+            "operator_id",
+            "provider",
+            "provider_check_ref"
+          ],
+          "name": "player_kyc_check_provider_uq",
+          "unique": true,
+          "where": "provider_check_ref IS NOT NULL"
+        }
+      ],
+      "checks": [
+        "attempt_no >= 1",
+        "check_type IN ('IDENTITY','AGE','RESIDENCE')",
+        "status IN ('PENDING','PASSED','FAILED')"
+      ]
+    },
+    {
+      "name": "player_restrictions",
+      "columns": [
+        {
+          "name": "player_restriction_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "restriction_type",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "reason_code",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "starts_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "ends_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "cleared_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "player_id",
+            "status",
+            "starts_at"
+          ],
+          "name": "player_restriction_owner_idx"
+        },
+        {
+          "columns": [
+            "operator_id",
+            "restriction_type",
+            "status"
+          ],
+          "name": "player_restriction_kind_idx"
+        }
+      ],
+      "checks": [
+        "restriction_type IN ('BETTING_BLOCK','DEPOSIT_BLOCK','WITHDRAWAL_REVIEW')",
+        "status IN ('ACTIVE','CLEARED','EXPIRED')",
+        "ends_at IS NULL OR ends_at > starts_at"
+      ]
+    },
+    {
+      "name": "player_commands",
+      "columns": [
+        {
+          "name": "player_command_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "operation",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "payload_hash",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "actor_kind",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "player_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "semantic_input",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "stable_child_ids",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "response_snapshot",
+          "type": "jsonb",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "columns": [
+            "operator_id",
+            "request_id"
+          ],
+          "name": "player_command_request_uq",
+          "unique": true
+        }
+      ],
+      "checks": []
+    }
+  ]
+}

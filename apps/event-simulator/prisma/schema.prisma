@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/adapters/outbound/persistence/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  relationMode = "prisma"
+}
+
+model EventOutboxEvents {
+  eventOutboxEventId String @id @map("event_outbox_event_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  messageId String @map("message_id") @db.Uuid
+  eventType String @map("event_type")
+  subjectId String @map("subject_id") @db.Uuid
+  payload Json @map("payload")
+  occurredAt DateTime @map("occurred_at") @db.Timestamptz(6)
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+  attemptCount Int @map("attempt_count")
+  nextAttemptAt DateTime @map("next_attempt_at") @db.Timestamptz(6)
+  leaseId String? @map("lease_id") @db.Uuid
+  leaseUntil DateTime? @map("lease_until") @db.Timestamptz(6)
+  @@map("event_outbox_events")
+}
+
+model EventInboxEvents {
+  eventInboxEventId String @id @map("event_inbox_event_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  source String @map("source")
+  messageId String @map("message_id") @db.Uuid
+  payloadHash String @map("payload_hash")
+  receivedAt DateTime @map("received_at") @db.Timestamptz(6)
+  processedAt DateTime? @map("processed_at") @db.Timestamptz(6)
+  status String @map("status")
+  @@map("event_inbox_events")
+}
+
+model EventRuns {
+  runId String @id @map("run_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  seed BigInt @map("seed")
+  profileHash String @map("profile_hash")
+  simulatedAt DateTime @map("simulated_at") @db.Timestamptz(6)
+  clockSeq BigInt @map("clock_seq")
+  status String @map("status")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  @@map("event_runs")
+}
+
+model EventMatchStates {
+  eventStateId String @id @map("event_state_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  runId String @map("run_id") @db.Uuid
+  eventId String @map("event_id") @db.Uuid
+  phase String @map("phase")
+  phaseSeq BigInt @map("phase_seq")
+  snapshot Json @map("snapshot")
+  @@map("event_match_states")
+}
+
+model EventQuoteSnapshots {
+  quoteId String @id @map("quote_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  runId String @map("run_id") @db.Uuid
+  eventId String @map("event_id") @db.Uuid
+  marketId String @map("market_id") @db.Uuid
+  selectionId String @map("selection_id") @db.Uuid
+  quoteVersion BigInt @map("quote_version")
+  odds Decimal @map("odds") @db.Decimal(18, 8)
+  state String @map("state")
+  validUntil DateTime @map("valid_until") @db.Timestamptz(6)
+  @@map("event_quote_snapshots")
+}
+
+model EventResults {
+  resultId String @id @map("result_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  runId String @map("run_id") @db.Uuid
+  eventId String @map("event_id") @db.Uuid
+  resultSeq BigInt @map("result_seq")
+  payloadHash String @map("payload_hash")
+  snapshot Json @map("snapshot")
+  occurredAt DateTime @map("occurred_at") @db.Timestamptz(6)
+  @@map("event_results")
+}
+
+model EventCommands {
+  eventCommandId String @id @map("event_command_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  operation String @map("operation")
+  payloadHash String @map("payload_hash")
+  actorId String @map("actor_id") @db.Uuid
+  actorKind String @map("actor_kind")
+  playerId String? @map("player_id") @db.Uuid
+  semanticInput Json @map("semantic_input")
+  stableChildIds Json @map("stable_child_ids")
+  responseSnapshot Json? @map("response_snapshot")
+  state String @map("state")
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  @@map("event_commands")
+}

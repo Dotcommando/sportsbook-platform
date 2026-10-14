@@ -1,0 +1,35 @@
+{
+  "name": "@sportsbook/event-simulator",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@nestjs/common": "11.2.7",
+    "@nestjs/core": "11.2.7",
+    "@sportsbook/observability": "workspace:*",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "@sportsbook/persistence": "workspace:*",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0"
+  },
+  "devDependencies": {
+    "@sportsbook/testing": "workspace:*"
+  },
+  "scripts": {
+    "build": "prisma generate --schema prisma/schema.prisma && tsc -p tsconfig.build.json",
+    "typecheck": "prisma generate --schema prisma/schema.prisma && tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "lint": "eslint .",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js",
+    "generate-persistence": "prisma generate --schema prisma/schema.prisma"
+  },
+  "nx": {
+    "name": "event-simulator",
+    "tags": [
+      "scope:event-simulator",
+      "type:service"
+    ]
+  }
+}

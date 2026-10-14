@@ -1,0 +1,18 @@
+{
+  "name": "@sportsbook/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "buf build",
+    "typecheck": "buf lint && buf format --diff --exit-code",
+    "lint": "buf lint",
+    "test": "node --test test/*.test.mjs",
+    "generate": "node ../../tools/contracts/generate.mjs",
+    "check-generated": "node check-generated.mjs"
+  },
+  "nx": {
+    "name": "contracts",
+    "tags": ["scope:contracts", "type:contracts"]
+  }
+}

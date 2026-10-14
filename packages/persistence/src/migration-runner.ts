@@ -2,13 +2,66 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { loadModule, parseSync } from 'libpg-query';
 import type { Pool } from 'pg';
 import { parse } from 'pgsql-ast-parser';
 
 import type { IMigration } from './schema.types.js';
 
+await loadModule();
+
+function record(value: unknown): Record<string, unknown> {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid PostgreSQL syntax tree');
+
+  return Object.fromEntries(Object.entries(value));
+}
+
 export function validateMigrationSql(sql: string): void {
-  const statements = parse(sql);
+  const tree = record(parseSync(sql));
+
+  if (!Array.isArray(tree.stmts)) throw new Error('Invalid PostgreSQL statement inventory');
+
+  const statements = tree.stmts.flatMap((item: unknown) => {
+    const raw = record(item);
+    const statement = record(raw.stmt);
+    const start = typeof raw.stmt_location === 'number' ? raw.stmt_location : 0;
+    const length = typeof raw.stmt_len === 'number' && raw.stmt_len > 0 ? raw.stmt_len : sql.length - start;
+    const text = Buffer.from(sql).subarray(start, start + length).toString('utf8');
+
+    if (statement.CreateFunctionStmt) {
+      const definition = record(statement.CreateFunctionStmt);
+
+      if (!Array.isArray(definition.funcname) || definition.funcname.map((part: unknown) => record(record(part).String).sval).join('.') !== 'public.ledger_append_posting') throw new Error('Unregistered migration function');
+      if (!Array.isArray(definition.options)) throw new Error('Missing function options');
+
+      for (const option of definition.options) {
+        const element = record(record(option).DefElem);
+
+        if (element.defname !== 'as') continue;
+
+        const body = record(record(element.arg).List);
+
+        if (!Array.isArray(body.items)) throw new Error('Invalid function body');
+
+        for (const part of body.items) {
+          const source = record(record(part).String).sval;
+
+          if (typeof source !== 'string' || /\b(CREATE|ALTER|DROP|TRUNCATE|REFERENCES|FOREIGN|EXECUTE)\b/i.test(source)) throw new Error('DDL and dynamic SQL are forbidden inside posting functions');
+        }
+      }
+
+      return [];
+    }
+    if (statement.GrantStmt) {
+      const grant = record(statement.GrantStmt);
+
+      if (grant.is_grant === true || grant.objtype !== 'OBJECT_FUNCTION') throw new Error('Only function privilege revocation is allowed in migrations');
+
+      return [];
+    }
+
+    return parse(text);
+  });
   const visit = (value: unknown): void => {
     if (Array.isArray(value)) {
       value.forEach(visit);
@@ -18,12 +71,13 @@ export function validateMigrationSql(sql: string): void {
     if (value === null || typeof value !== 'object') return;
 
     for (const [key, item] of Object.entries(value)) {
-      if (key === 'type' && (item === 'foreign key' || item === 'reference')) throw new Error('Foreign-key constraints are forbidden');
+      if ((key === 'type' && (item === 'foreign key' || item === 'reference')) || (key === 'contype' && item === 'CONSTR_FOREIGN')) throw new Error('Foreign-key constraints are forbidden');
 
       visit(item);
     }
   };
 
+  visit(tree);
   visit(statements);
 
   for (const statement of statements) {

@@ -75,6 +75,12 @@
           "type": "timestamp with time zone",
           "nullable": true,
           "primary": false
+        },
+        {
+          "name": "failure_reason_code",
+          "type": "text",
+          "nullable": true,
+          "primary": false
         }
       ],
       "indexes": [
@@ -97,7 +103,8 @@
         }
       ],
       "checks": [
-        "attempt_count >= 0"
+        "attempt_count >= 0",
+        "failure_reason_code IS NULL OR failure_reason_code ~ '^[A-Z][A-Z0-9_]{0,63}$'"
       ]
     },
     {
@@ -311,7 +318,8 @@
       "checks": [
         "account_kind IN ('AVAILABLE','RESERVED','WITHDRAWAL_HOLD','CLEARING','REVENUE','EXPENSE')",
         "normal_side IN ('DEBIT','CREDIT')",
-        "status IN ('ACTIVE','CLOSED')"
+        "status IN ('ACTIVE','CLOSED')",
+        "(wallet_id IS NOT NULL AND account_kind IN ('AVAILABLE','RESERVED','WITHDRAWAL_HOLD') AND normal_side = 'CREDIT') OR (wallet_id IS NULL AND account_kind IN ('CLEARING','EXPENSE') AND normal_side = 'DEBIT') OR (wallet_id IS NULL AND account_kind = 'REVENUE' AND normal_side = 'CREDIT')"
       ]
     },
     {
@@ -434,6 +442,33 @@
             "ledger_transaction_id"
           ],
           "name": "ledger_transaction_business_idx"
+        },
+        {
+          "name": "ledger_deposit_provider_uq",
+          "columns": [
+            "operator_id",
+            "business_ref"
+          ],
+          "unique": true,
+          "where": "transaction_type = 'DEPOSIT'::text"
+        },
+        {
+          "name": "ledger_terminal_bet_uq",
+          "columns": [
+            "operator_id",
+            "business_ref"
+          ],
+          "unique": true,
+          "where": "transaction_type = ANY (ARRAY['SETTLE_WIN'::text, 'SETTLE_LOSS'::text, 'CANCEL_RESERVATION'::text])"
+        },
+        {
+          "name": "ledger_wallet_transaction_page_idx",
+          "columns": [
+            "operator_id",
+            "created_at",
+            "ledger_transaction_id"
+          ],
+          "unique": false
         }
       ],
       "checks": [
@@ -606,6 +641,12 @@
           "type": "timestamp with time zone",
           "nullable": false,
           "primary": false
+        },
+        {
+          "name": "gross_payout_minor",
+          "type": "bigint",
+          "nullable": true,
+          "primary": false
         }
       ],
       "indexes": [
@@ -621,7 +662,8 @@
       "checks": [
         "stake_minor > 0",
         "version >= 1",
-        "status IN ('RESERVED','WON','LOST','CANCELED')"
+        "status IN ('RESERVED','WON','LOST','CANCELED')",
+        "gross_payout_minor IS NULL OR gross_payout_minor >= 0"
       ]
     },
     {

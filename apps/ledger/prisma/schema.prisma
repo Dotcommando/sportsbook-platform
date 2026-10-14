@@ -21,6 +21,7 @@ model LedgerOutboxEvents {
   nextAttemptAt DateTime @map("next_attempt_at") @db.Timestamptz(6)
   leaseId String? @map("lease_id") @db.Uuid
   leaseUntil DateTime? @map("lease_until") @db.Timestamptz(6)
+  failureReasonCode String? @map("failure_reason_code")
   @@map("ledger_outbox_events")
 }
 
@@ -109,6 +110,7 @@ model LedgerBetReservations {
   version BigInt @map("version")
   createdAt DateTime @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  grossPayoutMinor BigInt? @map("gross_payout_minor")
   @@map("ledger_bet_reservations")
 }
 

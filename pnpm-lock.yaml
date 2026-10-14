@@ -322,12 +322,21 @@ importers:
       '@sportsbook/persistence':
         specifier: workspace:*
         version: link:../../packages/persistence
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
+      sequelize:
+        specifier: 6.37.8
+        version: 6.37.8(mysql2@3.15.3)(pg@8.23.1)(supports-color@7.2.0)
+      typeorm:
+        specifier: 0.3.31
+        version: 0.3.31(mysql2@3.15.3)(pg@8.23.1)(supports-color@7.2.0)
     devDependencies:
       '@sportsbook/testing':
         specifier: workspace:*
@@ -422,6 +431,9 @@ importers:
       '@prisma/client':
         specifier: 7.10.0
         version: 7.10.0(prisma@7.10.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(typescript@5.9.3)
+      libpg-query:
+        specifier: 17.7.4
+        version: 17.7.4
       pg:
         specifier: 8.23.1
         version: 8.23.1
@@ -954,6 +966,9 @@ packages:
     resolution: {integrity: sha512-ermx8Qy8qf0ZIEDiGPqIXxQ0OPEL8VVUOyvAsxDec8aft3pCFjX8LrFhlfnAfM6MBFs5Bnc9Xl9D8TMzFBgo9w==}
     cpu: [x64]
     os: [win32]
+
+  '@pgsql/types@17.6.2':
+    resolution: {integrity: sha512-1UtbELdbqNdyOShhrVfSz3a1gDi0s9XXiQemx+6QqtsrXe62a6zOGU+vjb2GRfG5jeEokI1zBBcfD42enRv0Rw==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -2024,6 +2039,9 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
+  libpg-query@17.7.4:
+    resolution: {integrity: sha512-hTV3LvacQgJhc6GHpu5GYZMQBOAEpJ/LF1JjkixZ8YLh2TtbuN8y0JlNiPTe8PBTV9ChFkKcZMWSYKyhJfkYaQ==}
+
   lines-and-columns@2.0.3:
     resolution: {integrity: sha512-cNOjgCnLB+FnvWWtyRTzmB3POJ+cXxTA81LoW7u8JdmhfXzriropYwpjShnz1QLLWsQwY7nIxoDmcPTwphDK9w==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -3059,6 +3077,8 @@ snapshots:
 
   '@nx/nx-win32-x64-msvc@23.3.0':
     optional: true
+
+  '@pgsql/types@17.6.2': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -4174,6 +4194,10 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  libpg-query@17.7.4:
+    dependencies:
+      '@pgsql/types': 17.6.2
 
   lines-and-columns@2.0.3: {}
 

@@ -26,6 +26,16 @@ test('valid local scalar references pass without constraints', () => {
   assert.doesNotThrow(() => validateMigrationSql('CREATE TABLE wallets (wallet_id uuid PRIMARY KEY, operator_id uuid NOT NULL, player_id uuid NOT NULL, amount_minor bigint NOT NULL, created_at timestamptz NOT NULL);'));
 });
 
+test('registered posting function supports privilege revocation without allowing DDL or dynamic SQL', () => {
+  const define = (body: string): string => `CREATE FUNCTION public.ledger_append_posting(h jsonb, lines jsonb) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,pg_temp AS $$ BEGIN ${body} END $$;`;
+
+  assert.doesNotThrow(() => validateMigrationSql(define('PERFORM 1;') + 'REVOKE ALL ON FUNCTION public.ledger_append_posting(jsonb,jsonb) FROM PUBLIC;'));
+
+  for (const body of ['CREATE TABLE unsafe (id uuid);', 'ALTER TABLE wallets ADD COLUMN unsafe uuid;', 'EXECUTE command;', 'TRUNCATE wallets;']) assert.throws(() => validateMigrationSql(define(body)), /DDL and dynamic SQL/);
+  assert.throws(() => validateMigrationSql(define('PERFORM 1;').replace('ledger_append_posting', 'another_function')), /Unregistered/);
+  assert.throws(() => validateMigrationSql('GRANT EXECUTE ON FUNCTION public.ledger_append_posting(jsonb,jsonb) TO PUBLIC;'), /privilege revocation/);
+});
+
 test('unsupported Events persistence and invalid pool fail before connection', async () => {
   await assert.rejects(createPersistenceRuntime({ connectionString: 'postgresql://localhost/test', backend: PersistenceBackend.TypeOrm, poolMax: 1 }, { service: 'events', tables: [] }), /fixed to pg/);
   await assert.rejects(createPersistenceRuntime({ connectionString: 'postgresql://localhost/test', backend: PersistenceBackend.Pg, poolMax: 0 }, { service: 'ledger', tables: [] }), /pool/);

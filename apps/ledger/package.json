@@ -11,7 +11,10 @@
     "rxjs": "7.8.2",
     "@sportsbook/persistence": "workspace:*",
     "@prisma/adapter-pg": "7.10.0",
-    "@prisma/client": "7.10.0"
+    "@prisma/client": "7.10.0",
+    "pg": "8.23.1",
+    "sequelize": "6.37.8",
+    "typeorm": "0.3.31"
   },
   "devDependencies": {
     "@sportsbook/testing": "workspace:*"
@@ -23,7 +26,8 @@
     "lint": "eslint .",
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
-    "generate-persistence": "prisma generate --schema prisma/schema.prisma"
+    "generate-persistence": "prisma generate --schema prisma/schema.prisma",
+    "test-postgres": "tsx ../../tools/migrations/test/postgres.integration.ts --services=ledger --ledger-finance --ledger-full"
   },
   "nx": {
     "name": "ledger",

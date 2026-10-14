@@ -42,6 +42,11 @@ Before implementation:
 Use `Pending`, `In Progress`, `Implemented` (code exists; verification pending),
 and `Done` (implementation and DoD verified). A step is one coherent, reviewable
 increment; avoid trivial file-creation steps and unrelated subsystem batches.
+At most one implementation step may be `In Progress` at a time. Mark only the
+step currently being implemented; move it to `Implemented` or `Done` before
+starting the next step. Several `Implemented` steps may await a shared verification
+checkpoint. Update statuses by exact step identity, never by a numeric prefix or
+batch-wide replacement, and read back the status inventory after each update.
 Resolve routine choices from the active plan and repository conventions. Ask only
 when a material ambiguity cannot be resolved from those sources. Do not perform
 unrelated work merely because it is nearby.

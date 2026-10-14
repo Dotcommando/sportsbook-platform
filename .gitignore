@@ -75,6 +75,11 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # Serena generated indexes and logs
 .serena/cache/
 .serena/logs/
+.serena/memories/
+.serena/project.local.yml
+
+# Machine-specific Codex configuration
+/.codex/
 
 # Private planning material and local agent instructions
 /plans/

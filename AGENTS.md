@@ -238,6 +238,12 @@ Use the root `eslint.config.mjs` for linting and TypeScript formatting in every
 microservice and shared package. Do not invent additional rules, duplicate the
 config per service or introduce another TypeScript formatter.
 
+The same root configuration governs JavaScript (`.js`, `.mjs`, `.cjs`) and
+TypeScript (`.ts`, `.mts`, `.cts`). Before marking source changes Done, run
+`pnpm format`, resolve any remaining diagnostics, and run `pnpm lint`. Auto-fix
+alone is not verification: some layout violations require manual expansion.
+Preserve the owner's existing rule options when extending the configuration.
+
 ## 5. Configuration And Secrets
 
 When variables change, update the affected local `.env` and tracked

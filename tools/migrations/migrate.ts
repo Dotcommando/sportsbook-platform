@@ -10,11 +10,15 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 
 const service = process.argv[2];
 
-if (!service || !['ledger', 'player', 'betting', 'event-simulator'].includes(service)) throw new Error('Explicit stateful service required');
+if (!service || !['ledger', 'player', 'betting', 'event-simulator'].includes(service)) {
+  throw new Error('Explicit stateful service required');
+}
 
 const connectionString = process.env.MIGRATION_DATABASE_URL;
 
-if (!connectionString) throw new Error('MIGRATION_DATABASE_URL required; runtime credentials must be separate');
+if (!connectionString) {
+  throw new Error('MIGRATION_DATABASE_URL required; runtime credentials must be separate');
+}
 
 const directory = path.join(root, 'apps', service, 'migrations');
 

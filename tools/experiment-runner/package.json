@@ -1,0 +1,38 @@
+{
+  "name": "@sportsbook/experiment-runner",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "@sportsbook/persistence": "workspace:*",
+    "@sportsbook/runtime-settings": "workspace:*",
+    "@sportsbook/service-transport": "workspace:*",
+    "ajv": "8.20.0",
+    "eslint": "9.39.5",
+    "nats": "2.29.3",
+    "pg": "8.23.1",
+    "reflect-metadata": "0.2.2",
+    "sequelize": "6.37.8",
+    "typeorm": "0.3.31",
+    "typescript": "5.9.3",
+    "yaml": "2.9.0"
+  },
+  "scripts": {
+    "build": "prisma generate --schema prisma/schema.prisma && tsc -p tsconfig.json",
+    "typecheck": "prisma generate --schema prisma/schema.prisma && tsc -p tsconfig.test.json --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "lint": "eslint .",
+    "bench": "node dist/cli.js",
+    "test-integration": "tsx test/orm.integration.ts",
+    "test-processes": "node test/process.integration.mjs"
+  },
+  "nx": {
+    "name": "experiment-runner",
+    "tags": [
+      "scope:tooling",
+      "type:tool"
+    ]
+  }
+}

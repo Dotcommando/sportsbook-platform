@@ -1,16 +1,8 @@
 import 'reflect-metadata';
 
-import { NestFactory } from '@nestjs/core';
-import { createServiceLogger } from '@sportsbook/observability';
+import { requiredSettingsFile, runProcess } from '@sportsbook/runtime-settings';
 
-import { ServiceModule } from './infra/service.module.js';
+import { startBettingProcess } from './infra/betting-process.factory.js';
+import { readProcessConfiguration } from './infra/betting-process.settings.js';
 
-async function bootstrap(): Promise<void> {
-  const application = await NestFactory.createApplicationContext(ServiceModule, {
-    logger: createServiceLogger('betting'),
-  });
-
-  application.enableShutdownHooks();
-}
-
-await bootstrap();
+await runProcess(() => startBettingProcess(readProcessConfiguration(requiredSettingsFile(process.argv.slice(2)))));

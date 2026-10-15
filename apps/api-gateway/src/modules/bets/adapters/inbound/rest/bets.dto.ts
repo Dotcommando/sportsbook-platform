@@ -1,9 +1,9 @@
-import type {IShape} from '@sportsbook/service-transport';
-import {decodeShape, matchesShape, ShapeKind, StringFormat} from '@sportsbook/service-transport';
+import type { IShape } from '@sportsbook/service-transport';
+import { decodeShape, matchesShape, ShapeKind, StringFormat } from '@sportsbook/service-transport';
 
 import type * as M from '../../../../../domain/gateway.model.js';
 
-const shapes:Record<string, IShape> = {
+const shapes: Record<string, IShape> = {
   'IGatewayPlaceBetInput': {
     'kind': ShapeKind.OBJECT,
     'fields': {
@@ -578,52 +578,78 @@ const shapes:Record<string, IShape> = {
   },
 };
 
-export function decodeInput(name:string, value:unknown, protobuf = false):unknown {const schema = shapes[name];
+export function decodeInput(name: string, value: unknown, protobuf = false): unknown {
+  const schema = shapes[name];
 
-if (!schema) throw new Error('Unregistered shape');
+  if (!schema) {
+    throw new Error('Unregistered shape');
+  }
 
-return decodeShape(value, schema, protobuf, shapes);}
+  return decodeShape(value, schema, protobuf, shapes);
+}
 
-export function isIGatewayPlaceBetInput(v:unknown):v is M.IGatewayPlaceBetInput {const schema = shapes['IGatewayPlaceBetInput'];
+export function isIGatewayPlaceBetInput(v: unknown): v is M.IGatewayPlaceBetInput {
+  const schema = shapes['IGatewayPlaceBetInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayPlaceBetOutput(v:unknown):v is M.IGatewayPlaceBetOutput {const schema = shapes['IGatewayPlaceBetOutput'];
+export function isIGatewayPlaceBetOutput(v: unknown): v is M.IGatewayPlaceBetOutput {
+  const schema = shapes['IGatewayPlaceBetOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayGetMyBetInput(v:unknown):v is M.IGatewayGetMyBetInput {const schema = shapes['IGatewayGetMyBetInput'];
+export function isIGatewayGetMyBetInput(v: unknown): v is M.IGatewayGetMyBetInput {
+  const schema = shapes['IGatewayGetMyBetInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayGetMyBetOutput(v:unknown):v is M.IGatewayGetMyBetOutput {const schema = shapes['IGatewayGetMyBetOutput'];
+export function isIGatewayGetMyBetOutput(v: unknown): v is M.IGatewayGetMyBetOutput {
+  const schema = shapes['IGatewayGetMyBetOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayGetMyBetStatusInput(v:unknown):v is M.IGatewayGetMyBetStatusInput {const schema = shapes['IGatewayGetMyBetStatusInput'];
+export function isIGatewayGetMyBetStatusInput(v: unknown): v is M.IGatewayGetMyBetStatusInput {
+  const schema = shapes['IGatewayGetMyBetStatusInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayGetMyBetStatusOutput(v:unknown):v is M.IGatewayGetMyBetStatusOutput {const schema = shapes['IGatewayGetMyBetStatusOutput'];
+export function isIGatewayGetMyBetStatusOutput(v: unknown): v is M.IGatewayGetMyBetStatusOutput {
+  const schema = shapes['IGatewayGetMyBetStatusOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayListMyBetsInput(v:unknown):v is M.IGatewayListMyBetsInput {const schema = shapes['IGatewayListMyBetsInput'];
+export function isIGatewayListMyBetsInput(v: unknown): v is M.IGatewayListMyBetsInput {
+  const schema = shapes['IGatewayListMyBetsInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayListMyBetsOutput(v:unknown):v is M.IGatewayListMyBetsOutput {const schema = shapes['IGatewayListMyBetsOutput'];
+export function isIGatewayListMyBetsOutput(v: unknown): v is M.IGatewayListMyBetsOutput {
+  const schema = shapes['IGatewayListMyBetsOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayCancelMyBetInput(v:unknown):v is M.IGatewayCancelMyBetInput {const schema = shapes['IGatewayCancelMyBetInput'];
+export function isIGatewayCancelMyBetInput(v: unknown): v is M.IGatewayCancelMyBetInput {
+  const schema = shapes['IGatewayCancelMyBetInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayCancelMyBetOutput(v:unknown):v is M.IGatewayCancelMyBetOutput {const schema = shapes['IGatewayCancelMyBetOutput'];
+export function isIGatewayCancelMyBetOutput(v: unknown): v is M.IGatewayCancelMyBetOutput {
+  const schema = shapes['IGatewayCancelMyBetOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIError(v:unknown):v is M.IError {const schema = shapes['IError'];
+export function isIError(v: unknown): v is M.IError {
+  const schema = shapes['IError'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}

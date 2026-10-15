@@ -3,8 +3,18 @@ import type { CurrencyCode, IChartAccountIds, UUID } from '../domain/ledger.mode
 import { AccountKind, TransactionType } from '../domain/ledger.model.js';
 import type { IdGeneratorPort } from '../ports/outbound/financial.port.js';
 
-export function chartIds(ids: IdGeneratorPort, operatorId: UUID, walletId: UUID, currency: CurrencyCode): IChartAccountIds {
-  return deriveChart(operatorId, walletId, currency, (operator, identity, purpose) => ids.derive(operator, identity, purpose));
+export function chartIds(
+  ids: IdGeneratorPort,
+  operatorId: UUID,
+  walletId: UUID,
+  currency: CurrencyCode,
+): IChartAccountIds {
+  return deriveChart(
+    operatorId,
+    walletId,
+    currency,
+    (operator, identity, purpose) => ids.derive(operator, identity, purpose),
+  );
 }
 
 export const POSTING_ACCOUNTS: Readonly<Record<TransactionType, readonly AccountKind[]>> = {

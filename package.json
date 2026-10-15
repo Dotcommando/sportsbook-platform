@@ -12,7 +12,7 @@
     "build": "nx run-many -t build",
     "typecheck": "nx run-many -t typecheck",
     "test": "nx run-many -t test",
-    "lint": "eslint . && pnpm architecture",
+    "lint": "eslint . --max-warnings 0 && pnpm test:lint && pnpm architecture",
     "format": "eslint . --fix",
     "architecture": "tsx tools/architecture/check.ts",
     "graph": "nx graph --file=.tmp/dependency-graph.json",
@@ -22,7 +22,8 @@
     "contracts:generate": "node tools/contracts/generate.mjs",
     "contracts:breaking": "node tools/contracts/breaking.mjs",
     "test:postgres": "pnpm --filter @sportsbook/migrations test-postgres",
-    "test:ledger:postgres": "pnpm --filter @sportsbook/ledger test-postgres"
+    "test:ledger:postgres": "pnpm --filter @sportsbook/ledger test-postgres",
+    "test:lint": "node --test tools/lint/*.test.mjs"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",

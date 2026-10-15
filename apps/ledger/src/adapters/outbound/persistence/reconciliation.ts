@@ -7,7 +7,8 @@ import { integer, text, uuid } from './ledger.codec.js';
 import type { ISqlTransactionManager } from './sql-session.js';
 import { object, SqlIsolation, SqlTransactionFailure } from './sql-session.js';
 
-const RECONCILE_SQL = `WITH scoped_transactions AS (
+const RECONCILE_SQL =
+  `WITH scoped_transactions AS (
   SELECT * FROM ledger_transactions WHERE operator_id=$1::uuid AND created_at<=$2::timestamptz
 ), entry_sums AS (
   SELECT e.account_id,sum(CASE WHEN e.side=a.normal_side THEN e.amount_minor ELSE -e.amount_minor END) FILTER(WHERE e.posted_at<=$2::timestamptz) AS historical,
@@ -56,53 +57,128 @@ const RECONCILE_SQL = `WITH scoped_transactions AS (
   COALESCE((SELECT jsonb_agg(jsonb_build_object('code',code,'businessRef',business_ref) ORDER BY code,business_ref) FROM (SELECT * FROM violations WHERE ($4::text IS NULL OR (code,business_ref)>($4::text,$5::uuid)) ORDER BY code,business_ref LIMIT $3) details),'[]'::jsonb) AS details`;
 
 export class SqlReconciliationStore implements ReconciliationStorePort {
-  constructor(private readonly manager: ISqlTransactionManager, private readonly ids: IdGeneratorPort, private readonly clock: ClockPort, private readonly timeoutMs: number) {}
+  constructor(
+    private readonly manager: ISqlTransactionManager,
+    private readonly ids: IdGeneratorPort,
+    private readonly clock: ClockPort,
+    private readonly timeoutMs: number,
+  ) { }
 
   async scan(context: ICallContext, cutoff: string, page: IPageInput): Promise<IReconciliationReport> {
     try {
-      return await this.manager.transaction(SqlIsolation.REPEATABLE_READ, async session => {
-        const remaining = Date.parse(context.deadlineAt) - Date.parse(this.clock.now());
+      return await this.manager.transaction(
+        SqlIsolation.REPEATABLE_READ,
+        async session => {
+          const remaining = Date.parse(context.deadlineAt) - Date.parse(this.clock.now());
 
-        if (remaining <= 0) throw new LedgerError(ErrorCode.DEADLINE_EXCEEDED);
-        await session.query("SELECT set_config('transaction_read_only','on',true),set_config('statement_timeout',$1,true)", [String(Math.min(remaining, this.timeoutMs))]);
-        let lastCode: string | null = null;
-        let lastReference: string | null = null;
+          if (remaining <= 0) {
+            throw new LedgerError(ErrorCode.DEADLINE_EXCEEDED);
+          }
+          await session.query(
+            "SELECT set_config('transaction_read_only','on',true),set_config('statement_timeout',$1,true)",
+            [String(Math.min(remaining, this.timeoutMs))],
+          );
+          let lastCode: string | null = null;
+          let lastReference: string | null = null;
 
-        if (page.cursor) {
-          try { const raw: unknown = JSON.parse(Buffer.from(page.cursor, 'base64url').toString('utf8')); const cursor = object(raw);
+          if (page.cursor) {
+            try {
+              const raw: unknown = JSON.parse(Buffer.from(page.cursor, 'base64url').toString('utf8'));
+              const cursor = object(raw);
 
- if (cursor.version !== 1 || cursor.operatorId !== context.operatorId || cursor.actorId !== context.actorId || cursor.cutoff !== cutoff) throw new Error('Invalid audit cursor'); lastCode = text(cursor.code); lastReference = uuid(cursor.businessRef); } catch { throw new LedgerError(ErrorCode.INVALID_INPUT); }
-        }
+              if (cursor.version !== 1 || cursor.operatorId !== context.operatorId
+                || cursor.actorId !== context.actorId
+                || cursor.cutoff !== cutoff) {
+                throw new Error('Invalid audit cursor');
+              }
+              lastCode = text(cursor.code);
+              lastReference = uuid(cursor.businessRef);
+            } catch {
+              throw new LedgerError(ErrorCode.INVALID_INPUT);
+            }
+          }
 
-        const row = (await session.query(RECONCILE_SQL, [context.operatorId, cutoff, page.limit + 1, lastCode, lastReference]))[0];
+          const row = (await session.query(
+            RECONCILE_SQL,
+            [context.operatorId, cutoff, page.limit + 1, lastCode, lastReference],
+          ))[0];
 
-        if (!row || !Array.isArray(row.details)) throw new LedgerError(ErrorCode.ADAPTER_CONTRACT_VIOLATION);
+          if (!row || !Array.isArray(row.details)) {
+            throw new LedgerError(ErrorCode.ADAPTER_CONTRACT_VIOLATION);
+          }
 
-        const count = integer(row.violation_count);
-        const violations = row.details.slice(0, page.limit).map((value: unknown) => { const item = object(value);
+          const count = integer(row.violation_count);
+          const violations = row.details.slice(0, page.limit).map(
+            (value: unknown) => {
+              const item = object(value);
 
- return { code: text(item.code), ...(item.businessRef == null ? {} : { businessRef: uuid(item.businessRef) }) }; });
-        const last = violations.at(-1);
+              return {
+                code: text(item.code),
+                ...(item.businessRef == null ? {} : { businessRef: uuid(item.businessRef) }),
+              };
+            },
+          );
+          const last = violations.at(-1);
 
-        return { runId: this.ids.derive(context.operatorId, context.operatorId, 'ledger:unrecorded-audit-scan'), snapshotAt: cutoff, status: count === 0n ? AuditState.PASS : AuditState.FAIL, counts: { transactions: integer(row.transactions), entries: integer(row.entries), violations: count }, violations, ...(row.details.length > page.limit && last ? { nextCursor: Buffer.from(losslessJson({ version: 1, operatorId: context.operatorId, actorId: context.actorId, cutoff, code: last.code, businessRef: last.businessRef })).toString('base64url') } : {}) };
-      });
-    } catch (caught) { const error = caught instanceof SqlTransactionFailure ? caught.original : caught;
+          return {
+            runId: this.ids.derive(context.operatorId, context.operatorId, 'ledger:unrecorded-audit-scan'),
+            snapshotAt: cutoff,
+            status: count === 0n ? AuditState.PASS : AuditState.FAIL,
+            counts: { transactions: integer(row.transactions), entries: integer(row.entries), violations: count },
+            violations,
+            ...(row.details.length > page.limit && last
+              ? {
+                nextCursor: Buffer.from(
+                  losslessJson(
+                    {
+                      version: 1,
+                      operatorId: context.operatorId,
+                      actorId: context.actorId,
+                      cutoff,
+                      code: last.code,
+                      businessRef: last.businessRef,
+                    },
+                  ),
+                ).toString(
+                  'base64url',
+                ),
+              }
+              : {}),
+          };
+        },
+      );
+    } catch (caught) {
+      const error = caught instanceof SqlTransactionFailure ? caught.original : caught;
 
- if (error instanceof LedgerError) throw error; throw new LedgerError(ErrorCode.DEPENDENCY_UNAVAILABLE); }
+      if (error instanceof LedgerError) {
+        throw error;
+      }
+      throw new LedgerError(ErrorCode.DEPENDENCY_UNAVAILABLE);
+    }
   }
 
   async record(context: ICallContext, report: IReconciliationReport): Promise<void> {
-    await this.manager.transaction(SqlIsolation.READ_COMMITTED, async session => {
-      const id = this.ids.derive(context.operatorId, report.runId, 'ledger:audit');
-      const payload = losslessJson({ ...report, violations: undefined, nextCursor: undefined });
-      const saved = await session.query('INSERT INTO ledger_reconciliation_runs (ledger_reconciliation_run_id,operator_id,run_id,status,checked_at,invariant_counts,details_ref) VALUES($1::uuid,$2::uuid,$3::uuid,$4,$5::timestamptz,$6::jsonb,NULL) ON CONFLICT(ledger_reconciliation_run_id) DO NOTHING RETURNING run_id', [id, context.operatorId, report.runId, report.status, report.snapshotAt, payload]);
+    await this.manager.transaction(
+      SqlIsolation.READ_COMMITTED,
+      async session => {
+        const id = this.ids.derive(context.operatorId, report.runId, 'ledger:audit');
+        const payload = losslessJson({ ...report, violations: undefined, nextCursor: undefined });
+        const saved = await session.query(
+          'INSERT INTO ledger_reconciliation_runs (ledger_reconciliation_run_id,operator_id,run_id,status,checked_at,invariant_counts,details_ref) VALUES($1::uuid,$2::uuid,$3::uuid,$4,$5::timestamptz,$6::jsonb,NULL) ON CONFLICT(ledger_reconciliation_run_id) DO NOTHING RETURNING run_id',
+          [id, context.operatorId, report.runId, report.status, report.snapshotAt, payload],
+        );
 
-      if (!saved.length) {
-        const existing = (await session.query('SELECT invariant_counts FROM ledger_reconciliation_runs WHERE operator_id=$1::uuid AND ledger_reconciliation_run_id=$2::uuid', [context.operatorId, id]))[0];
+        if (!saved.length) {
+          const existing = (await session.query(
+            'SELECT invariant_counts FROM ledger_reconciliation_runs WHERE operator_id=$1::uuid AND ledger_reconciliation_run_id=$2::uuid',
+            [context.operatorId, id],
+          ))[0];
 
-        if (!existing || canonicalJson(existing.invariant_counts) !== canonicalJson(JSON.parse(payload))) throw new LedgerError(ErrorCode.IDEMPOTENCY_CONFLICT);
-      }
-    });
+          if (!existing || canonicalJson(existing.invariant_counts) !== canonicalJson(JSON.parse(payload))) {
+            throw new LedgerError(ErrorCode.IDEMPOTENCY_CONFLICT);
+          }
+        }
+      },
+    );
   }
 }
-

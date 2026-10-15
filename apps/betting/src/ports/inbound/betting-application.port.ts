@@ -1,17 +1,31 @@
-import type {CancelBetPort, GetBetPort, GetBetStatusPort, ListPlayerBetsPort, PlaceBetPort, PublishOutboxBatchPort, ReconcileBetWithLedgerPort, RecordEventResultPort, RetryPendingCancellationPort, RetryPendingReservationPort, RetryPendingSettlementPort, ScheduleEventSettlementsPort, SettleBetPort} from './betting-operations.port.js';
+import type {
+  CancelBetPort,
+  GetBetPort,
+  GetBetStatusPort,
+  ListPlayerBetsPort,
+  PlaceBetPort,
+  PublishOutboxBatchPort,
+  ReconcileBetWithLedgerPort,
+  RecordEventResultPort,
+  RetryPendingCancellationPort,
+  RetryPendingReservationPort,
+  RetryPendingSettlementPort,
+  ScheduleEventSettlementsPort,
+  SettleBetPort,
+} from './betting-operations.port.js';
 
 export interface IBettingOperationPorts {
-placeBet:PlaceBetPort;
-getBet:GetBetPort;
-listPlayerBets:ListPlayerBetsPort;
-getBetStatus:GetBetStatusPort;
-cancelBet:CancelBetPort;
-recordEventResult:RecordEventResultPort;
-settleBet:SettleBetPort;
-retryPendingReservation:RetryPendingReservationPort;
-retryPendingSettlement:RetryPendingSettlementPort;
-reconcileBetWithLedger:ReconcileBetWithLedgerPort;
-publishOutboxBatch:PublishOutboxBatchPort;
-retryPendingCancellation:RetryPendingCancellationPort;
-scheduleEventSettlements:ScheduleEventSettlementsPort;
+  placeBet: PlaceBetPort;
+  getBet: GetBetPort;
+  listPlayerBets: ListPlayerBetsPort;
+  getBetStatus: GetBetStatusPort;
+  cancelBet: CancelBetPort;
+  recordEventResult: RecordEventResultPort;
+  settleBet: SettleBetPort;
+  retryPendingReservation: RetryPendingReservationPort;
+  retryPendingSettlement: RetryPendingSettlementPort;
+  reconcileBetWithLedger: ReconcileBetWithLedgerPort;
+  publishOutboxBatch: PublishOutboxBatchPort;
+  retryPendingCancellation: RetryPendingCancellationPort;
+  scheduleEventSettlements: ScheduleEventSettlementsPort;
 }

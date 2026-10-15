@@ -5,11 +5,13 @@ import path from 'node:path';
 import { clientPackages, generate, workspaceRoot } from '../../tools/contracts/generate.mjs';
 
 function files(directory) {
-  return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
-    const entryPath = path.join(directory, entry.name);
+  return readdirSync(directory, { withFileTypes: true }).flatMap(
+    entry => {
+      const entryPath = path.join(directory, entry.name);
 
-    return entry.isDirectory() ? files(entryPath) : [entryPath];
-  });
+      return entry.isDirectory() ? files(entryPath) : [entryPath];
+    },
+  );
 }
 
 mkdirSync(path.join(workspaceRoot, '.tmp'), { recursive: true });
@@ -18,7 +20,10 @@ const temporary = mkdtempSync(path.join(workspaceRoot, '.tmp/protobuf-generation
 
 generate(temporary);
 
-for (const relative of [...Object.values(clientPackages).map(clientPackage => `packages/${clientPackage}/src/generated`), 'tools/contract-spike/generated']) {
+for (const relative of [
+  ...Object.values(clientPackages).map(clientPackage => `packages/${clientPackage}/src/generated`),
+  'tools/contract-spike/generated',
+]) {
   const actual = path.join(temporary, relative);
   const expected = path.join(workspaceRoot, relative);
   const actualFiles = files(actual).map(filePath => path.relative(actual, filePath)).sort();
@@ -27,7 +32,9 @@ for (const relative of [...Object.values(clientPackages).map(clientPackage => `p
   assert.deepEqual(actualFiles, expectedFiles, 'Generated file inventory differs');
 
   for (const file of actualFiles) {
-    if (!readFileSync(path.join(actual, file)).equals(readFileSync(path.join(expected, file)))) throw new Error(`Generated artifact differs: ${file}`);
+    if (!readFileSync(path.join(actual, file)).equals(readFileSync(path.join(expected, file)))) {
+      throw new Error(`Generated artifact differs: ${file}`);
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 # compiled output
 /.nx/
 apps/*/src/adapters/outbound/persistence/generated/
+tools/experiment-runner/src/orm/generated/
 /dist
 /node_modules
 /build
@@ -62,6 +63,8 @@ lerna-debug.log*
 
 # Runtime data
 /data/
+/experiments/results/
+/reports/
 pids
 *.pid
 *.seed

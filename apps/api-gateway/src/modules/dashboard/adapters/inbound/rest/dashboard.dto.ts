@@ -1,9 +1,9 @@
-import type {IShape} from '@sportsbook/service-transport';
-import {decodeShape, matchesShape, ShapeKind, StringFormat} from '@sportsbook/service-transport';
+import type { IShape } from '@sportsbook/service-transport';
+import { decodeShape, matchesShape, ShapeKind, StringFormat } from '@sportsbook/service-transport';
 
 import type * as M from '../../../../../domain/gateway.model.js';
 
-const shapes:Record<string, IShape> = {
+const shapes: Record<string, IShape> = {
   'IGatewayGetMyDashboardInput': {
     'kind': ShapeKind.OBJECT,
     'fields': {
@@ -558,20 +558,30 @@ const shapes:Record<string, IShape> = {
   },
 };
 
-export function decodeInput(name:string, value:unknown, protobuf = false):unknown {const schema = shapes[name];
+export function decodeInput(name: string, value: unknown, protobuf = false): unknown {
+  const schema = shapes[name];
 
-if (!schema) throw new Error('Unregistered shape');
+  if (!schema) {
+    throw new Error('Unregistered shape');
+  }
 
-return decodeShape(value, schema, protobuf, shapes);}
+  return decodeShape(value, schema, protobuf, shapes);
+}
 
-export function isIGatewayGetMyDashboardInput(v:unknown):v is M.IGatewayGetMyDashboardInput {const schema = shapes['IGatewayGetMyDashboardInput'];
+export function isIGatewayGetMyDashboardInput(v: unknown): v is M.IGatewayGetMyDashboardInput {
+  const schema = shapes['IGatewayGetMyDashboardInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIGatewayGetMyDashboardOutput(v:unknown):v is M.IGatewayGetMyDashboardOutput {const schema = shapes['IGatewayGetMyDashboardOutput'];
+export function isIGatewayGetMyDashboardOutput(v: unknown): v is M.IGatewayGetMyDashboardOutput {
+  const schema = shapes['IGatewayGetMyDashboardOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIError(v:unknown):v is M.IError {const schema = shapes['IError'];
+export function isIError(v: unknown): v is M.IError {
+  const schema = shapes['IError'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}

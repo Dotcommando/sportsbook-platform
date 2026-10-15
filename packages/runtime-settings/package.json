@@ -1,0 +1,30 @@
+{
+  "name": "@sportsbook/runtime-settings",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "jsonc-parser": "3.3.1",
+    "@sportsbook/observability": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "lint": "eslint ."
+  },
+  "nx": {
+    "name": "runtime-settings",
+    "tags": [
+      "scope:shared",
+      "type:technical"
+    ]
+  }
+}

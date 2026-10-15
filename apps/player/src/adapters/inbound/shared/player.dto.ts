@@ -1,9 +1,40 @@
 import type { IShape } from '@sportsbook/service-transport';
 import { decodeShape, matchesShape, ShapeKind, StringFormat } from '@sportsbook/service-transport';
 
-import type { IPlayerAddContactInput, IPlayerAddContactOutput, IPlayerApplyRestrictionInput, IPlayerApplyRestrictionOutput, IPlayerChangePlayerStatusInput, IPlayerChangePlayerStatusOutput, IPlayerCheckEligibilityInput, IPlayerCheckEligibilityOutput, IPlayerClearRestrictionInput, IPlayerClearRestrictionOutput, IPlayerDecideKycCaseInput, IPlayerDecideKycCaseOutput, IPlayerGetKycStatusInput, IPlayerGetKycStatusOutput, IPlayerGetPlayerInput, IPlayerGetPlayerOutput, IPlayerGetPlayerReferenceInput, IPlayerGetPlayerReferenceOutput, IPlayerGetRestrictionsInput, IPlayerGetRestrictionsOutput, IPlayerOpenKycCaseInput, IPlayerOpenKycCaseOutput, IPlayerRecordKycCheckInput, IPlayerRecordKycCheckOutput, IPlayerRegisterPlayerInput, IPlayerRegisterPlayerOutput, IPlayerUpdatePlayerProfileInput, IPlayerUpdatePlayerProfileOutput, IPlayerVerifyContactInput, IPlayerVerifyContactOutput } from '../../../domain/player.model.js';
+import type {
+  IPlayerAddContactInput,
+  IPlayerAddContactOutput,
+  IPlayerApplyRestrictionInput,
+  IPlayerApplyRestrictionOutput,
+  IPlayerChangePlayerStatusInput,
+  IPlayerChangePlayerStatusOutput,
+  IPlayerCheckEligibilityInput,
+  IPlayerCheckEligibilityOutput,
+  IPlayerClearRestrictionInput,
+  IPlayerClearRestrictionOutput,
+  IPlayerDecideKycCaseInput,
+  IPlayerDecideKycCaseOutput,
+  IPlayerGetKycStatusInput,
+  IPlayerGetKycStatusOutput,
+  IPlayerGetPlayerInput,
+  IPlayerGetPlayerOutput,
+  IPlayerGetPlayerReferenceInput,
+  IPlayerGetPlayerReferenceOutput,
+  IPlayerGetRestrictionsInput,
+  IPlayerGetRestrictionsOutput,
+  IPlayerOpenKycCaseInput,
+  IPlayerOpenKycCaseOutput,
+  IPlayerRecordKycCheckInput,
+  IPlayerRecordKycCheckOutput,
+  IPlayerRegisterPlayerInput,
+  IPlayerRegisterPlayerOutput,
+  IPlayerUpdatePlayerProfileInput,
+  IPlayerUpdatePlayerProfileOutput,
+  IPlayerVerifyContactInput,
+  IPlayerVerifyContactOutput,
+} from '../../../domain/player.model.js';
 
-const shapes:Record<string, IShape> = {
+const shapes: Record<string, IShape> = {
   'IError': {
     'kind': ShapeKind.OBJECT,
     'fields': {
@@ -1638,128 +1669,192 @@ const shapes:Record<string, IShape> = {
   },
 };
 
-export function decodeInput(name:string, value:unknown, protobuf:boolean):unknown {const schema = shapes[name];
+export function decodeInput(name: string, value: unknown, protobuf: boolean): unknown {
+  const schema = shapes[name];
 
-if (!schema) throw new Error('Unregistered input');
+  if (!schema) {
+    throw new Error('Unregistered input');
+  }
 
-return decodeShape(value, schema, protobuf, shapes);}
+  return decodeShape(value, schema, protobuf, shapes);
+}
 
-export function isIPlayerRegisterPlayerInput(value:unknown):value is IPlayerRegisterPlayerInput {const schema = shapes['IPlayerRegisterPlayerInput'];
+export function isIPlayerRegisterPlayerInput(value: unknown): value is IPlayerRegisterPlayerInput {
+  const schema = shapes['IPlayerRegisterPlayerInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerRegisterPlayerOutput(value:unknown):value is IPlayerRegisterPlayerOutput {const schema = shapes['IPlayerRegisterPlayerOutput'];
+export function isIPlayerRegisterPlayerOutput(value: unknown): value is IPlayerRegisterPlayerOutput {
+  const schema = shapes['IPlayerRegisterPlayerOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerGetPlayerInput(value:unknown):value is IPlayerGetPlayerInput {const schema = shapes['IPlayerGetPlayerInput'];
+export function isIPlayerGetPlayerInput(value: unknown): value is IPlayerGetPlayerInput {
+  const schema = shapes['IPlayerGetPlayerInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerGetPlayerOutput(value:unknown):value is IPlayerGetPlayerOutput {const schema = shapes['IPlayerGetPlayerOutput'];
+export function isIPlayerGetPlayerOutput(value: unknown): value is IPlayerGetPlayerOutput {
+  const schema = shapes['IPlayerGetPlayerOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerUpdatePlayerProfileInput(value:unknown):value is IPlayerUpdatePlayerProfileInput {const schema = shapes['IPlayerUpdatePlayerProfileInput'];
+export function isIPlayerUpdatePlayerProfileInput(value: unknown): value is IPlayerUpdatePlayerProfileInput {
+  const schema = shapes['IPlayerUpdatePlayerProfileInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerUpdatePlayerProfileOutput(value:unknown):value is IPlayerUpdatePlayerProfileOutput {const schema = shapes['IPlayerUpdatePlayerProfileOutput'];
+export function isIPlayerUpdatePlayerProfileOutput(value: unknown): value is IPlayerUpdatePlayerProfileOutput {
+  const schema = shapes['IPlayerUpdatePlayerProfileOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerAddContactInput(value:unknown):value is IPlayerAddContactInput {const schema = shapes['IPlayerAddContactInput'];
+export function isIPlayerAddContactInput(value: unknown): value is IPlayerAddContactInput {
+  const schema = shapes['IPlayerAddContactInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerAddContactOutput(value:unknown):value is IPlayerAddContactOutput {const schema = shapes['IPlayerAddContactOutput'];
+export function isIPlayerAddContactOutput(value: unknown): value is IPlayerAddContactOutput {
+  const schema = shapes['IPlayerAddContactOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerVerifyContactInput(value:unknown):value is IPlayerVerifyContactInput {const schema = shapes['IPlayerVerifyContactInput'];
+export function isIPlayerVerifyContactInput(value: unknown): value is IPlayerVerifyContactInput {
+  const schema = shapes['IPlayerVerifyContactInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerVerifyContactOutput(value:unknown):value is IPlayerVerifyContactOutput {const schema = shapes['IPlayerVerifyContactOutput'];
+export function isIPlayerVerifyContactOutput(value: unknown): value is IPlayerVerifyContactOutput {
+  const schema = shapes['IPlayerVerifyContactOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerChangePlayerStatusInput(value:unknown):value is IPlayerChangePlayerStatusInput {const schema = shapes['IPlayerChangePlayerStatusInput'];
+export function isIPlayerChangePlayerStatusInput(value: unknown): value is IPlayerChangePlayerStatusInput {
+  const schema = shapes['IPlayerChangePlayerStatusInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerChangePlayerStatusOutput(value:unknown):value is IPlayerChangePlayerStatusOutput {const schema = shapes['IPlayerChangePlayerStatusOutput'];
+export function isIPlayerChangePlayerStatusOutput(value: unknown): value is IPlayerChangePlayerStatusOutput {
+  const schema = shapes['IPlayerChangePlayerStatusOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerOpenKycCaseInput(value:unknown):value is IPlayerOpenKycCaseInput {const schema = shapes['IPlayerOpenKycCaseInput'];
+export function isIPlayerOpenKycCaseInput(value: unknown): value is IPlayerOpenKycCaseInput {
+  const schema = shapes['IPlayerOpenKycCaseInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerOpenKycCaseOutput(value:unknown):value is IPlayerOpenKycCaseOutput {const schema = shapes['IPlayerOpenKycCaseOutput'];
+export function isIPlayerOpenKycCaseOutput(value: unknown): value is IPlayerOpenKycCaseOutput {
+  const schema = shapes['IPlayerOpenKycCaseOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerRecordKycCheckInput(value:unknown):value is IPlayerRecordKycCheckInput {const schema = shapes['IPlayerRecordKycCheckInput'];
+export function isIPlayerRecordKycCheckInput(value: unknown): value is IPlayerRecordKycCheckInput {
+  const schema = shapes['IPlayerRecordKycCheckInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerRecordKycCheckOutput(value:unknown):value is IPlayerRecordKycCheckOutput {const schema = shapes['IPlayerRecordKycCheckOutput'];
+export function isIPlayerRecordKycCheckOutput(value: unknown): value is IPlayerRecordKycCheckOutput {
+  const schema = shapes['IPlayerRecordKycCheckOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerDecideKycCaseInput(value:unknown):value is IPlayerDecideKycCaseInput {const schema = shapes['IPlayerDecideKycCaseInput'];
+export function isIPlayerDecideKycCaseInput(value: unknown): value is IPlayerDecideKycCaseInput {
+  const schema = shapes['IPlayerDecideKycCaseInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerDecideKycCaseOutput(value:unknown):value is IPlayerDecideKycCaseOutput {const schema = shapes['IPlayerDecideKycCaseOutput'];
+export function isIPlayerDecideKycCaseOutput(value: unknown): value is IPlayerDecideKycCaseOutput {
+  const schema = shapes['IPlayerDecideKycCaseOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerGetKycStatusInput(value:unknown):value is IPlayerGetKycStatusInput {const schema = shapes['IPlayerGetKycStatusInput'];
+export function isIPlayerGetKycStatusInput(value: unknown): value is IPlayerGetKycStatusInput {
+  const schema = shapes['IPlayerGetKycStatusInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerGetKycStatusOutput(value:unknown):value is IPlayerGetKycStatusOutput {const schema = shapes['IPlayerGetKycStatusOutput'];
+export function isIPlayerGetKycStatusOutput(value: unknown): value is IPlayerGetKycStatusOutput {
+  const schema = shapes['IPlayerGetKycStatusOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerApplyRestrictionInput(value:unknown):value is IPlayerApplyRestrictionInput {const schema = shapes['IPlayerApplyRestrictionInput'];
+export function isIPlayerApplyRestrictionInput(value: unknown): value is IPlayerApplyRestrictionInput {
+  const schema = shapes['IPlayerApplyRestrictionInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerApplyRestrictionOutput(value:unknown):value is IPlayerApplyRestrictionOutput {const schema = shapes['IPlayerApplyRestrictionOutput'];
+export function isIPlayerApplyRestrictionOutput(value: unknown): value is IPlayerApplyRestrictionOutput {
+  const schema = shapes['IPlayerApplyRestrictionOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerClearRestrictionInput(value:unknown):value is IPlayerClearRestrictionInput {const schema = shapes['IPlayerClearRestrictionInput'];
+export function isIPlayerClearRestrictionInput(value: unknown): value is IPlayerClearRestrictionInput {
+  const schema = shapes['IPlayerClearRestrictionInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerClearRestrictionOutput(value:unknown):value is IPlayerClearRestrictionOutput {const schema = shapes['IPlayerClearRestrictionOutput'];
+export function isIPlayerClearRestrictionOutput(value: unknown): value is IPlayerClearRestrictionOutput {
+  const schema = shapes['IPlayerClearRestrictionOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerGetRestrictionsInput(value:unknown):value is IPlayerGetRestrictionsInput {const schema = shapes['IPlayerGetRestrictionsInput'];
+export function isIPlayerGetRestrictionsInput(value: unknown): value is IPlayerGetRestrictionsInput {
+  const schema = shapes['IPlayerGetRestrictionsInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerGetRestrictionsOutput(value:unknown):value is IPlayerGetRestrictionsOutput {const schema = shapes['IPlayerGetRestrictionsOutput'];
+export function isIPlayerGetRestrictionsOutput(value: unknown): value is IPlayerGetRestrictionsOutput {
+  const schema = shapes['IPlayerGetRestrictionsOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerCheckEligibilityInput(value:unknown):value is IPlayerCheckEligibilityInput {const schema = shapes['IPlayerCheckEligibilityInput'];
+export function isIPlayerCheckEligibilityInput(value: unknown): value is IPlayerCheckEligibilityInput {
+  const schema = shapes['IPlayerCheckEligibilityInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerCheckEligibilityOutput(value:unknown):value is IPlayerCheckEligibilityOutput {const schema = shapes['IPlayerCheckEligibilityOutput'];
+export function isIPlayerCheckEligibilityOutput(value: unknown): value is IPlayerCheckEligibilityOutput {
+  const schema = shapes['IPlayerCheckEligibilityOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerGetPlayerReferenceInput(value:unknown):value is IPlayerGetPlayerReferenceInput {const schema = shapes['IPlayerGetPlayerReferenceInput'];
+export function isIPlayerGetPlayerReferenceInput(value: unknown): value is IPlayerGetPlayerReferenceInput {
+  const schema = shapes['IPlayerGetPlayerReferenceInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIPlayerGetPlayerReferenceOutput(value:unknown):value is IPlayerGetPlayerReferenceOutput {const schema = shapes['IPlayerGetPlayerReferenceOutput'];
+export function isIPlayerGetPlayerReferenceOutput(value: unknown): value is IPlayerGetPlayerReferenceOutput {
+  const schema = shapes['IPlayerGetPlayerReferenceOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}

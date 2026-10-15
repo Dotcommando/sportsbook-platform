@@ -1,6 +1,9 @@
 import { CommandFingerprint } from '../adapters/outbound/ids/command-fingerprint.js';
 import { UuidGenerator } from '../adapters/outbound/ids/uuid-generator.js';
-import type { ILedgerPersistence, ILedgerPersistenceSettings } from '../adapters/outbound/persistence/financial-persistence.factory.js';
+import type {
+  ILedgerPersistence,
+  ILedgerPersistenceSettings,
+} from '../adapters/outbound/persistence/financial-persistence.factory.js';
 import { createFinancialPersistence } from '../adapters/outbound/persistence/financial-persistence.factory.js';
 import type { ILedgerCommandDependencies } from '../app/services/financial-command.service.js';
 import type { ILedgerReadDependencies } from '../app/services/financial-query.service.js';
@@ -31,45 +34,101 @@ export type { ILedgerOperationPorts } from '../ports/inbound/ledger-application.
 
 import type { ClockPort, MessagePublicationPort } from '../ports/outbound/financial.port.js';
 
-export interface ILedgerApplication { operations:ILedgerOperationPorts; persistence:ILedgerPersistence; close():Promise<void>; }
+export interface ILedgerApplication {
+  operations: ILedgerOperationPorts;
+  persistence: ILedgerPersistence;
+  close(): Promise<void>;
+}
 
-export async function createLedgerApplication(settings:ILedgerPersistenceSettings, namespace:string, policies:readonly IOperatorFinancialPolicy[], clock:ClockPort, publication:MessagePublicationPort, outboxRetryDelayMs:number):Promise<ILedgerApplication> {
-  if (!Number.isInteger(outboxRetryDelayMs) || outboxRetryDelayMs < 1 || outboxRetryDelayMs > 60000) throw new Error('Invalid outbox retry delay');
+export async function createLedgerApplication(
+  settings: ILedgerPersistenceSettings,
+  namespace: string,
+  policies: readonly IOperatorFinancialPolicy[],
+  clock: ClockPort,
+  publication: MessagePublicationPort,
+  outboxRetryDelayMs: number,
+): Promise<ILedgerApplication> {
+  if (!Number.isInteger(outboxRetryDelayMs) || outboxRetryDelayMs < 1 || outboxRetryDelayMs > 60000) {
+    throw new Error('Invalid outbox retry delay');
+  }
 
   const ids = new UuidGenerator(namespace);
   const immutablePolicies = structuredClone(policies);
 
-  for (const policy of immutablePolicies) {for (const currency of policy.currencies)Object.freeze(currency);
+  for (const policy of immutablePolicies) {
+    for (const currency of policy.currencies) {
+      Object.freeze(currency);
+    }
 
-for (const actor of policy.trustedActors) {Object.freeze(actor.capabilities);Object.freeze(actor);}Object.freeze(policy.currencies);Object.freeze(policy.providerNames);Object.freeze(policy.rejectionReasons);Object.freeze(policy.trustedActors);Object.freeze(policy);}
+    for (const actor of policy.trustedActors) {
+      Object.freeze(actor.capabilities);
+      Object.freeze(actor);
+    }
+    Object.freeze(policy.currencies);
+    Object.freeze(policy.providerNames);
+    Object.freeze(policy.rejectionReasons);
+    Object.freeze(policy.trustedActors);
+    Object.freeze(policy);
+  }
   Object.freeze(immutablePolicies);
-  const immutableSettings = {...settings, retry:Object.freeze({...settings.retry})};
+  const immutableSettings = { ...settings, retry: Object.freeze({ ...settings.retry }) };
   const persistence = await createFinancialPersistence(immutableSettings, ids, clock, immutablePolicies);
-  const commands:ILedgerCommandDependencies = {unitOfWork:persistence.unitOfWork, ids, clock, fingerprint:new CommandFingerprint(), policies:immutablePolicies};
-  const readers:ILedgerReadDependencies = {queries:persistence.queries, reconciliation:persistence.reconciliation, clock, policies:immutablePolicies};
+
+  return composeLedgerApplication(
+    persistence,
+    namespace,
+    immutablePolicies,
+    clock,
+    publication,
+    outboxRetryDelayMs,
+  );
+}
+
+export function composeLedgerApplication(
+  persistence: ILedgerPersistence,
+  namespace: string,
+  immutablePolicies: readonly IOperatorFinancialPolicy[],
+  clock: ClockPort,
+  publication: MessagePublicationPort,
+  outboxRetryDelayMs: number,
+): ILedgerApplication {
+  const ids = new UuidGenerator(namespace);
+  const commands: ILedgerCommandDependencies = {
+    unitOfWork: persistence.unitOfWork,
+    ids,
+    clock,
+    fingerprint: new CommandFingerprint(),
+    policies: immutablePolicies,
+  };
+  const readers: ILedgerReadDependencies = {
+    queries: persistence.queries,
+    reconciliation: persistence.reconciliation,
+    clock,
+    policies: immutablePolicies,
+  };
   const createWallet = new CreateWalletUseCase(commands);
-  const operations:ILedgerOperationPorts = {
-    createWallet:createWallet,
-    depositTestFunds:new DepositTestFundsUseCase(commands),
-    requestWithdrawal:new RequestWithdrawalUseCase(commands),
-    completeWithdrawal:new CompleteWithdrawalUseCase(commands),
-    rejectWithdrawal:new RejectWithdrawalUseCase(commands),
-    reserveStake:new ReserveStakeUseCase(commands),
-    settleWin:new SettleWinUseCase(commands),
-    settleLoss:new SettleLossUseCase(commands),
-    cancelBet:new CancelBetUseCase(commands),
-    getBalance:new GetBalanceUseCase(readers),
-    getTransaction:new GetTransactionUseCase(readers),
-    getLedgerEntries:new GetLedgerEntriesUseCase(readers),
-    getWalletTransactions:new GetWalletTransactionsUseCase(readers),
-    getBetFinancialStatus:new GetBetFinancialStatusUseCase(readers),
-    getWithdrawal:new GetWithdrawalUseCase(readers),
-    getCommandOutcome:new GetCommandOutcomeUseCase(readers),
-    getWallet:new GetWalletUseCase(readers),
-    reconcileLedger:new ReconcileLedgerUseCase(readers),
-    publishOutboxBatch:new PublishOutboxBatchUseCase(persistence.outbox, publication, clock, outboxRetryDelayMs),
-    provisionPlayerWallet:new ProvisionPlayerWalletUseCase(createWallet, ids, clock, immutablePolicies),
+  const operations: ILedgerOperationPorts = {
+    createWallet: createWallet,
+    depositTestFunds: new DepositTestFundsUseCase(commands),
+    requestWithdrawal: new RequestWithdrawalUseCase(commands),
+    completeWithdrawal: new CompleteWithdrawalUseCase(commands),
+    rejectWithdrawal: new RejectWithdrawalUseCase(commands),
+    reserveStake: new ReserveStakeUseCase(commands),
+    settleWin: new SettleWinUseCase(commands),
+    settleLoss: new SettleLossUseCase(commands),
+    cancelBet: new CancelBetUseCase(commands),
+    getBalance: new GetBalanceUseCase(readers),
+    getTransaction: new GetTransactionUseCase(readers),
+    getLedgerEntries: new GetLedgerEntriesUseCase(readers),
+    getWalletTransactions: new GetWalletTransactionsUseCase(readers),
+    getBetFinancialStatus: new GetBetFinancialStatusUseCase(readers),
+    getWithdrawal: new GetWithdrawalUseCase(readers),
+    getCommandOutcome: new GetCommandOutcomeUseCase(readers),
+    getWallet: new GetWalletUseCase(readers),
+    reconcileLedger: new ReconcileLedgerUseCase(readers),
+    publishOutboxBatch: new PublishOutboxBatchUseCase(persistence.outbox, publication, clock, outboxRetryDelayMs),
+    provisionPlayerWallet: new ProvisionPlayerWalletUseCase(createWallet, ids, clock, immutablePolicies),
   };
 
-  return {operations, persistence, close:()=>persistence.close()};
+  return { operations, persistence, close: () => persistence.close() };
 }

@@ -1,9 +1,9 @@
-import type {IShape} from '@sportsbook/service-transport';
-import {decodeGraphqlShape, decodeShape, matchesShape, ShapeKind, StringFormat} from '@sportsbook/service-transport';
+import type { IShape } from '@sportsbook/service-transport';
+import { decodeGraphqlShape, decodeShape, matchesShape, ShapeKind, StringFormat } from '@sportsbook/service-transport';
 
 import type * as M from '../../../../../domain/gateway.model.js';
 
-const shapes:Record<string, IShape> = {
+const shapes: Record<string, IShape> = {
   'IPlayerRegisterPlayerInput': {
     'kind': ShapeKind.OBJECT,
     'fields': {
@@ -424,44 +424,66 @@ const shapes:Record<string, IShape> = {
   },
 };
 
-export function decodeInput(name:string, value:unknown, protobuf = false, graphql = false):unknown {const schema = shapes[name];
+export function decodeInput(name: string, value: unknown, protobuf = false, graphql = false): unknown {
+  const schema = shapes[name];
 
-if (!schema) throw new Error('Unregistered shape');
+  if (!schema) {
+    throw new Error('Unregistered shape');
+  }
 
-return graphql ? decodeGraphqlShape(value, schema, shapes) : decodeShape(value, schema, protobuf, shapes);}
+  return graphql ? decodeGraphqlShape(value, schema, shapes) : decodeShape(value, schema, protobuf, shapes);
+}
 
-export function isIPlayerRegisterPlayerInput(v:unknown):v is M.IPlayerRegisterPlayerInput {const schema = shapes['IPlayerRegisterPlayerInput'];
+export function isIPlayerRegisterPlayerInput(v: unknown): v is M.IPlayerRegisterPlayerInput {
+  const schema = shapes['IPlayerRegisterPlayerInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIPlayerRegisterPlayerOutput(v:unknown):v is M.IPlayerRegisterPlayerOutput {const schema = shapes['IPlayerRegisterPlayerOutput'];
+export function isIPlayerRegisterPlayerOutput(v: unknown): v is M.IPlayerRegisterPlayerOutput {
+  const schema = shapes['IPlayerRegisterPlayerOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIPlayerUpdatePlayerProfileInput(v:unknown):v is M.IPlayerUpdatePlayerProfileInput {const schema = shapes['IPlayerUpdatePlayerProfileInput'];
+export function isIPlayerUpdatePlayerProfileInput(v: unknown): v is M.IPlayerUpdatePlayerProfileInput {
+  const schema = shapes['IPlayerUpdatePlayerProfileInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIPlayerUpdatePlayerProfileOutput(v:unknown):v is M.IPlayerUpdatePlayerProfileOutput {const schema = shapes['IPlayerUpdatePlayerProfileOutput'];
+export function isIPlayerUpdatePlayerProfileOutput(v: unknown): v is M.IPlayerUpdatePlayerProfileOutput {
+  const schema = shapes['IPlayerUpdatePlayerProfileOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIPlayerGetPlayerInput(v:unknown):v is M.IPlayerGetPlayerInput {const schema = shapes['IPlayerGetPlayerInput'];
+export function isIPlayerGetPlayerInput(v: unknown): v is M.IPlayerGetPlayerInput {
+  const schema = shapes['IPlayerGetPlayerInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIPlayerGetPlayerOutput(v:unknown):v is M.IPlayerGetPlayerOutput {const schema = shapes['IPlayerGetPlayerOutput'];
+export function isIPlayerGetPlayerOutput(v: unknown): v is M.IPlayerGetPlayerOutput {
+  const schema = shapes['IPlayerGetPlayerOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIPlayerCheckEligibilityInput(v:unknown):v is M.IPlayerCheckEligibilityInput {const schema = shapes['IPlayerCheckEligibilityInput'];
+export function isIPlayerCheckEligibilityInput(v: unknown): v is M.IPlayerCheckEligibilityInput {
+  const schema = shapes['IPlayerCheckEligibilityInput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIPlayerCheckEligibilityOutput(v:unknown):v is M.IPlayerCheckEligibilityOutput {const schema = shapes['IPlayerCheckEligibilityOutput'];
+export function isIPlayerCheckEligibilityOutput(v: unknown): v is M.IPlayerCheckEligibilityOutput {
+  const schema = shapes['IPlayerCheckEligibilityOutput'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}
 
-export function isIError(v:unknown):v is M.IError {const schema = shapes['IError'];
+export function isIError(v: unknown): v is M.IError {
+  const schema = shapes['IError'];
 
-return schema !== undefined && matchesShape(v, schema, shapes);}
+  return schema !== undefined && matchesShape(v, schema, shapes);
+}

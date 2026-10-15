@@ -17,12 +17,15 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm verify
+      - name: Build, typecheck, test, ESLint and architecture
+        run: pnpm verify
+      - name: Generated settings follow the root ESLint rules
+        run: pnpm exec tsx tools/experiment-runner/src/generate-settings.ts --check
       - name: Reproduce the pinned Rover supergraph artifact
         run: pnpm --filter @sportsbook/federation exec tsx src/cli.ts --check-rover
       - name: Contract compatibility against the base revision
         if: github.event_name == 'pull_request'
-        run: pnpm contracts:breaking -- "${{ github.event.pull_request.base.sha }}"
+        run: pnpm contracts:breaking "${{ github.event.pull_request.base.sha }}"
       - run: pnpm test:postgres
       - name: Private Router and Gateway financial workflows
         run: pnpm --filter @sportsbook/federation test-integration

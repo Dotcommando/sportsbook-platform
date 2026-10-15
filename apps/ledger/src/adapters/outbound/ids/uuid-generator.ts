@@ -8,7 +8,9 @@ export class UuidGenerator implements IdGeneratorPort {
   private readonly namespace: Buffer;
 
   constructor(namespace: UUID) {
-    if (!validUuid(namespace)) throw new Error('Explicit non-nil UUID namespace required');
+    if (!validUuid(namespace)) {
+      throw new Error('Explicit non-nil UUID namespace required');
+    }
     this.namespace = Buffer.from(namespace.replaceAll('-', ''), 'hex');
   }
 
@@ -19,7 +21,9 @@ export class UuidGenerator implements IdGeneratorPort {
   }
 
   derive(operatorId: UUID, requestId: UUID, purpose: string): UUID {
-    if (!validUuid(operatorId) || !validUuid(requestId)) throw new Error('Invalid derivation identity');
+    if (!validUuid(operatorId) || !validUuid(requestId)) {
+      throw new Error('Invalid derivation identity');
+    }
     this.validatePurpose(purpose);
     const name = JSON.stringify(['v1', operatorId, requestId, purpose]);
     const digest = createHash('sha1').update(this.namespace).update(name, 'utf8').digest().subarray(0, 16);
@@ -32,6 +36,8 @@ export class UuidGenerator implements IdGeneratorPort {
   }
 
   private validatePurpose(purpose: string): void {
-    if (!/^[A-Za-z0-9][A-Za-z0-9:_-]{0,127}$/.test(purpose)) throw new Error('Invalid identity purpose');
+    if (!/^[A-Za-z0-9][A-Za-z0-9:_-]{0,127}$/.test(purpose)) {
+      throw new Error('Invalid identity purpose');
+    }
   }
 }

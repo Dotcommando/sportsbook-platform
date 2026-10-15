@@ -6,7 +6,7 @@ import { Module } from '@nestjs/common';
 import { compileSkeleton } from '../src/index.js';
 
 @Module({})
-class EmptyModule {}
+class EmptyModule { }
 
 test('initializes a local module without external resources', async () => {
   const module = await compileSkeleton(EmptyModule);

@@ -25,108 +25,308 @@ import { MemoryLedger } from './memory-ledger.fixture.js';
 
 const now = '2026-10-14T12:00:00.000Z';
 
-const clock = {now:():string=>now};
+const clock = { now: (): string => now };
 
-function id(index:number):string { return '00000000-0000-4000-8000-' + String(index).padStart(12, '0'); }
-
-function setup():{system:ICallContext;player:ICallContext;betting:ICallContext;store:MemoryLedger;ids:UuidGenerator;policies:IOperatorFinancialPolicy[]} {
-  const system:ICallContext = {operatorId:id(1), actorId:id(3), actorKind:ActorKind.SYSTEM, capabilities:Object.values(Capability), correlationId:id(5), deadlineAt:'2026-10-14T13:00:00Z'};
-  const player:ICallContext = {...system, actorId:id(2), playerId:id(2), actorKind:ActorKind.PLAYER, capabilities:[Capability.READ_WALLET, Capability.READ_JOURNAL, Capability.WITHDRAW]};
-  const betting:ICallContext = {...system, actorId:id(4), playerId:id(2), actorKind:ActorKind.SERVICE, capabilities:[Capability.RESERVE_STAKE, Capability.SETTLE_BET, Capability.CANCEL_RESERVATION]};
-  const policies:IOperatorFinancialPolicy[] = [{operatorId:id(1), currencies:['USD', 'EUR'].map(currency=>({currency, minimumMinor:1n, maximumMinor:MAX_INT64})), providerNames:['synthetic', 'other'], rejectionReasons:['PAYMENT_REJECTED'], trustedActors:[{...system, providerName:'synthetic'}, betting]}];
-  const ids = new UuidGenerator('6ba7b810-9dad-11d1-80b4-00c04fd430c8');
-
-  return {system, player, betting, ids, policies, store:new MemoryLedger(ids, now)};
+function id(index: number): string {
+  return '00000000-0000-4000-8000-' + String(index).padStart(12, '0');
 }
 
-test('player registration provisions each configured currency with stable child keys; repeats and poison do not duplicate', async()=>{
-  const f = setup();
-  const dependencies = {unitOfWork:f.store, clock, ids:f.ids, fingerprint:new CommandFingerprint(), policies:f.policies};
-  const provision = new ProvisionPlayerWalletUseCase(new CreateWalletUseCase(dependencies), f.ids, clock, f.policies);
-  const input = {context:f.system, playerId:id(2), currencies:['USD', 'EUR'], envelope:{messageId:id(10), source:EventSource.PLAYER, eventType:EventType.PLAYER_REGISTERED, schemaVersion:1, operatorId:id(1), correlationId:id(5), occurredAt:now, payload:{playerId:id(2), registeredAt:now}}};
-  const created = await provision.execute(input);
+function setup(): {
+  system: ICallContext;
+  player: ICallContext;
+  betting: ICallContext;
+  store: MemoryLedger;
+  ids: UuidGenerator;
+  policies: IOperatorFinancialPolicy[]
+} {
+  const system: ICallContext = {
+    operatorId: id(1),
+    actorId: id(3),
+    actorKind: ActorKind.SYSTEM,
+    capabilities: Object.values(Capability),
+    correlationId: id(5),
+    deadlineAt: '2026-10-14T13:00:00Z',
+  };
+  const player: ICallContext = {
+    ...system,
+    actorId: id(2),
+    playerId: id(2),
+    actorKind: ActorKind.PLAYER,
+    capabilities: [Capability.READ_WALLET, Capability.READ_JOURNAL, Capability.WITHDRAW],
+  };
+  const betting: ICallContext = {
+    ...system,
+    actorId: id(4),
+    playerId: id(2),
+    actorKind: ActorKind.SERVICE,
+    capabilities: [Capability.RESERVE_STAKE, Capability.SETTLE_BET, Capability.CANCEL_RESERVATION],
+  };
+  const policies: IOperatorFinancialPolicy[] = [
+    {
+      operatorId: id(1),
+      currencies: ['USD', 'EUR'].map(currency => ({ currency, minimumMinor: 1n, maximumMinor: MAX_INT64 })),
+      providerNames: ['synthetic', 'other'],
+      rejectionReasons: ['PAYMENT_REJECTED'],
+      trustedActors: [{ ...system, providerName: 'synthetic' }, betting],
+    },
+  ];
+  const ids = new UuidGenerator('6ba7b810-9dad-11d1-80b4-00c04fd430c8');
 
-assert.ok(created.ok);assert.equal(created.value.wallets.length, 2);
-  const repeat = await provision.execute({...input, currencies:['EUR', 'USD']});
+  return { system, player, betting, ids, policies, store: new MemoryLedger(ids, now) };
+}
 
-assert.ok(repeat.ok);assert.equal(f.store.state.wallets.size, 2);assert.equal(f.store.state.outbox.length, 2);
-  const poisoned = await provision.execute({...input, playerId:id(99), envelope:{...input.envelope, payload:{playerId:id(99), registeredAt:now}}});
+test(
+  'player registration provisions each configured currency with stable child keys; repeats and poison do not duplicate',
+  async () => {
+    const f = setup();
+    const dependencies = {
+      unitOfWork: f.store,
+      clock,
+      ids: f.ids,
+      fingerprint: new CommandFingerprint(),
+      policies: f.policies,
+    };
+    const provision = new ProvisionPlayerWalletUseCase(
+      new CreateWalletUseCase(dependencies),
+      f.ids,
+      clock,
+      f.policies,
+    );
+    const input = {
+      context: f.system,
+      playerId: id(2),
+      currencies: ['USD', 'EUR'],
+      envelope: {
+        messageId: id(10),
+        source: EventSource.PLAYER,
+        eventType: EventType.PLAYER_REGISTERED,
+        schemaVersion: 1,
+        operatorId: id(1),
+        correlationId: id(5),
+        occurredAt: now,
+        payload: { playerId: id(2), registeredAt: now },
+      },
+    };
+    const created = await provision.execute(input);
 
-  assert.equal(poisoned.ok, false);
+    assert.ok(created.ok);
+    assert.equal(created.value.wallets.length, 2);
+    const repeat = await provision.execute({ ...input, currencies: ['EUR', 'USD'] });
 
-if (!poisoned.ok)assert.equal(poisoned.error.code, ErrorCode.IDEMPOTENCY_CONFLICT);
-  assert.equal(f.store.state.wallets.size, 2);
-  assert.equal((await provision.execute({...input, currencies:['USD']})).ok, false);
-});
+    assert.ok(repeat.ok);
+    assert.equal(f.store.state.wallets.size, 2);
+    assert.equal(f.store.state.outbox.length, 2);
+    const poisoned = await provision.execute(
+      {
+        ...input,
+        playerId: id(99),
+        envelope: { ...input.envelope, payload: { playerId: id(99), registeredAt: now } },
+      },
+    );
 
-test('publisher releases database phase before remote work and retries the original message ID after an ambiguous reply', async()=>{
-  const f = setup();let claimOpen = false;let sends = 0;
-  const idsSent:string[] = [];const completed = new Set<string>();const released:string[] = [];
-  const leases:IOutboxLease[] = [10, 11].map(index=>({leaseId:id(index + 20), attemptNo:1, leaseUntil:'2026-10-14T12:01:00Z', message:{messageId:id(index), source:EventSource.LEDGER, eventType:EventType.WALLET_CREATED, schemaVersion:1, operatorId:id(1), correlationId:id(5), occurredAt:now, payload:{walletId:id(index + 40), playerId:id(2), currency:'USD'}}}));
-  const publisher = new PublishOutboxBatchUseCase({
-    claim:async()=>{claimOpen = true;const result = leases.filter(lease=>!completed.has(lease.leaseId));
+    assert.equal(poisoned.ok, false);
 
-claimOpen = false;
+    if (!poisoned.ok) {
+      assert.equal(poisoned.error.code, ErrorCode.IDEMPOTENCY_CONFLICT);
+    }
+    assert.equal(f.store.state.wallets.size, 2);
+    assert.equal((await provision.execute({ ...input, currencies: ['USD'] })).ok, false);
+  },
+);
 
-return result;},
-    markDelivered:async(_context, leaseId)=>{completed.add(leaseId);},
-    release:async(_context, leaseId)=>{released.push(leaseId);},
-  }, {
-    publish:async(_context, event)=>{assert.equal(claimOpen, false);idsSent.push(event.messageId);
+test(
+  'publisher releases database phase before remote work and retries the original message ID after an ambiguous reply',
+  async () => {
+    const f = setup();
+    let claimOpen = false;
+    let sends = 0;
+    const idsSent: string[] = [];
+    const completed = new Set<string>();
+    const released: string[] = [];
+    const leases: IOutboxLease[] = [10, 11].map(
+      index =>
+        ({
+          leaseId: id(index + 20),
+          attemptNo: 1,
+          leaseUntil: '2026-10-14T12:01:00Z',
+          message: {
+            messageId: id(index),
+            source: EventSource.LEDGER,
+            eventType: EventType.WALLET_CREATED,
+            schemaVersion: 1,
+            operatorId: id(1),
+            correlationId: id(5),
+            occurredAt: now,
+            payload: { walletId: id(index + 40), playerId: id(2), currency: 'USD' },
+          },
+        }),
+    );
+    const publisher = new PublishOutboxBatchUseCase(
+      {
+        claim: async () => {
+          claimOpen = true;
+          const result = leases.filter(lease => !completed.has(lease.leaseId));
 
-if (++sends === 2) throw new Error('Lost publish reply');
+          claimOpen = false;
 
-return {messageId:event.messageId, durable:true, acceptedAt:now};},
-  }, clock, 10);
-  const first = await publisher.execute({input:{context:f.system, batchId:id(60), limit:2, cutoff:now}});
+          return result;
+        },
+        markDelivered: async (_context, leaseId) => {
+          completed.add(leaseId);
+        },
+        release: async (_context, leaseId) => {
+          released.push(leaseId);
+        },
+      },
+      {
+        publish: async (_context, event) => {
+          assert.equal(claimOpen, false);
+          idsSent.push(event.messageId);
 
-assert.ok(first.ok);assert.deepEqual(first.value.report, {selected:2, applied:1, replayed:0, rejected:0, pending:1, failed:0});assert.equal(released.length, 1);
-  const retry = await publisher.execute({input:{context:f.system, batchId:id(61), limit:2, cutoff:now}});
+          if (++sends === 2) {
+            throw new Error('Lost publish reply');
+          }
 
-assert.ok(retry.ok);assert.equal(retry.value.report.applied, 1);assert.deepEqual(idsSent, [id(10), id(11), id(11)]);
-});
+          return { messageId: event.messageId, durable: true, acceptedAt: now };
+        },
+      },
+      clock,
+      10,
+    );
+    const first = await publisher.execute({ input: { context: f.system, batchId: id(60), limit: 2, cutoff: now } });
 
-test('all recovery/history readers remain read-only; provider and malformed result boundaries are enforced', async()=>{
-  const f = setup();const dependencies = {unitOfWork:f.store, clock, ids:f.ids, fingerprint:new CommandFingerprint(), policies:f.policies};
-  const wallet = await new CreateWalletUseCase(dependencies).execute({context:f.system, requestId:id(10), playerId:id(2), currency:'USD'});
+    assert.ok(first.ok);
+    assert.deepEqual(
+      first.value.report,
+      { selected: 2, applied: 1, replayed: 0, rejected: 0, pending: 1, failed: 0 },
+    );
+    assert.equal(released.length, 1);
+    const retry = await publisher.execute({ input: { context: f.system, batchId: id(61), limit: 2, cutoff: now } });
 
-assert.ok(wallet.ok);
-  const walletId = wallet.value.wallet.walletId;
-  const badProvider = await new DepositTestFundsUseCase(dependencies).execute({context:f.system, requestId:id(11), walletId, amount:{currency:'USD', amountMinor:10000n}, providerRef:'other:payment'});
+    assert.ok(retry.ok);
+    assert.equal(retry.value.report.applied, 1);
+    assert.deepEqual(idsSent, [id(10), id(11), id(11)]);
+  },
+);
 
-assert.equal(badProvider.ok, false);
-  assert.ok((await new DepositTestFundsUseCase(dependencies).execute({context:f.system, requestId:id(12), walletId, amount:{currency:'USD', amountMinor:10000n}, providerRef:'synthetic:payment'})).ok);
-  const reserve = await new ReserveStakeUseCase(dependencies).execute({context:f.betting, requestId:id(13), walletId, betId:id(20), stake:{currency:'USD', amountMinor:1000n}});
+test(
+  'all recovery/history readers remain read-only; provider and malformed result boundaries are enforced',
+  async () => {
+    const f = setup();
+    const dependencies = {
+      unitOfWork: f.store,
+      clock,
+      ids: f.ids,
+      fingerprint: new CommandFingerprint(),
+      policies: f.policies,
+    };
+    const wallet = await new CreateWalletUseCase(dependencies).execute(
+      { context: f.system, requestId: id(10), playerId: id(2), currency: 'USD' },
+    );
 
-assert.ok(reserve.ok);assert.ok(reserve.value.outcome.transactionId);
-  assert.ok((await new RequestWithdrawalUseCase(dependencies).execute({context:f.player, requestId:id(14), walletId, withdrawalId:id(21), amount:{currency:'USD', amountMinor:1000n}})).ok);
-  const readers = {queries:f.store, reconciliation:f.store, clock, policies:f.policies};
-  const before = f.store.state.journals.size;
+    assert.ok(wallet.ok);
+    const walletId = wallet.value.wallet.walletId;
+    const badProvider = await new DepositTestFundsUseCase(dependencies).execute(
+      {
+        context: f.system,
+        requestId: id(11),
+        walletId,
+        amount: { currency: 'USD', amountMinor: 10000n },
+        providerRef: 'other:payment',
+      },
+    );
 
-  assert.ok((await new GetWalletUseCase(readers).execute({context:f.player, playerId:id(2), currency:'USD'})).ok);
-  assert.ok((await new GetBalanceUseCase(readers).execute({context:f.player, walletId})).ok);
-  assert.ok((await new GetTransactionUseCase(readers).execute({context:f.player, transactionId:reserve.value.outcome.transactionId})).ok);
-  assert.ok((await new GetLedgerEntriesUseCase(readers).execute({context:f.player, walletId, page:{limit:2}})).ok);
-  assert.ok((await new GetWalletTransactionsUseCase(readers).execute({context:f.player, walletId, page:{limit:2}})).ok);
-  assert.ok((await new GetBetFinancialStatusUseCase(readers).execute({context:f.betting, betId:id(20)})).ok);
-  assert.ok((await new GetWithdrawalUseCase(readers).execute({context:f.player, withdrawalId:id(21)})).ok);
-  assert.ok((await new GetCommandOutcomeUseCase(readers).execute({context:f.betting, requestId:id(13)})).ok);
-  assert.equal(f.store.state.journals.size, before);
-  const original = f.store.getBalance.bind(f.store);
+    assert.equal(badProvider.ok, false);
+    assert.ok(
+      (await new DepositTestFundsUseCase(dependencies).execute(
+        {
+          context: f.system,
+          requestId: id(12),
+          walletId,
+          amount: { currency: 'USD', amountMinor: 10000n },
+          providerRef: 'synthetic:payment',
+        },
+      )).ok,
+    );
+    const reserve = await new ReserveStakeUseCase(dependencies).execute(
+      {
+        context: f.betting,
+        requestId: id(13),
+        walletId,
+        betId: id(20),
+        stake: { currency: 'USD', amountMinor: 1000n },
+      },
+    );
 
-  f.store.getBalance = async(context, id)=>{const value = await original(context, id);
+    assert.ok(reserve.ok);
+    assert.ok(reserve.value.outcome.transactionId);
+    assert.ok(
+      (await new RequestWithdrawalUseCase(dependencies).execute(
+        {
+          context: f.player,
+          requestId: id(14),
+          walletId,
+          withdrawalId: id(21),
+          amount: { currency: 'USD', amountMinor: 1000n },
+        },
+      )).ok,
+    );
+    const readers = { queries: f.store, reconciliation: f.store, clock, policies: f.policies };
+    const before = f.store.state.journals.size;
 
-return value ? {...value, availableMinor:-1n} : undefined;};
-  const invalid = await new GetBalanceUseCase(readers).execute({context:f.player, walletId});
+    assert.ok(
+      (await new GetWalletUseCase(readers).execute({ context: f.player, playerId: id(2), currency: 'USD' })).ok,
+    );
+    assert.ok((await new GetBalanceUseCase(readers).execute({ context: f.player, walletId })).ok);
+    assert.ok(
+      (await new GetTransactionUseCase(readers).execute(
+        { context: f.player, transactionId: reserve.value.outcome.transactionId },
+      )).ok,
+    );
+    assert.ok(
+      (await new GetLedgerEntriesUseCase(readers).execute(
+        { context: f.player, walletId, page: { limit: 2 } },
+      )).ok,
+    );
+    assert.ok(
+      (await new GetWalletTransactionsUseCase(readers).execute(
+        { context: f.player, walletId, page: { limit: 2 } },
+      )).ok,
+    );
+    assert.ok(
+      (await new GetBetFinancialStatusUseCase(readers).execute({ context: f.betting, betId: id(20) })).ok,
+    );
+    assert.ok(
+      (await new GetWithdrawalUseCase(readers).execute({ context: f.player, withdrawalId: id(21) })).ok,
+    );
+    assert.ok(
+      (await new GetCommandOutcomeUseCase(readers).execute({ context: f.betting, requestId: id(13) })).ok,
+    );
+    assert.equal(f.store.state.journals.size, before);
+    const original = f.store.getBalance.bind(f.store);
 
-assert.equal(invalid.ok, false);
+    f.store.getBalance =
+      async (context, id) => {
+        const value = await original(context, id);
 
-if (!invalid.ok)assert.equal(invalid.error.code, ErrorCode.ADAPTER_CONTRACT_VIOLATION);
-});
+        return value ? { ...value, availableMinor: -1n } : undefined;
+      };
+    const invalid = await new GetBalanceUseCase(readers).execute({ context: f.player, walletId });
 
-test('instant validation rejects impossible calendar dates and implicit/local offsets', ()=>{
-  assert.equal(validInstant('2026-02-30T12:00:00Z'), false);
-  assert.equal(validInstant('2026-10-14T24:00:00Z'), false);
-  assert.equal(validInstant('2026-10-14T12:00:00'), false);
-  assert.equal(validInstant('2024-02-29T12:00:00+03:00'), true);
-});
+    assert.equal(invalid.ok, false);
+
+    if (!invalid.ok) {
+      assert.equal(invalid.error.code, ErrorCode.ADAPTER_CONTRACT_VIOLATION);
+    }
+  },
+);
+
+test(
+  'instant validation rejects impossible calendar dates and implicit/local offsets',
+  () => {
+    assert.equal(validInstant('2026-02-30T12:00:00Z'), false);
+    assert.equal(validInstant('2026-10-14T24:00:00Z'), false);
+    assert.equal(validInstant('2026-10-14T12:00:00'), false);
+    assert.equal(validInstant('2024-02-29T12:00:00+03:00'), true);
+  },
+);

@@ -1,9 +1,36 @@
 import type { IShape } from '@sportsbook/service-transport';
-import { decodeShape, matchesShape, ShapeKind, StringFormat } from '@sportsbook/service-transport';
+import { decodeGraphqlShape, decodeShape, matchesShape, ShapeKind, StringFormat } from '@sportsbook/service-transport';
 
-import type { IBettingCancelBetInput, IBettingCancelBetOutput, IBettingGetBetInput, IBettingGetBetOutput, IBettingGetBetStatusInput, IBettingGetBetStatusOutput, IBettingListPlayerBetsInput, IBettingListPlayerBetsOutput, IBettingPlaceBetInput, IBettingPlaceBetOutput, IBettingReconcileBetWithLedgerInput, IBettingReconcileBetWithLedgerOutput, IBettingRecordEventResultInput, IBettingRecordEventResultOutput, IBettingRetryPendingCancellationInput, IBettingRetryPendingCancellationOutput, IBettingRetryPendingReservationInput, IBettingRetryPendingReservationOutput, IBettingRetryPendingSettlementInput, IBettingRetryPendingSettlementOutput, IBettingSettleBetInput, IBettingSettleBetOutput } from '../../../domain/betting.model.js';
+import type {
+  IBettingCancelBetInput,
+  IBettingCancelBetOutput,
+  IBettingGetBetInput,
+  IBettingGetBetOutput,
+  IBettingGetBetStatusInput,
+  IBettingGetBetStatusOutput,
+  IBettingListPlayerBetsInput,
+  IBettingListPlayerBetsOutput,
+  IBettingPlaceBetInput,
+  IBettingPlaceBetOutput,
+  IBettingReconcileBetWithLedgerInput,
+  IBettingReconcileBetWithLedgerOutput,
+  IBettingRecordEventResultInput,
+  IBettingRecordEventResultOutput,
+  IBettingRetryPendingCancellationInput,
+  IBettingRetryPendingCancellationOutput,
+  IBettingRetryPendingReservationInput,
+  IBettingRetryPendingReservationOutput,
+  IBettingRetryPendingSettlementInput,
+  IBettingRetryPendingSettlementOutput,
+  IBettingSettleBetInput,
+  IBettingSettleBetOutput,
+} from '../../../domain/betting.model.js';
 
-const shapes:Record<string, IShape> = {ILedgerGetWalletOutput:{kind:ShapeKind.OBJECT, fields:{wallet:{kind:ShapeKind.REFERENCE, name:'IWalletView'}}},
+const shapes: Record<string, IShape> = {
+  ILedgerGetWalletOutput: {
+    kind: ShapeKind.OBJECT,
+    fields: { wallet: { kind: ShapeKind.REFERENCE, name: 'IWalletView' } },
+  },
   'IError': {
     'kind': ShapeKind.OBJECT,
     'fields': {
@@ -1808,98 +1835,155 @@ const shapes:Record<string, IShape> = {ILedgerGetWalletOutput:{kind:ShapeKind.OB
         'name': 'IBettingScheduleEventSettlementsOutput',
       },
     ],
-  }};
+  },
+};
 
-export function decodeInput(name:string, value:unknown, protobuf:boolean):unknown {const schema = shapes[name];
+export function decodeInput(name: string, value: unknown, protobuf: boolean, graphql = false): unknown {
+  const schema = shapes[name];
 
-if (!schema) throw new Error('Unregistered input');
+  if (!schema) {
+    throw new Error('Unregistered input');
+  }
 
-return decodeShape(value, schema, protobuf, shapes);}
+  return graphql
+    ? decodeGraphqlShape(value, schema, shapes)
+    : decodeShape(value, schema, protobuf, shapes);
+}
 
-export function isIBettingPlaceBetInput(value:unknown):value is IBettingPlaceBetInput {const schema = shapes['IBettingPlaceBetInput'];
+export function isIBettingPlaceBetInput(value: unknown): value is IBettingPlaceBetInput {
+  const schema = shapes['IBettingPlaceBetInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingPlaceBetOutput(value:unknown):value is IBettingPlaceBetOutput {const schema = shapes['IBettingPlaceBetOutput'];
+export function isIBettingPlaceBetOutput(value: unknown): value is IBettingPlaceBetOutput {
+  const schema = shapes['IBettingPlaceBetOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingGetBetInput(value:unknown):value is IBettingGetBetInput {const schema = shapes['IBettingGetBetInput'];
+export function isIBettingGetBetInput(value: unknown): value is IBettingGetBetInput {
+  const schema = shapes['IBettingGetBetInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingGetBetOutput(value:unknown):value is IBettingGetBetOutput {const schema = shapes['IBettingGetBetOutput'];
+export function isIBettingGetBetOutput(value: unknown): value is IBettingGetBetOutput {
+  const schema = shapes['IBettingGetBetOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingListPlayerBetsInput(value:unknown):value is IBettingListPlayerBetsInput {const schema = shapes['IBettingListPlayerBetsInput'];
+export function isIBettingListPlayerBetsInput(value: unknown): value is IBettingListPlayerBetsInput {
+  const schema = shapes['IBettingListPlayerBetsInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingListPlayerBetsOutput(value:unknown):value is IBettingListPlayerBetsOutput {const schema = shapes['IBettingListPlayerBetsOutput'];
+export function isIBettingListPlayerBetsOutput(value: unknown): value is IBettingListPlayerBetsOutput {
+  const schema = shapes['IBettingListPlayerBetsOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingGetBetStatusInput(value:unknown):value is IBettingGetBetStatusInput {const schema = shapes['IBettingGetBetStatusInput'];
+export function isIBettingGetBetStatusInput(value: unknown): value is IBettingGetBetStatusInput {
+  const schema = shapes['IBettingGetBetStatusInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingGetBetStatusOutput(value:unknown):value is IBettingGetBetStatusOutput {const schema = shapes['IBettingGetBetStatusOutput'];
+export function isIBettingGetBetStatusOutput(value: unknown): value is IBettingGetBetStatusOutput {
+  const schema = shapes['IBettingGetBetStatusOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingCancelBetInput(value:unknown):value is IBettingCancelBetInput {const schema = shapes['IBettingCancelBetInput'];
+export function isIBettingCancelBetInput(value: unknown): value is IBettingCancelBetInput {
+  const schema = shapes['IBettingCancelBetInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingCancelBetOutput(value:unknown):value is IBettingCancelBetOutput {const schema = shapes['IBettingCancelBetOutput'];
+export function isIBettingCancelBetOutput(value: unknown): value is IBettingCancelBetOutput {
+  const schema = shapes['IBettingCancelBetOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingRecordEventResultInput(value:unknown):value is IBettingRecordEventResultInput {const schema = shapes['IBettingRecordEventResultInput'];
+export function isIBettingRecordEventResultInput(value: unknown): value is IBettingRecordEventResultInput {
+  const schema = shapes['IBettingRecordEventResultInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingRecordEventResultOutput(value:unknown):value is IBettingRecordEventResultOutput {const schema = shapes['IBettingRecordEventResultOutput'];
+export function isIBettingRecordEventResultOutput(value: unknown): value is IBettingRecordEventResultOutput {
+  const schema = shapes['IBettingRecordEventResultOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingSettleBetInput(value:unknown):value is IBettingSettleBetInput {const schema = shapes['IBettingSettleBetInput'];
+export function isIBettingSettleBetInput(value: unknown): value is IBettingSettleBetInput {
+  const schema = shapes['IBettingSettleBetInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingSettleBetOutput(value:unknown):value is IBettingSettleBetOutput {const schema = shapes['IBettingSettleBetOutput'];
+export function isIBettingSettleBetOutput(value: unknown): value is IBettingSettleBetOutput {
+  const schema = shapes['IBettingSettleBetOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingRetryPendingReservationInput(value:unknown):value is IBettingRetryPendingReservationInput {const schema = shapes['IBettingRetryPendingReservationInput'];
+export function isIBettingRetryPendingReservationInput(value: unknown): value is IBettingRetryPendingReservationInput {
+  const schema = shapes['IBettingRetryPendingReservationInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingRetryPendingReservationOutput(value:unknown):value is IBettingRetryPendingReservationOutput {const schema = shapes['IBettingRetryPendingReservationOutput'];
+export function isIBettingRetryPendingReservationOutput(
+  value: unknown,
+): value is IBettingRetryPendingReservationOutput {
+  const schema = shapes['IBettingRetryPendingReservationOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingRetryPendingSettlementInput(value:unknown):value is IBettingRetryPendingSettlementInput {const schema = shapes['IBettingRetryPendingSettlementInput'];
+export function isIBettingRetryPendingSettlementInput(value: unknown): value is IBettingRetryPendingSettlementInput {
+  const schema = shapes['IBettingRetryPendingSettlementInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingRetryPendingSettlementOutput(value:unknown):value is IBettingRetryPendingSettlementOutput {const schema = shapes['IBettingRetryPendingSettlementOutput'];
+export function isIBettingRetryPendingSettlementOutput(value: unknown): value is IBettingRetryPendingSettlementOutput {
+  const schema = shapes['IBettingRetryPendingSettlementOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingReconcileBetWithLedgerInput(value:unknown):value is IBettingReconcileBetWithLedgerInput {const schema = shapes['IBettingReconcileBetWithLedgerInput'];
+export function isIBettingReconcileBetWithLedgerInput(value: unknown): value is IBettingReconcileBetWithLedgerInput {
+  const schema = shapes['IBettingReconcileBetWithLedgerInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingReconcileBetWithLedgerOutput(value:unknown):value is IBettingReconcileBetWithLedgerOutput {const schema = shapes['IBettingReconcileBetWithLedgerOutput'];
+export function isIBettingReconcileBetWithLedgerOutput(value: unknown): value is IBettingReconcileBetWithLedgerOutput {
+  const schema = shapes['IBettingReconcileBetWithLedgerOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingRetryPendingCancellationInput(value:unknown):value is IBettingRetryPendingCancellationInput {const schema = shapes['IBettingRetryPendingCancellationInput'];
+export function isIBettingRetryPendingCancellationInput(
+  value: unknown,
+): value is IBettingRetryPendingCancellationInput {
+  const schema = shapes['IBettingRetryPendingCancellationInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIBettingRetryPendingCancellationOutput(value:unknown):value is IBettingRetryPendingCancellationOutput {const schema = shapes['IBettingRetryPendingCancellationOutput'];
+export function isIBettingRetryPendingCancellationOutput(
+  value: unknown,
+): value is IBettingRetryPendingCancellationOutput {
+  const schema = shapes['IBettingRetryPendingCancellationOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}

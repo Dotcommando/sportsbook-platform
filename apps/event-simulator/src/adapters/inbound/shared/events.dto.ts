@@ -1,9 +1,24 @@
 import type { IShape } from '@sportsbook/service-transport';
 import { decodeShape, matchesShape, ShapeKind, StringFormat } from '@sportsbook/service-transport';
 
-import type { IEventsAdvanceMatchPhaseInput, IEventsAdvanceMatchPhaseOutput, IEventsCompleteEventInput, IEventsCompleteEventOutput, IEventsGetEventInput, IEventsGetEventOutput, IEventsGetEventResultInput, IEventsGetEventResultOutput, IEventsGetMarketsInput, IEventsGetMarketsOutput, IEventsListEventsInput, IEventsListEventsOutput, IEventsValidateSelectionQuoteInput, IEventsValidateSelectionQuoteOutput } from '../../../domain/events.model.js';
+import type {
+  IEventsAdvanceMatchPhaseInput,
+  IEventsAdvanceMatchPhaseOutput,
+  IEventsCompleteEventInput,
+  IEventsCompleteEventOutput,
+  IEventsGetEventInput,
+  IEventsGetEventOutput,
+  IEventsGetEventResultInput,
+  IEventsGetEventResultOutput,
+  IEventsGetMarketsInput,
+  IEventsGetMarketsOutput,
+  IEventsListEventsInput,
+  IEventsListEventsOutput,
+  IEventsValidateSelectionQuoteInput,
+  IEventsValidateSelectionQuoteOutput,
+} from '../../../domain/events.model.js';
 
-const shapes:Record<string, IShape> = {
+const shapes: Record<string, IShape> = {
   'IError': {
     'kind': ShapeKind.OBJECT,
     'fields': {
@@ -992,64 +1007,96 @@ const shapes:Record<string, IShape> = {
   },
 };
 
-export function decodeInput(name:string, value:unknown, protobuf:boolean):unknown {const schema = shapes[name];
+export function decodeInput(name: string, value: unknown, protobuf: boolean): unknown {
+  const schema = shapes[name];
 
-if (!schema) throw new Error('Unregistered input');
+  if (!schema) {
+    throw new Error('Unregistered input');
+  }
 
-return decodeShape(value, schema, protobuf, shapes);}
+  return decodeShape(value, schema, protobuf, shapes);
+}
 
-export function isIEventsListEventsInput(value:unknown):value is IEventsListEventsInput {const schema = shapes['IEventsListEventsInput'];
+export function isIEventsListEventsInput(value: unknown): value is IEventsListEventsInput {
+  const schema = shapes['IEventsListEventsInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsListEventsOutput(value:unknown):value is IEventsListEventsOutput {const schema = shapes['IEventsListEventsOutput'];
+export function isIEventsListEventsOutput(value: unknown): value is IEventsListEventsOutput {
+  const schema = shapes['IEventsListEventsOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsGetEventInput(value:unknown):value is IEventsGetEventInput {const schema = shapes['IEventsGetEventInput'];
+export function isIEventsGetEventInput(value: unknown): value is IEventsGetEventInput {
+  const schema = shapes['IEventsGetEventInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsGetEventOutput(value:unknown):value is IEventsGetEventOutput {const schema = shapes['IEventsGetEventOutput'];
+export function isIEventsGetEventOutput(value: unknown): value is IEventsGetEventOutput {
+  const schema = shapes['IEventsGetEventOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsGetMarketsInput(value:unknown):value is IEventsGetMarketsInput {const schema = shapes['IEventsGetMarketsInput'];
+export function isIEventsGetMarketsInput(value: unknown): value is IEventsGetMarketsInput {
+  const schema = shapes['IEventsGetMarketsInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsGetMarketsOutput(value:unknown):value is IEventsGetMarketsOutput {const schema = shapes['IEventsGetMarketsOutput'];
+export function isIEventsGetMarketsOutput(value: unknown): value is IEventsGetMarketsOutput {
+  const schema = shapes['IEventsGetMarketsOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsValidateSelectionQuoteInput(value:unknown):value is IEventsValidateSelectionQuoteInput {const schema = shapes['IEventsValidateSelectionQuoteInput'];
+export function isIEventsValidateSelectionQuoteInput(value: unknown): value is IEventsValidateSelectionQuoteInput {
+  const schema = shapes['IEventsValidateSelectionQuoteInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsValidateSelectionQuoteOutput(value:unknown):value is IEventsValidateSelectionQuoteOutput {const schema = shapes['IEventsValidateSelectionQuoteOutput'];
+export function isIEventsValidateSelectionQuoteOutput(value: unknown): value is IEventsValidateSelectionQuoteOutput {
+  const schema = shapes['IEventsValidateSelectionQuoteOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsGetEventResultInput(value:unknown):value is IEventsGetEventResultInput {const schema = shapes['IEventsGetEventResultInput'];
+export function isIEventsGetEventResultInput(value: unknown): value is IEventsGetEventResultInput {
+  const schema = shapes['IEventsGetEventResultInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsGetEventResultOutput(value:unknown):value is IEventsGetEventResultOutput {const schema = shapes['IEventsGetEventResultOutput'];
+export function isIEventsGetEventResultOutput(value: unknown): value is IEventsGetEventResultOutput {
+  const schema = shapes['IEventsGetEventResultOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsAdvanceMatchPhaseInput(value:unknown):value is IEventsAdvanceMatchPhaseInput {const schema = shapes['IEventsAdvanceMatchPhaseInput'];
+export function isIEventsAdvanceMatchPhaseInput(value: unknown): value is IEventsAdvanceMatchPhaseInput {
+  const schema = shapes['IEventsAdvanceMatchPhaseInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsAdvanceMatchPhaseOutput(value:unknown):value is IEventsAdvanceMatchPhaseOutput {const schema = shapes['IEventsAdvanceMatchPhaseOutput'];
+export function isIEventsAdvanceMatchPhaseOutput(value: unknown): value is IEventsAdvanceMatchPhaseOutput {
+  const schema = shapes['IEventsAdvanceMatchPhaseOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsCompleteEventInput(value:unknown):value is IEventsCompleteEventInput {const schema = shapes['IEventsCompleteEventInput'];
+export function isIEventsCompleteEventInput(value: unknown): value is IEventsCompleteEventInput {
+  const schema = shapes['IEventsCompleteEventInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isIEventsCompleteEventOutput(value:unknown):value is IEventsCompleteEventOutput {const schema = shapes['IEventsCompleteEventOutput'];
+export function isIEventsCompleteEventOutput(value: unknown): value is IEventsCompleteEventOutput {
+  const schema = shapes['IEventsCompleteEventOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}

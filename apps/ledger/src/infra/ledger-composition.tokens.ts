@@ -1,0 +1,5 @@
+export const LEDGER_WRITE_PORT = Symbol('LEDGER_WRITE_PORT');
+
+export const LEDGER_PERSISTENCE = Symbol('LEDGER_PERSISTENCE');
+
+export const LEDGER_APPLICATION = Symbol('LEDGER_APPLICATION');

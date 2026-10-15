@@ -1,16 +1,8 @@
 import 'reflect-metadata';
 
-import { NestFactory } from '@nestjs/core';
-import { createServiceLogger } from '@sportsbook/observability';
+import { requiredSettingsFile, runProcess } from '@sportsbook/runtime-settings';
 
-import { ServiceModule } from './infra/service.module.js';
+import { startGatewayProcess } from './infra/gateway-process.factory.js';
+import { readProcessConfiguration } from './infra/gateway-process.settings.js';
 
-async function bootstrap(): Promise<void> {
-  const application = await NestFactory.createApplicationContext(ServiceModule, {
-    logger: createServiceLogger('api-gateway'),
-  });
-
-  application.enableShutdownHooks();
-}
-
-await bootstrap();
+await runProcess(() => startGatewayProcess(readProcessConfiguration(requiredSettingsFile(process.argv.slice(2)))));

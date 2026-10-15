@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/orm/generated/prisma"
+}
+datasource db {
+  provider = "postgresql"
+  relationMode = "prisma"
+}
+model BenchAccount {
+  accountId String @id @map("account_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  value BigInt
+  createdAt DateTime @map("created_at") @db.Timestamptz(6)
+  entries BenchEntry[]
+  @@unique([operatorId, accountId])
+  @@map("bench_accounts")
+}
+model BenchEntry {
+  entryId String @id @map("entry_id") @db.Uuid
+  operatorId String @map("operator_id") @db.Uuid
+  accountId String @map("account_id") @db.Uuid
+  value BigInt
+  account BenchAccount @relation(fields: [operatorId, accountId], references: [operatorId, accountId], onDelete: Restrict, onUpdate: Restrict)
+  @@index([operatorId, accountId])
+  @@map("bench_entries")
+}

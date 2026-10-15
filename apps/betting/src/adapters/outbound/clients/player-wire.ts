@@ -1,17 +1,525 @@
 import { objectValue } from '@sportsbook/service-transport';
 
-const enums:Record<string, string[]> = {'AddContactRequestKind':['ADD_CONTACT_REQUEST_KIND_EMAIL', 'ADD_CONTACT_REQUEST_KIND_PHONE'], 'ApplyRestrictionRequestType':['APPLY_RESTRICTION_REQUEST_TYPE_BETTING_BLOCK', 'APPLY_RESTRICTION_REQUEST_TYPE_DEPOSIT_BLOCK', 'APPLY_RESTRICTION_REQUEST_TYPE_WITHDRAWAL_REVIEW'], 'BetStateChangedEventFinancialState':['BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_UNCONFIRMED', 'BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_RESERVED', 'BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_SETTLED', 'BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_REFUNDED'], 'BetStatus':['BET_STATUS_PENDING_RESERVATION', 'BET_STATUS_ACCEPTED', 'BET_STATUS_REJECTED', 'BET_STATUS_SETTLEMENT_PENDING', 'BET_STATUS_WON', 'BET_STATUS_LOST', 'BET_STATUS_VOID', 'BET_STATUS_CANCELED'], 'CallContextActorKind':['CALL_CONTEXT_ACTOR_KIND_PLAYER', 'CALL_CONTEXT_ACTOR_KIND_SERVICE', 'CALL_CONTEXT_ACTOR_KIND_SYSTEM'], 'Capability':['CAPABILITY_REGISTER_PLAYER', 'CAPABILITY_PROFILE_READ', 'CAPABILITY_PROFILE_WRITE', 'CAPABILITY_CONTACT_WRITE', 'CAPABILITY_CONTACT_VERIFY', 'CAPABILITY_MANAGE_PLAYER', 'CAPABILITY_MANAGE_KYC', 'CAPABILITY_DECIDE_KYC', 'CAPABILITY_KYC_STATUS', 'CAPABILITY_MANAGE_RESTRICTIONS', 'CAPABILITY_RESTRICTION_READ', 'CAPABILITY_EVALUATE_ELIGIBILITY', 'CAPABILITY_EVENT_READ', 'CAPABILITY_EVENT_RESULT_READ', 'CAPABILITY_QUOTE_VALIDATE', 'CAPABILITY_MATCH_CONTROL', 'CAPABILITY_PLACE_BET', 'CAPABILITY_BET_READ', 'CAPABILITY_CANCEL_BET', 'CAPABILITY_SETTLE_BET', 'CAPABILITY_RECOVER_BETS', 'CAPABILITY_RECONCILE_BETS', 'CAPABILITY_CREATE_WALLET', 'CAPABILITY_READ_WALLET', 'CAPABILITY_READ_JOURNAL', 'CAPABILITY_FUND_SYNTHETIC', 'CAPABILITY_WITHDRAW', 'CAPABILITY_PAYMENT_SIMULATOR', 'CAPABILITY_RESERVE_STAKE', 'CAPABILITY_CANCEL_RESERVATION', 'CAPABILITY_RECONCILE_LEDGER', 'CAPABILITY_PUBLISH_EVENTS', 'CAPABILITY_SYNTHETIC_KYC', 'CAPABILITY_READ_PLAYER_REFERENCE', 'CAPABILITY_DIAGNOSTICS'], 'ChangePlayerStatusRequestStatus':['CHANGE_PLAYER_STATUS_REQUEST_STATUS_ACTIVE', 'CHANGE_PLAYER_STATUS_REQUEST_STATUS_SUSPENDED', 'CHANGE_PLAYER_STATUS_REQUEST_STATUS_CLOSED'], 'CheckEligibilityRequestCapability':['CHECK_ELIGIBILITY_REQUEST_CAPABILITY_PLACE_BET', 'CHECK_ELIGIBILITY_REQUEST_CAPABILITY_DEPOSIT', 'CHECK_ELIGIBILITY_REQUEST_CAPABILITY_WITHDRAW'], 'ContactKind':['CONTACT_KIND_EMAIL', 'CONTACT_KIND_PHONE'], 'DecideKycCaseRequestDecision':['DECIDE_KYC_CASE_REQUEST_DECISION_APPROVED', 'DECIDE_KYC_CASE_REQUEST_DECISION_REJECTED'], 'EligibilityReasonCode':['ELIGIBILITY_REASON_CODE_ELIGIBLE', 'ELIGIBILITY_REASON_CODE_PLAYER_INACTIVE', 'ELIGIBILITY_REASON_CODE_KYC_REQUIRED', 'ELIGIBILITY_REASON_CODE_KYC_EXPIRED', 'ELIGIBILITY_REASON_CODE_CAPABILITY_RESTRICTED'], 'ErrorCode':['ERROR_CODE_INVALID_INPUT', 'ERROR_CODE_AMOUNT_OUT_OF_RANGE', 'ERROR_CODE_CURRENCY_MISMATCH', 'ERROR_CODE_UNAUTHENTICATED', 'ERROR_CODE_PERMISSION_DENIED', 'ERROR_CODE_NOT_FOUND', 'ERROR_CODE_IDEMPOTENCY_CONFLICT', 'ERROR_CODE_VERSION_CONFLICT', 'ERROR_CODE_INSUFFICIENT_FUNDS', 'ERROR_CODE_INELIGIBLE', 'ERROR_CODE_STALE_QUOTE', 'ERROR_CODE_MARKET_CLOSED', 'ERROR_CODE_INVALID_STATE', 'ERROR_CODE_IN_PROGRESS', 'ERROR_CODE_OVERLOADED', 'ERROR_CODE_DEADLINE_EXCEEDED', 'ERROR_CODE_DEPENDENCY_UNAVAILABLE', 'ERROR_CODE_ADAPTER_CONTRACT_VIOLATION', 'ERROR_CODE_INVARIANT_VIOLATION'], 'EventEnvelopeSource':['EVENT_ENVELOPE_SOURCE_EVENTS', 'EVENT_ENVELOPE_SOURCE_PLAYER', 'EVENT_ENVELOPE_SOURCE_BETTING', 'EVENT_ENVELOPE_SOURCE_LEDGER'], 'EventPhase':['EVENT_PHASE_PRE_MATCH', 'EVENT_PHASE_LIVE', 'EVENT_PHASE_HALF_TIME', 'EVENT_PHASE_SUSPENDED', 'EVENT_PHASE_FINISHED'], 'EventResultOutcome':['EVENT_RESULT_OUTCOME_HOME', 'EVENT_RESULT_OUTCOME_DRAW', 'EVENT_RESULT_OUTCOME_AWAY', 'EVENT_RESULT_OUTCOME_VOID'], 'EventType':['EVENT_TYPE_PLAYER_REGISTERED', 'EVENT_TYPE_PLAYER_PROFILE_CHANGED', 'EVENT_TYPE_PLAYER_ELIGIBILITY_CHANGED', 'EVENT_TYPE_MATCH_PHASE_CHANGED', 'EVENT_TYPE_EVENT_RESULT', 'EVENT_TYPE_BET_STATE_CHANGED', 'EVENT_TYPE_LEDGER_POSTED', 'EVENT_TYPE_WITHDRAWAL_RESOLVED', 'EVENT_TYPE_WALLET_CREATED'], 'GetRestrictionsRequestState':['GET_RESTRICTIONS_REQUEST_STATE_ACTIVE', 'GET_RESTRICTIONS_REQUEST_STATE_CLEARED', 'GET_RESTRICTIONS_REQUEST_STATE_EXPIRED'], 'KycCaseRequiredLevel':['KYC_CASE_REQUIRED_LEVEL_BASIC', 'KYC_CASE_REQUIRED_LEVEL_ENHANCED'], 'KycCaseStatus':['KYC_CASE_STATUS_OPEN', 'KYC_CASE_STATUS_IN_REVIEW', 'KYC_CASE_STATUS_APPROVED', 'KYC_CASE_STATUS_REJECTED', 'KYC_CASE_STATUS_EXPIRED'], 'KycCheckCheckType':['KYC_CHECK_CHECK_TYPE_IDENTITY', 'KYC_CHECK_CHECK_TYPE_AGE', 'KYC_CHECK_CHECK_TYPE_RESIDENCE'], 'KycCheckProvider':['KYC_CHECK_PROVIDER_SYNTHETIC'], 'KycCheckStatus':['KYC_CHECK_STATUS_PASSED', 'KYC_CHECK_STATUS_FAILED'], 'OpenKycCaseRequestRequiredLevel':['OPEN_KYC_CASE_REQUEST_REQUIRED_LEVEL_BASIC', 'OPEN_KYC_CASE_REQUEST_REQUIRED_LEVEL_ENHANCED'], 'PlayerCapability':['PLAYER_CAPABILITY_PLACE_BET', 'PLAYER_CAPABILITY_DEPOSIT', 'PLAYER_CAPABILITY_WITHDRAW'], 'ProfileField':['PROFILE_FIELD_FIRST_NAME', 'PROFILE_FIELD_LAST_NAME', 'PROFILE_FIELD_BIRTH_DATE', 'PROFILE_FIELD_RESIDENCE_COUNTRY', 'PROFILE_FIELD_NATIONALITY_COUNTRY', 'PROFILE_FIELD_LOCALE', 'PROFILE_FIELD_TIME_ZONE'], 'ProfileStatus':['PROFILE_STATUS_REGISTERED', 'PROFILE_STATUS_ACTIVE', 'PROFILE_STATUS_SUSPENDED', 'PROFILE_STATUS_CLOSED'], 'RestrictionState':['RESTRICTION_STATE_ACTIVE', 'RESTRICTION_STATE_CLEARED', 'RESTRICTION_STATE_EXPIRED'], 'RestrictionType':['RESTRICTION_TYPE_BETTING_BLOCK', 'RESTRICTION_TYPE_DEPOSIT_BLOCK', 'RESTRICTION_TYPE_WITHDRAWAL_REVIEW'], 'TransactionType':['TRANSACTION_TYPE_DEPOSIT', 'TRANSACTION_TYPE_RESERVE_STAKE', 'TRANSACTION_TYPE_SETTLE_WIN', 'TRANSACTION_TYPE_SETTLE_LOSS', 'TRANSACTION_TYPE_CANCEL_RESERVATION', 'TRANSACTION_TYPE_WITHDRAWAL_HOLD', 'TRANSACTION_TYPE_WITHDRAWAL_COMPLETE', 'TRANSACTION_TYPE_WITHDRAWAL_REJECT'], 'WithdrawalResolvedEventState':['WITHDRAWAL_RESOLVED_EVENT_STATE_COMPLETED', 'WITHDRAWAL_RESOLVED_EVENT_STATE_REJECTED']};
+const enums: Record<string, string[]> =
+  {
+    'AddContactRequestKind': ['ADD_CONTACT_REQUEST_KIND_EMAIL', 'ADD_CONTACT_REQUEST_KIND_PHONE'],
+    'ApplyRestrictionRequestType': [
+      'APPLY_RESTRICTION_REQUEST_TYPE_BETTING_BLOCK',
+      'APPLY_RESTRICTION_REQUEST_TYPE_DEPOSIT_BLOCK',
+      'APPLY_RESTRICTION_REQUEST_TYPE_WITHDRAWAL_REVIEW',
+    ],
+    'BetStateChangedEventFinancialState': [
+      'BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_UNCONFIRMED',
+      'BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_RESERVED',
+      'BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_SETTLED',
+      'BET_STATE_CHANGED_EVENT_FINANCIAL_STATE_REFUNDED',
+    ],
+    'BetStatus': [
+      'BET_STATUS_PENDING_RESERVATION',
+      'BET_STATUS_ACCEPTED',
+      'BET_STATUS_REJECTED',
+      'BET_STATUS_SETTLEMENT_PENDING',
+      'BET_STATUS_WON',
+      'BET_STATUS_LOST',
+      'BET_STATUS_VOID',
+      'BET_STATUS_CANCELED',
+    ],
+    'CallContextActorKind': [
+      'CALL_CONTEXT_ACTOR_KIND_PLAYER',
+      'CALL_CONTEXT_ACTOR_KIND_SERVICE',
+      'CALL_CONTEXT_ACTOR_KIND_SYSTEM',
+    ],
+    'Capability': [
+      'CAPABILITY_REGISTER_PLAYER',
+      'CAPABILITY_PROFILE_READ',
+      'CAPABILITY_PROFILE_WRITE',
+      'CAPABILITY_CONTACT_WRITE',
+      'CAPABILITY_CONTACT_VERIFY',
+      'CAPABILITY_MANAGE_PLAYER',
+      'CAPABILITY_MANAGE_KYC',
+      'CAPABILITY_DECIDE_KYC',
+      'CAPABILITY_KYC_STATUS',
+      'CAPABILITY_MANAGE_RESTRICTIONS',
+      'CAPABILITY_RESTRICTION_READ',
+      'CAPABILITY_EVALUATE_ELIGIBILITY',
+      'CAPABILITY_EVENT_READ',
+      'CAPABILITY_EVENT_RESULT_READ',
+      'CAPABILITY_QUOTE_VALIDATE',
+      'CAPABILITY_MATCH_CONTROL',
+      'CAPABILITY_PLACE_BET',
+      'CAPABILITY_BET_READ',
+      'CAPABILITY_CANCEL_BET',
+      'CAPABILITY_SETTLE_BET',
+      'CAPABILITY_RECOVER_BETS',
+      'CAPABILITY_RECONCILE_BETS',
+      'CAPABILITY_CREATE_WALLET',
+      'CAPABILITY_READ_WALLET',
+      'CAPABILITY_READ_JOURNAL',
+      'CAPABILITY_FUND_SYNTHETIC',
+      'CAPABILITY_WITHDRAW',
+      'CAPABILITY_PAYMENT_SIMULATOR',
+      'CAPABILITY_RESERVE_STAKE',
+      'CAPABILITY_CANCEL_RESERVATION',
+      'CAPABILITY_RECONCILE_LEDGER',
+      'CAPABILITY_PUBLISH_EVENTS',
+      'CAPABILITY_SYNTHETIC_KYC',
+      'CAPABILITY_READ_PLAYER_REFERENCE',
+      'CAPABILITY_DIAGNOSTICS',
+    ],
+    'ChangePlayerStatusRequestStatus': [
+      'CHANGE_PLAYER_STATUS_REQUEST_STATUS_ACTIVE',
+      'CHANGE_PLAYER_STATUS_REQUEST_STATUS_SUSPENDED',
+      'CHANGE_PLAYER_STATUS_REQUEST_STATUS_CLOSED',
+    ],
+    'CheckEligibilityRequestCapability': [
+      'CHECK_ELIGIBILITY_REQUEST_CAPABILITY_PLACE_BET',
+      'CHECK_ELIGIBILITY_REQUEST_CAPABILITY_DEPOSIT',
+      'CHECK_ELIGIBILITY_REQUEST_CAPABILITY_WITHDRAW',
+    ],
+    'ContactKind': ['CONTACT_KIND_EMAIL', 'CONTACT_KIND_PHONE'],
+    'DecideKycCaseRequestDecision':
+    [
+      'DECIDE_KYC_CASE_REQUEST_DECISION_APPROVED',
+      'DECIDE_KYC_CASE_REQUEST_DECISION_REJECTED',
+    ],
+    'EligibilityReasonCode': [
+      'ELIGIBILITY_REASON_CODE_ELIGIBLE',
+      'ELIGIBILITY_REASON_CODE_PLAYER_INACTIVE',
+      'ELIGIBILITY_REASON_CODE_KYC_REQUIRED',
+      'ELIGIBILITY_REASON_CODE_KYC_EXPIRED',
+      'ELIGIBILITY_REASON_CODE_CAPABILITY_RESTRICTED',
+    ],
+    'ErrorCode': [
+      'ERROR_CODE_INVALID_INPUT',
+      'ERROR_CODE_AMOUNT_OUT_OF_RANGE',
+      'ERROR_CODE_CURRENCY_MISMATCH',
+      'ERROR_CODE_UNAUTHENTICATED',
+      'ERROR_CODE_PERMISSION_DENIED',
+      'ERROR_CODE_NOT_FOUND',
+      'ERROR_CODE_IDEMPOTENCY_CONFLICT',
+      'ERROR_CODE_VERSION_CONFLICT',
+      'ERROR_CODE_INSUFFICIENT_FUNDS',
+      'ERROR_CODE_INELIGIBLE',
+      'ERROR_CODE_STALE_QUOTE',
+      'ERROR_CODE_MARKET_CLOSED',
+      'ERROR_CODE_INVALID_STATE',
+      'ERROR_CODE_IN_PROGRESS',
+      'ERROR_CODE_OVERLOADED',
+      'ERROR_CODE_DEADLINE_EXCEEDED',
+      'ERROR_CODE_DEPENDENCY_UNAVAILABLE',
+      'ERROR_CODE_ADAPTER_CONTRACT_VIOLATION',
+      'ERROR_CODE_INVARIANT_VIOLATION',
+    ],
+    'EventEnvelopeSource': [
+      'EVENT_ENVELOPE_SOURCE_EVENTS',
+      'EVENT_ENVELOPE_SOURCE_PLAYER',
+      'EVENT_ENVELOPE_SOURCE_BETTING',
+      'EVENT_ENVELOPE_SOURCE_LEDGER',
+    ],
+    'EventPhase': [
+      'EVENT_PHASE_PRE_MATCH',
+      'EVENT_PHASE_LIVE',
+      'EVENT_PHASE_HALF_TIME',
+      'EVENT_PHASE_SUSPENDED',
+      'EVENT_PHASE_FINISHED',
+    ],
+    'EventResultOutcome': [
+      'EVENT_RESULT_OUTCOME_HOME',
+      'EVENT_RESULT_OUTCOME_DRAW',
+      'EVENT_RESULT_OUTCOME_AWAY',
+      'EVENT_RESULT_OUTCOME_VOID',
+    ],
+    'EventType': [
+      'EVENT_TYPE_PLAYER_REGISTERED',
+      'EVENT_TYPE_PLAYER_PROFILE_CHANGED',
+      'EVENT_TYPE_PLAYER_ELIGIBILITY_CHANGED',
+      'EVENT_TYPE_MATCH_PHASE_CHANGED',
+      'EVENT_TYPE_EVENT_RESULT',
+      'EVENT_TYPE_BET_STATE_CHANGED',
+      'EVENT_TYPE_LEDGER_POSTED',
+      'EVENT_TYPE_WITHDRAWAL_RESOLVED',
+      'EVENT_TYPE_WALLET_CREATED',
+    ],
+    'GetRestrictionsRequestState': [
+      'GET_RESTRICTIONS_REQUEST_STATE_ACTIVE',
+      'GET_RESTRICTIONS_REQUEST_STATE_CLEARED',
+      'GET_RESTRICTIONS_REQUEST_STATE_EXPIRED',
+    ],
+    'KycCaseRequiredLevel': ['KYC_CASE_REQUIRED_LEVEL_BASIC', 'KYC_CASE_REQUIRED_LEVEL_ENHANCED'],
+    'KycCaseStatus': [
+      'KYC_CASE_STATUS_OPEN',
+      'KYC_CASE_STATUS_IN_REVIEW',
+      'KYC_CASE_STATUS_APPROVED',
+      'KYC_CASE_STATUS_REJECTED',
+      'KYC_CASE_STATUS_EXPIRED',
+    ],
+    'KycCheckCheckType':
+    [
+      'KYC_CHECK_CHECK_TYPE_IDENTITY',
+      'KYC_CHECK_CHECK_TYPE_AGE',
+      'KYC_CHECK_CHECK_TYPE_RESIDENCE',
+    ],
+    'KycCheckProvider': ['KYC_CHECK_PROVIDER_SYNTHETIC'],
+    'KycCheckStatus': ['KYC_CHECK_STATUS_PASSED', 'KYC_CHECK_STATUS_FAILED'],
+    'OpenKycCaseRequestRequiredLevel':
+    [
+      'OPEN_KYC_CASE_REQUEST_REQUIRED_LEVEL_BASIC',
+      'OPEN_KYC_CASE_REQUEST_REQUIRED_LEVEL_ENHANCED',
+    ],
+    'PlayerCapability': ['PLAYER_CAPABILITY_PLACE_BET', 'PLAYER_CAPABILITY_DEPOSIT', 'PLAYER_CAPABILITY_WITHDRAW'],
+    'ProfileField': [
+      'PROFILE_FIELD_FIRST_NAME',
+      'PROFILE_FIELD_LAST_NAME',
+      'PROFILE_FIELD_BIRTH_DATE',
+      'PROFILE_FIELD_RESIDENCE_COUNTRY',
+      'PROFILE_FIELD_NATIONALITY_COUNTRY',
+      'PROFILE_FIELD_LOCALE',
+      'PROFILE_FIELD_TIME_ZONE',
+    ],
+    'ProfileStatus': [
+      'PROFILE_STATUS_REGISTERED',
+      'PROFILE_STATUS_ACTIVE',
+      'PROFILE_STATUS_SUSPENDED',
+      'PROFILE_STATUS_CLOSED',
+    ],
+    'RestrictionState': ['RESTRICTION_STATE_ACTIVE', 'RESTRICTION_STATE_CLEARED', 'RESTRICTION_STATE_EXPIRED'],
+    'RestrictionType': [
+      'RESTRICTION_TYPE_BETTING_BLOCK',
+      'RESTRICTION_TYPE_DEPOSIT_BLOCK',
+      'RESTRICTION_TYPE_WITHDRAWAL_REVIEW',
+    ],
+    'TransactionType': [
+      'TRANSACTION_TYPE_DEPOSIT',
+      'TRANSACTION_TYPE_RESERVE_STAKE',
+      'TRANSACTION_TYPE_SETTLE_WIN',
+      'TRANSACTION_TYPE_SETTLE_LOSS',
+      'TRANSACTION_TYPE_CANCEL_RESERVATION',
+      'TRANSACTION_TYPE_WITHDRAWAL_HOLD',
+      'TRANSACTION_TYPE_WITHDRAWAL_COMPLETE',
+      'TRANSACTION_TYPE_WITHDRAWAL_REJECT',
+    ],
+    'WithdrawalResolvedEventState':
+    [
+      'WITHDRAWAL_RESOLVED_EVENT_STATE_COMPLETED',
+      'WITHDRAWAL_RESOLVED_EVENT_STATE_REJECTED',
+    ],
+  };
 
-const messages:Record<string, Record<string, string>> = {'EventEnvelope':{'messageId':'string', 'source':'EventEnvelopeSource', 'eventType':'EventType', 'schemaVersion':'int32', 'operatorId':'string', 'correlationId':'string', 'occurredAt':'string', 'payload':'EventPayload'}, 'EventPayload':{'playerRegisteredEvent':'PlayerRegisteredEvent', 'playerProfileChangedEvent':'PlayerProfileChangedEvent', 'playerEligibilityChangedEvent':'PlayerEligibilityChangedEvent', 'matchPhaseChangedEvent':'MatchPhaseChangedEvent', 'eventResult':'EventResult', 'betStateChangedEvent':'BetStateChangedEvent', 'ledgerPostedEvent':'LedgerPostedEvent', 'withdrawalResolvedEvent':'WithdrawalResolvedEvent', 'walletCreatedEvent':'WalletCreatedEvent'}, 'PlayerRegisteredEvent':{'playerId':'string', 'registeredAt':'string'}, 'PlayerProfileChangedEvent':{'playerId':'string', 'version':'int64', 'changedFields':'ProfileField'}, 'PlayerEligibilityChangedEvent':{'playerId':'string', 'capability':'PlayerCapability', 'playerVersion':'int64', 'policyVersion':'string', 'evaluatedAt':'string'}, 'MatchPhaseChangedEvent':{'eventId':'string', 'runId':'string', 'phase':'EventPhase', 'phaseSeq':'int64', 'simulatedAt':'string'}, 'EventResult':{'resultId':'string', 'eventId':'string', 'runId':'string', 'resultSeq':'int64', 'homeGoals':'int32', 'awayGoals':'int32', 'outcome':'EventResultOutcome', 'occurredAt':'string'}, 'BetStateChangedEvent':{'betId':'string', 'playerId':'string', 'status':'BetStatus', 'version':'int64', 'financialState':'BetStateChangedEventFinancialState'}, 'LedgerPostedEvent':{'transactionId':'string', 'requestId':'string', 'businessRef':'string', 'transactionType':'TransactionType', 'currency':'string', 'amountMinor':'int64'}, 'WithdrawalResolvedEvent':{'withdrawalId':'string', 'walletId':'string', 'state':'WithdrawalResolvedEventState', 'resolutionTransactionId':'string'}, 'WalletCreatedEvent':{'walletId':'string', 'playerId':'string', 'currency':'string'}, 'RegisterPlayerRequest':{'context':'CallContext', 'requestId':'string', 'externalRef':'string', 'locale':'string', 'timeZone':'string'}, 'CallContext':{'operatorId':'string', 'actorId':'string', 'actorKind':'CallContextActorKind', 'playerId':'string', 'capabilities':'Capability', 'correlationId':'string', 'deadlineAt':'string'}, 'PlayerRegisterPlayerOutput':{'profile':'Profile', 'created':'bool'}, 'Profile':{'playerId':'string', 'status':'ProfileStatus', 'firstName':'string', 'lastName':'string', 'birthDate':'string', 'residenceCountry':'string', 'nationalityCountry':'string', 'locale':'string', 'timeZone':'string', 'version':'int64', 'createdAt':'string', 'updatedAt':'string'}, 'Error':{'code':'ErrorCode', 'message':'string', 'correlationId':'string', 'fields':'ErrorFields', 'retryable':'bool', 'outcomeUnknown':'bool', 'retryAfterMs':'int32'}, 'ErrorFields':{'path':'string', 'code':'string'}, 'GetPlayerRequest':{'context':'CallContext', 'playerId':'string'}, 'PlayerGetPlayerOutput':{'profile':'Profile', 'contacts':'Contact'}, 'Contact':{'contactId':'string', 'kind':'ContactKind', 'displayValue':'string', 'isPrimary':'bool', 'verifiedAt':'string'}, 'UpdatePlayerProfileRequest':{'context':'CallContext', 'requestId':'string', 'playerId':'string', 'expectedVersion':'int64', 'patch':'UpdatePlayerProfileRequestPatch'}, 'UpdatePlayerProfileRequestPatch':{'firstName':'string', 'lastName':'string', 'birthDate':'string', 'residenceCountry':'string', 'nationalityCountry':'string', 'locale':'string', 'timeZone':'string'}, 'PlayerUpdatePlayerProfileOutput':{'profile':'Profile'}, 'AddContactRequest':{'context':'CallContext', 'requestId':'string', 'playerId':'string', 'kind':'AddContactRequestKind', 'value':'string', 'isPrimary':'bool'}, 'PlayerAddContactOutput':{'contact':'Contact'}, 'VerifyContactRequest':{'context':'CallContext', 'requestId':'string', 'playerId':'string', 'contactId':'string', 'proofRef':'string'}, 'PlayerVerifyContactOutput':{'contact':'Contact'}, 'ChangePlayerStatusRequest':{'context':'CallContext', 'requestId':'string', 'playerId':'string', 'expectedVersion':'int64', 'status':'ChangePlayerStatusRequestStatus', 'reasonCode':'string'}, 'PlayerChangePlayerStatusOutput':{'profile':'Profile'}, 'OpenKycCaseRequest':{'context':'CallContext', 'requestId':'string', 'playerId':'string', 'requiredLevel':'OpenKycCaseRequestRequiredLevel'}, 'PlayerOpenKycCaseOutput':{'kycCase':'KycCase'}, 'KycCase':{'caseId':'string', 'playerId':'string', 'requiredLevel':'KycCaseRequiredLevel', 'status':'KycCaseStatus', 'policyVersion':'string', 'decisionCode':'string', 'validUntil':'string', 'version':'int64'}, 'RecordKycCheckRequest':{'context':'CallContext', 'requestId':'string', 'playerId':'string', 'caseId':'string', 'check':'KycCheck'}, 'KycCheck':{'checkId':'string', 'caseId':'string', 'checkType':'KycCheckCheckType', 'attemptNo':'int32', 'provider':'KycCheckProvider', 'providerCheckRef':'string', 'status':'KycCheckStatus', 'resultCode':'string', 'completedAt':'string'}, 'PlayerRecordKycCheckOutput':{'check':'KycCheck', 'kycCase':'KycCase'}, 'DecideKycCaseRequest':{'context':'CallContext', 'requestId':'string', 'playerId':'string', 'caseId':'string', 'expectedVersion':'int64', 'decision':'DecideKycCaseRequestDecision', 'decisionCode':'string', 'validUntil':'string'}, 'PlayerDecideKycCaseOutput':{'kycCase':'KycCase'}, 'GetKycStatusRequest':{'context':'CallContext', 'playerId':'string'}, 'PlayerGetKycStatusOutput':{'cases':'KycCase', 'evaluatedAt':'string'}, 'ApplyRestrictionRequest':{'context':'CallContext', 'requestId':'string', 'playerId':'string', 'type':'ApplyRestrictionRequestType', 'reasonCode':'string', 'startsAt':'string', 'endsAt':'string'}, 'PlayerApplyRestrictionOutput':{'restriction':'Restriction'}, 'Restriction':{'restrictionId':'string', 'playerId':'string', 'type':'RestrictionType', 'state':'RestrictionState', 'reasonCode':'string', 'startsAt':'string', 'endsAt':'string', 'clearedAt':'string'}, 'ClearRestrictionRequest':{'context':'CallContext', 'requestId':'string', 'playerId':'string', 'restrictionId':'string', 'reasonCode':'string'}, 'PlayerClearRestrictionOutput':{'restriction':'Restriction'}, 'GetRestrictionsRequest':{'context':'CallContext', 'playerId':'string', 'page':'PageInput', 'state':'GetRestrictionsRequestState'}, 'PageInput':{'limit':'int32', 'cursor':'string', 'from':'string', 'to':'string'}, 'PlayerGetRestrictionsOutput':{'restrictions':'Restriction', 'nextCursor':'string', 'evaluatedAt':'string'}, 'CheckEligibilityRequest':{'context':'CallContext', 'playerId':'string', 'capability':'CheckEligibilityRequestCapability'}, 'PlayerCheckEligibilityOutput':{'eligibility':'Eligibility'}, 'Eligibility':{'allowed':'bool', 'reasonCode':'EligibilityReasonCode', 'policyVersion':'string', 'evaluatedAt':'string', 'validUntil':'string', 'playerVersion':'int64'}, 'GetPlayerReferenceRequest':{'context':'CallContext', 'playerId':'string'}, 'PlayerGetPlayerReferenceOutput':{'operatorId':'string', 'playerId':'string', 'exists':'bool'}, 'RegisterPlayerResponse':{'value':'PlayerRegisterPlayerOutput', 'error':'Error'}, 'GetPlayerResponse':{'value':'PlayerGetPlayerOutput', 'error':'Error'}, 'UpdatePlayerProfileResponse':{'value':'PlayerUpdatePlayerProfileOutput', 'error':'Error'}, 'AddContactResponse':{'value':'PlayerAddContactOutput', 'error':'Error'}, 'VerifyContactResponse':{'value':'PlayerVerifyContactOutput', 'error':'Error'}, 'ChangePlayerStatusResponse':{'value':'PlayerChangePlayerStatusOutput', 'error':'Error'}, 'OpenKycCaseResponse':{'value':'PlayerOpenKycCaseOutput', 'error':'Error'}, 'RecordKycCheckResponse':{'value':'PlayerRecordKycCheckOutput', 'error':'Error'}, 'DecideKycCaseResponse':{'value':'PlayerDecideKycCaseOutput', 'error':'Error'}, 'GetKycStatusResponse':{'value':'PlayerGetKycStatusOutput', 'error':'Error'}, 'ApplyRestrictionResponse':{'value':'PlayerApplyRestrictionOutput', 'error':'Error'}, 'ClearRestrictionResponse':{'value':'PlayerClearRestrictionOutput', 'error':'Error'}, 'GetRestrictionsResponse':{'value':'PlayerGetRestrictionsOutput', 'error':'Error'}, 'CheckEligibilityResponse':{'value':'PlayerCheckEligibilityOutput', 'error':'Error'}, 'GetPlayerReferenceResponse':{'value':'PlayerGetPlayerReferenceOutput', 'error':'Error'}};
+const messages: Record<string, Record<string, string>> = {
+  'EventEnvelope': {
+    'messageId': 'string',
+    'source': 'EventEnvelopeSource',
+    'eventType': 'EventType',
+    'schemaVersion': 'int32',
+    'operatorId': 'string',
+    'correlationId': 'string',
+    'occurredAt': 'string',
+    'payload': 'EventPayload',
+  },
+  'EventPayload': {
+    'playerRegisteredEvent': 'PlayerRegisteredEvent',
+    'playerProfileChangedEvent': 'PlayerProfileChangedEvent',
+    'playerEligibilityChangedEvent': 'PlayerEligibilityChangedEvent',
+    'matchPhaseChangedEvent': 'MatchPhaseChangedEvent',
+    'eventResult': 'EventResult',
+    'betStateChangedEvent': 'BetStateChangedEvent',
+    'ledgerPostedEvent': 'LedgerPostedEvent',
+    'withdrawalResolvedEvent': 'WithdrawalResolvedEvent',
+    'walletCreatedEvent': 'WalletCreatedEvent',
+  },
+  'PlayerRegisteredEvent': { 'playerId': 'string', 'registeredAt': 'string' },
+  'PlayerProfileChangedEvent': { 'playerId': 'string', 'version': 'int64', 'changedFields': 'ProfileField' },
+  'PlayerEligibilityChangedEvent': {
+    'playerId': 'string',
+    'capability': 'PlayerCapability',
+    'playerVersion': 'int64',
+    'policyVersion': 'string',
+    'evaluatedAt': 'string',
+  },
+  'MatchPhaseChangedEvent': {
+    'eventId': 'string',
+    'runId': 'string',
+    'phase': 'EventPhase',
+    'phaseSeq': 'int64',
+    'simulatedAt': 'string',
+  },
+  'EventResult': {
+    'resultId': 'string',
+    'eventId': 'string',
+    'runId': 'string',
+    'resultSeq': 'int64',
+    'homeGoals': 'int32',
+    'awayGoals': 'int32',
+    'outcome': 'EventResultOutcome',
+    'occurredAt': 'string',
+  },
+  'BetStateChangedEvent': {
+    'betId': 'string',
+    'playerId': 'string',
+    'status': 'BetStatus',
+    'version': 'int64',
+    'financialState': 'BetStateChangedEventFinancialState',
+  },
+  'LedgerPostedEvent': {
+    'transactionId': 'string',
+    'requestId': 'string',
+    'businessRef': 'string',
+    'transactionType': 'TransactionType',
+    'currency': 'string',
+    'amountMinor': 'int64',
+  },
+  'WithdrawalResolvedEvent': {
+    'withdrawalId': 'string',
+    'walletId': 'string',
+    'state': 'WithdrawalResolvedEventState',
+    'resolutionTransactionId': 'string',
+  },
+  'WalletCreatedEvent': { 'walletId': 'string', 'playerId': 'string', 'currency': 'string' },
+  'RegisterPlayerRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'externalRef': 'string',
+    'locale': 'string',
+    'timeZone': 'string',
+  },
+  'CallContext': {
+    'operatorId': 'string',
+    'actorId': 'string',
+    'actorKind': 'CallContextActorKind',
+    'playerId': 'string',
+    'capabilities': 'Capability',
+    'correlationId': 'string',
+    'deadlineAt': 'string',
+  },
+  'PlayerRegisterPlayerOutput': { 'profile': 'Profile', 'created': 'bool' },
+  'Profile': {
+    'playerId': 'string',
+    'status': 'ProfileStatus',
+    'firstName': 'string',
+    'lastName': 'string',
+    'birthDate': 'string',
+    'residenceCountry': 'string',
+    'nationalityCountry': 'string',
+    'locale': 'string',
+    'timeZone': 'string',
+    'version': 'int64',
+    'createdAt': 'string',
+    'updatedAt': 'string',
+  },
+  'Error': {
+    'code': 'ErrorCode',
+    'message': 'string',
+    'correlationId': 'string',
+    'fields': 'ErrorFields',
+    'retryable': 'bool',
+    'outcomeUnknown': 'bool',
+    'retryAfterMs': 'int32',
+  },
+  'ErrorFields': { 'path': 'string', 'code': 'string' },
+  'GetPlayerRequest': { 'context': 'CallContext', 'playerId': 'string' },
+  'PlayerGetPlayerOutput': { 'profile': 'Profile', 'contacts': 'Contact' },
+  'Contact': {
+    'contactId': 'string',
+    'kind': 'ContactKind',
+    'displayValue': 'string',
+    'isPrimary': 'bool',
+    'verifiedAt': 'string',
+  },
+  'UpdatePlayerProfileRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'playerId': 'string',
+    'expectedVersion': 'int64',
+    'patch': 'UpdatePlayerProfileRequestPatch',
+  },
+  'UpdatePlayerProfileRequestPatch': {
+    'firstName': 'string',
+    'lastName': 'string',
+    'birthDate': 'string',
+    'residenceCountry': 'string',
+    'nationalityCountry': 'string',
+    'locale': 'string',
+    'timeZone': 'string',
+  },
+  'PlayerUpdatePlayerProfileOutput': { 'profile': 'Profile' },
+  'AddContactRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'playerId': 'string',
+    'kind': 'AddContactRequestKind',
+    'value': 'string',
+    'isPrimary': 'bool',
+  },
+  'PlayerAddContactOutput': { 'contact': 'Contact' },
+  'VerifyContactRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'playerId': 'string',
+    'contactId': 'string',
+    'proofRef': 'string',
+  },
+  'PlayerVerifyContactOutput': { 'contact': 'Contact' },
+  'ChangePlayerStatusRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'playerId': 'string',
+    'expectedVersion': 'int64',
+    'status': 'ChangePlayerStatusRequestStatus',
+    'reasonCode': 'string',
+  },
+  'PlayerChangePlayerStatusOutput': { 'profile': 'Profile' },
+  'OpenKycCaseRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'playerId': 'string',
+    'requiredLevel': 'OpenKycCaseRequestRequiredLevel',
+  },
+  'PlayerOpenKycCaseOutput': { 'kycCase': 'KycCase' },
+  'KycCase': {
+    'caseId': 'string',
+    'playerId': 'string',
+    'requiredLevel': 'KycCaseRequiredLevel',
+    'status': 'KycCaseStatus',
+    'policyVersion': 'string',
+    'decisionCode': 'string',
+    'validUntil': 'string',
+    'version': 'int64',
+  },
+  'RecordKycCheckRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'playerId': 'string',
+    'caseId': 'string',
+    'check': 'KycCheck',
+  },
+  'KycCheck': {
+    'checkId': 'string',
+    'caseId': 'string',
+    'checkType': 'KycCheckCheckType',
+    'attemptNo': 'int32',
+    'provider': 'KycCheckProvider',
+    'providerCheckRef': 'string',
+    'status': 'KycCheckStatus',
+    'resultCode': 'string',
+    'completedAt': 'string',
+  },
+  'PlayerRecordKycCheckOutput': { 'check': 'KycCheck', 'kycCase': 'KycCase' },
+  'DecideKycCaseRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'playerId': 'string',
+    'caseId': 'string',
+    'expectedVersion': 'int64',
+    'decision': 'DecideKycCaseRequestDecision',
+    'decisionCode': 'string',
+    'validUntil': 'string',
+  },
+  'PlayerDecideKycCaseOutput': { 'kycCase': 'KycCase' },
+  'GetKycStatusRequest': { 'context': 'CallContext', 'playerId': 'string' },
+  'PlayerGetKycStatusOutput': { 'cases': 'KycCase', 'evaluatedAt': 'string' },
+  'ApplyRestrictionRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'playerId': 'string',
+    'type': 'ApplyRestrictionRequestType',
+    'reasonCode': 'string',
+    'startsAt': 'string',
+    'endsAt': 'string',
+  },
+  'PlayerApplyRestrictionOutput': { 'restriction': 'Restriction' },
+  'Restriction': {
+    'restrictionId': 'string',
+    'playerId': 'string',
+    'type': 'RestrictionType',
+    'state': 'RestrictionState',
+    'reasonCode': 'string',
+    'startsAt': 'string',
+    'endsAt': 'string',
+    'clearedAt': 'string',
+  },
+  'ClearRestrictionRequest': {
+    'context': 'CallContext',
+    'requestId': 'string',
+    'playerId': 'string',
+    'restrictionId': 'string',
+    'reasonCode': 'string',
+  },
+  'PlayerClearRestrictionOutput': { 'restriction': 'Restriction' },
+  'GetRestrictionsRequest': {
+    'context': 'CallContext',
+    'playerId': 'string',
+    'page': 'PageInput',
+    'state': 'GetRestrictionsRequestState',
+  },
+  'PageInput': { 'limit': 'int32', 'cursor': 'string', 'from': 'string', 'to': 'string' },
+  'PlayerGetRestrictionsOutput': { 'restrictions': 'Restriction', 'nextCursor': 'string', 'evaluatedAt': 'string' },
+  'CheckEligibilityRequest': {
+    'context': 'CallContext',
+    'playerId': 'string',
+    'capability': 'CheckEligibilityRequestCapability',
+  },
+  'PlayerCheckEligibilityOutput': { 'eligibility': 'Eligibility' },
+  'Eligibility': {
+    'allowed': 'bool',
+    'reasonCode': 'EligibilityReasonCode',
+    'policyVersion': 'string',
+    'evaluatedAt': 'string',
+    'validUntil': 'string',
+    'playerVersion': 'int64',
+  },
+  'GetPlayerReferenceRequest': { 'context': 'CallContext', 'playerId': 'string' },
+  'PlayerGetPlayerReferenceOutput': { 'operatorId': 'string', 'playerId': 'string', 'exists': 'bool' },
+  'RegisterPlayerResponse': { 'value': 'PlayerRegisterPlayerOutput', 'error': 'Error' },
+  'GetPlayerResponse': { 'value': 'PlayerGetPlayerOutput', 'error': 'Error' },
+  'UpdatePlayerProfileResponse': { 'value': 'PlayerUpdatePlayerProfileOutput', 'error': 'Error' },
+  'AddContactResponse': { 'value': 'PlayerAddContactOutput', 'error': 'Error' },
+  'VerifyContactResponse': { 'value': 'PlayerVerifyContactOutput', 'error': 'Error' },
+  'ChangePlayerStatusResponse': { 'value': 'PlayerChangePlayerStatusOutput', 'error': 'Error' },
+  'OpenKycCaseResponse': { 'value': 'PlayerOpenKycCaseOutput', 'error': 'Error' },
+  'RecordKycCheckResponse': { 'value': 'PlayerRecordKycCheckOutput', 'error': 'Error' },
+  'DecideKycCaseResponse': { 'value': 'PlayerDecideKycCaseOutput', 'error': 'Error' },
+  'GetKycStatusResponse': { 'value': 'PlayerGetKycStatusOutput', 'error': 'Error' },
+  'ApplyRestrictionResponse': { 'value': 'PlayerApplyRestrictionOutput', 'error': 'Error' },
+  'ClearRestrictionResponse': { 'value': 'PlayerClearRestrictionOutput', 'error': 'Error' },
+  'GetRestrictionsResponse': { 'value': 'PlayerGetRestrictionsOutput', 'error': 'Error' },
+  'CheckEligibilityResponse': { 'value': 'PlayerCheckEligibilityOutput', 'error': 'Error' },
+  'GetPlayerReferenceResponse': { 'value': 'PlayerGetPlayerReferenceOutput', 'error': 'Error' },
+};
 
-export function protobufOutput(value:unknown, type:string):unknown {if (value === undefined) return undefined;if (Array.isArray(value)) return value.map(item=>protobufOutput(item, type));if (typeof value === 'bigint') return value.toString();if (typeof value === 'string' && enums[type]) return enums[type]?.find(name=>name.endsWith('_' + value));if (value !== null && typeof value === 'object') {const fields = messages[type];
+export function protobufOutput(value: unknown, type: string): unknown {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (Array.isArray(value)) {
+    return value.map(item => protobufOutput(item, type));
+  }
+  if (typeof value === 'bigint') {
+    return value.toString();
+  }
+  if (typeof value === 'string' && enums[type]) {
+    return enums[type]?.find(name => name.endsWith('_' + value));
+  }
+  if (value !== null && typeof value === 'object') {
+    const fields = messages[type];
 
-if (!fields) throw new Error('Unregistered wire type');
+    if (!fields) {
+      throw new Error('Unregistered wire type');
+    }
 
-const record = objectValue(value);
+    const record = objectValue(value);
 
-if ('ok' in record) return record.ok ? {value:protobufOutput(record.value, fields.value ?? '')} : {error:protobufOutput(record.error, 'Error')};
+    if ('ok' in record) {
+      return record.ok
+        ? { value: protobufOutput(record.value, fields.value ?? '') }
+        : { error: protobufOutput(record.error, 'Error') };
+    }
 
-return Object.fromEntries(Object.entries(record).filter(([,item])=>item !== undefined).map(([key, item])=>[key, protobufOutput(item, fields[key] ?? '')]));}
+    return Object.fromEntries(
+      Object.entries(record).filter(([, item]) => item !== undefined).map(
+        ([key, item]) => [key, protobufOutput(item, fields[key] ?? '')],
+      ),
+    );
+  }
 
- return value;}
+  return value;
+}

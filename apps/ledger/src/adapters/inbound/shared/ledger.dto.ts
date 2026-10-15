@@ -1,9 +1,50 @@
 import type { IShape } from '@sportsbook/service-transport';
 import { decodeShape, matchesShape, ShapeKind, StringFormat } from '@sportsbook/service-transport';
 
-import type { ILedgerCancelBetInput, ILedgerCancelBetOutput, ILedgerCompleteWithdrawalInput, ILedgerCompleteWithdrawalOutput, ILedgerCreateWalletInput, ILedgerCreateWalletOutput, ILedgerDepositTestFundsInput, ILedgerDepositTestFundsOutput, ILedgerGetBalanceInput, ILedgerGetBalanceOutput, ILedgerGetBetFinancialStatusInput, ILedgerGetBetFinancialStatusOutput, ILedgerGetCommandOutcomeInput, ILedgerGetCommandOutcomeOutput, ILedgerGetLedgerEntriesInput, ILedgerGetLedgerEntriesOutput, ILedgerGetTransactionInput, ILedgerGetTransactionOutput, ILedgerGetWalletInput, ILedgerGetWalletOutput, ILedgerGetWalletTransactionsInput, ILedgerGetWalletTransactionsOutput, ILedgerGetWithdrawalInput, ILedgerGetWithdrawalOutput, ILedgerReconcileLedgerInput, ILedgerReconcileLedgerOutput, ILedgerRejectWithdrawalInput, ILedgerRejectWithdrawalOutput, ILedgerRequestWithdrawalInput, ILedgerRequestWithdrawalOutput, ILedgerReserveStakeInput, ILedgerReserveStakeOutput, ILedgerSettleLossInput, ILedgerSettleLossOutput, ILedgerSettleWinInput, ILedgerSettleWinOutput } from '../../../domain/ledger.model.js';
+import type {
+  ILedgerProvisionPlayerWalletInput,
+  ILedgerProvisionPlayerWalletOutput,
+} from '../../../domain/ledger.model.js';
+import type {
+  ILedgerCancelBetInput,
+  ILedgerCancelBetOutput,
+  ILedgerCompleteWithdrawalInput,
+  ILedgerCompleteWithdrawalOutput,
+  ILedgerCreateWalletInput,
+  ILedgerCreateWalletOutput,
+  ILedgerDepositTestFundsInput,
+  ILedgerDepositTestFundsOutput,
+  ILedgerGetBalanceInput,
+  ILedgerGetBalanceOutput,
+  ILedgerGetBetFinancialStatusInput,
+  ILedgerGetBetFinancialStatusOutput,
+  ILedgerGetCommandOutcomeInput,
+  ILedgerGetCommandOutcomeOutput,
+  ILedgerGetLedgerEntriesInput,
+  ILedgerGetLedgerEntriesOutput,
+  ILedgerGetTransactionInput,
+  ILedgerGetTransactionOutput,
+  ILedgerGetWalletInput,
+  ILedgerGetWalletOutput,
+  ILedgerGetWalletTransactionsInput,
+  ILedgerGetWalletTransactionsOutput,
+  ILedgerGetWithdrawalInput,
+  ILedgerGetWithdrawalOutput,
+  ILedgerReconcileLedgerInput,
+  ILedgerReconcileLedgerOutput,
+  ILedgerRejectWithdrawalInput,
+  ILedgerRejectWithdrawalOutput,
+  ILedgerRequestWithdrawalInput,
+  ILedgerRequestWithdrawalOutput,
+  ILedgerReserveStakeInput,
+  ILedgerReserveStakeOutput,
+  ILedgerSettleLossInput,
+  ILedgerSettleLossOutput,
+  ILedgerSettleWinInput,
+  ILedgerSettleWinOutput,
+} from '../../../domain/ledger.model.js';
 
-const shapes:Record<string, IShape> = {
+const shapes: Record<string, IShape> = {
   'IError': {
     'kind': ShapeKind.OBJECT,
     'fields': {
@@ -1874,152 +1915,240 @@ const shapes:Record<string, IShape> = {
   },
 };
 
-export function decodeInput(name:string, value:unknown, protobuf:boolean):unknown {const schema = shapes[name];
+export function decodeInput(name: string, value: unknown, protobuf: boolean): unknown {
+  const schema = shapes[name];
 
-if (!schema) throw new Error('Unregistered input');
+  if (!schema) {
+    throw new Error('Unregistered input');
+  }
 
-return decodeShape(value, schema, protobuf, shapes);}
+  return decodeShape(value, schema, protobuf, shapes);
+}
 
-export function isILedgerCreateWalletInput(value:unknown):value is ILedgerCreateWalletInput {const schema = shapes['ILedgerCreateWalletInput'];
+export function isILedgerProvisionPlayerWalletInput(value: unknown): value is ILedgerProvisionPlayerWalletInput {
+  const schema = shapes['ILedgerProvisionPlayerWalletInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerCreateWalletOutput(value:unknown):value is ILedgerCreateWalletOutput {const schema = shapes['ILedgerCreateWalletOutput'];
+export function isILedgerProvisionPlayerWalletOutput(value: unknown): value is ILedgerProvisionPlayerWalletOutput {
+  const schema = shapes['ILedgerProvisionPlayerWalletOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetBalanceInput(value:unknown):value is ILedgerGetBalanceInput {const schema = shapes['ILedgerGetBalanceInput'];
+export function isILedgerCreateWalletInput(value: unknown): value is ILedgerCreateWalletInput {
+  const schema = shapes['ILedgerCreateWalletInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetBalanceOutput(value:unknown):value is ILedgerGetBalanceOutput {const schema = shapes['ILedgerGetBalanceOutput'];
+export function isILedgerCreateWalletOutput(value: unknown): value is ILedgerCreateWalletOutput {
+  const schema = shapes['ILedgerCreateWalletOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetTransactionInput(value:unknown):value is ILedgerGetTransactionInput {const schema = shapes['ILedgerGetTransactionInput'];
+export function isILedgerGetBalanceInput(value: unknown): value is ILedgerGetBalanceInput {
+  const schema = shapes['ILedgerGetBalanceInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetTransactionOutput(value:unknown):value is ILedgerGetTransactionOutput {const schema = shapes['ILedgerGetTransactionOutput'];
+export function isILedgerGetBalanceOutput(value: unknown): value is ILedgerGetBalanceOutput {
+  const schema = shapes['ILedgerGetBalanceOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetLedgerEntriesInput(value:unknown):value is ILedgerGetLedgerEntriesInput {const schema = shapes['ILedgerGetLedgerEntriesInput'];
+export function isILedgerGetTransactionInput(value: unknown): value is ILedgerGetTransactionInput {
+  const schema = shapes['ILedgerGetTransactionInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetLedgerEntriesOutput(value:unknown):value is ILedgerGetLedgerEntriesOutput {const schema = shapes['ILedgerGetLedgerEntriesOutput'];
+export function isILedgerGetTransactionOutput(value: unknown): value is ILedgerGetTransactionOutput {
+  const schema = shapes['ILedgerGetTransactionOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetWalletTransactionsInput(value:unknown):value is ILedgerGetWalletTransactionsInput {const schema = shapes['ILedgerGetWalletTransactionsInput'];
+export function isILedgerGetLedgerEntriesInput(value: unknown): value is ILedgerGetLedgerEntriesInput {
+  const schema = shapes['ILedgerGetLedgerEntriesInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetWalletTransactionsOutput(value:unknown):value is ILedgerGetWalletTransactionsOutput {const schema = shapes['ILedgerGetWalletTransactionsOutput'];
+export function isILedgerGetLedgerEntriesOutput(value: unknown): value is ILedgerGetLedgerEntriesOutput {
+  const schema = shapes['ILedgerGetLedgerEntriesOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetBetFinancialStatusInput(value:unknown):value is ILedgerGetBetFinancialStatusInput {const schema = shapes['ILedgerGetBetFinancialStatusInput'];
+export function isILedgerGetWalletTransactionsInput(value: unknown): value is ILedgerGetWalletTransactionsInput {
+  const schema = shapes['ILedgerGetWalletTransactionsInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetBetFinancialStatusOutput(value:unknown):value is ILedgerGetBetFinancialStatusOutput {const schema = shapes['ILedgerGetBetFinancialStatusOutput'];
+export function isILedgerGetWalletTransactionsOutput(value: unknown): value is ILedgerGetWalletTransactionsOutput {
+  const schema = shapes['ILedgerGetWalletTransactionsOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetWithdrawalInput(value:unknown):value is ILedgerGetWithdrawalInput {const schema = shapes['ILedgerGetWithdrawalInput'];
+export function isILedgerGetBetFinancialStatusInput(value: unknown): value is ILedgerGetBetFinancialStatusInput {
+  const schema = shapes['ILedgerGetBetFinancialStatusInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetWithdrawalOutput(value:unknown):value is ILedgerGetWithdrawalOutput {const schema = shapes['ILedgerGetWithdrawalOutput'];
+export function isILedgerGetBetFinancialStatusOutput(value: unknown): value is ILedgerGetBetFinancialStatusOutput {
+  const schema = shapes['ILedgerGetBetFinancialStatusOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetCommandOutcomeInput(value:unknown):value is ILedgerGetCommandOutcomeInput {const schema = shapes['ILedgerGetCommandOutcomeInput'];
+export function isILedgerGetWithdrawalInput(value: unknown): value is ILedgerGetWithdrawalInput {
+  const schema = shapes['ILedgerGetWithdrawalInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetCommandOutcomeOutput(value:unknown):value is ILedgerGetCommandOutcomeOutput {const schema = shapes['ILedgerGetCommandOutcomeOutput'];
+export function isILedgerGetWithdrawalOutput(value: unknown): value is ILedgerGetWithdrawalOutput {
+  const schema = shapes['ILedgerGetWithdrawalOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerDepositTestFundsInput(value:unknown):value is ILedgerDepositTestFundsInput {const schema = shapes['ILedgerDepositTestFundsInput'];
+export function isILedgerGetCommandOutcomeInput(value: unknown): value is ILedgerGetCommandOutcomeInput {
+  const schema = shapes['ILedgerGetCommandOutcomeInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerDepositTestFundsOutput(value:unknown):value is ILedgerDepositTestFundsOutput {const schema = shapes['ILedgerDepositTestFundsOutput'];
+export function isILedgerGetCommandOutcomeOutput(value: unknown): value is ILedgerGetCommandOutcomeOutput {
+  const schema = shapes['ILedgerGetCommandOutcomeOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerRequestWithdrawalInput(value:unknown):value is ILedgerRequestWithdrawalInput {const schema = shapes['ILedgerRequestWithdrawalInput'];
+export function isILedgerDepositTestFundsInput(value: unknown): value is ILedgerDepositTestFundsInput {
+  const schema = shapes['ILedgerDepositTestFundsInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerRequestWithdrawalOutput(value:unknown):value is ILedgerRequestWithdrawalOutput {const schema = shapes['ILedgerRequestWithdrawalOutput'];
+export function isILedgerDepositTestFundsOutput(value: unknown): value is ILedgerDepositTestFundsOutput {
+  const schema = shapes['ILedgerDepositTestFundsOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerCompleteWithdrawalInput(value:unknown):value is ILedgerCompleteWithdrawalInput {const schema = shapes['ILedgerCompleteWithdrawalInput'];
+export function isILedgerRequestWithdrawalInput(value: unknown): value is ILedgerRequestWithdrawalInput {
+  const schema = shapes['ILedgerRequestWithdrawalInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerCompleteWithdrawalOutput(value:unknown):value is ILedgerCompleteWithdrawalOutput {const schema = shapes['ILedgerCompleteWithdrawalOutput'];
+export function isILedgerRequestWithdrawalOutput(value: unknown): value is ILedgerRequestWithdrawalOutput {
+  const schema = shapes['ILedgerRequestWithdrawalOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerRejectWithdrawalInput(value:unknown):value is ILedgerRejectWithdrawalInput {const schema = shapes['ILedgerRejectWithdrawalInput'];
+export function isILedgerCompleteWithdrawalInput(value: unknown): value is ILedgerCompleteWithdrawalInput {
+  const schema = shapes['ILedgerCompleteWithdrawalInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerRejectWithdrawalOutput(value:unknown):value is ILedgerRejectWithdrawalOutput {const schema = shapes['ILedgerRejectWithdrawalOutput'];
+export function isILedgerCompleteWithdrawalOutput(value: unknown): value is ILedgerCompleteWithdrawalOutput {
+  const schema = shapes['ILedgerCompleteWithdrawalOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerReserveStakeInput(value:unknown):value is ILedgerReserveStakeInput {const schema = shapes['ILedgerReserveStakeInput'];
+export function isILedgerRejectWithdrawalInput(value: unknown): value is ILedgerRejectWithdrawalInput {
+  const schema = shapes['ILedgerRejectWithdrawalInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerReserveStakeOutput(value:unknown):value is ILedgerReserveStakeOutput {const schema = shapes['ILedgerReserveStakeOutput'];
+export function isILedgerRejectWithdrawalOutput(value: unknown): value is ILedgerRejectWithdrawalOutput {
+  const schema = shapes['ILedgerRejectWithdrawalOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerSettleWinInput(value:unknown):value is ILedgerSettleWinInput {const schema = shapes['ILedgerSettleWinInput'];
+export function isILedgerReserveStakeInput(value: unknown): value is ILedgerReserveStakeInput {
+  const schema = shapes['ILedgerReserveStakeInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerSettleWinOutput(value:unknown):value is ILedgerSettleWinOutput {const schema = shapes['ILedgerSettleWinOutput'];
+export function isILedgerReserveStakeOutput(value: unknown): value is ILedgerReserveStakeOutput {
+  const schema = shapes['ILedgerReserveStakeOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerSettleLossInput(value:unknown):value is ILedgerSettleLossInput {const schema = shapes['ILedgerSettleLossInput'];
+export function isILedgerSettleWinInput(value: unknown): value is ILedgerSettleWinInput {
+  const schema = shapes['ILedgerSettleWinInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerSettleLossOutput(value:unknown):value is ILedgerSettleLossOutput {const schema = shapes['ILedgerSettleLossOutput'];
+export function isILedgerSettleWinOutput(value: unknown): value is ILedgerSettleWinOutput {
+  const schema = shapes['ILedgerSettleWinOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerCancelBetInput(value:unknown):value is ILedgerCancelBetInput {const schema = shapes['ILedgerCancelBetInput'];
+export function isILedgerSettleLossInput(value: unknown): value is ILedgerSettleLossInput {
+  const schema = shapes['ILedgerSettleLossInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerCancelBetOutput(value:unknown):value is ILedgerCancelBetOutput {const schema = shapes['ILedgerCancelBetOutput'];
+export function isILedgerSettleLossOutput(value: unknown): value is ILedgerSettleLossOutput {
+  const schema = shapes['ILedgerSettleLossOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerReconcileLedgerInput(value:unknown):value is ILedgerReconcileLedgerInput {const schema = shapes['ILedgerReconcileLedgerInput'];
+export function isILedgerCancelBetInput(value: unknown): value is ILedgerCancelBetInput {
+  const schema = shapes['ILedgerCancelBetInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerReconcileLedgerOutput(value:unknown):value is ILedgerReconcileLedgerOutput {const schema = shapes['ILedgerReconcileLedgerOutput'];
+export function isILedgerCancelBetOutput(value: unknown): value is ILedgerCancelBetOutput {
+  const schema = shapes['ILedgerCancelBetOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetWalletInput(value:unknown):value is ILedgerGetWalletInput {const schema = shapes['ILedgerGetWalletInput'];
+export function isILedgerReconcileLedgerInput(value: unknown): value is ILedgerReconcileLedgerInput {
+  const schema = shapes['ILedgerReconcileLedgerInput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
 
-export function isILedgerGetWalletOutput(value:unknown):value is ILedgerGetWalletOutput {const schema = shapes['ILedgerGetWalletOutput'];
+export function isILedgerReconcileLedgerOutput(value: unknown): value is ILedgerReconcileLedgerOutput {
+  const schema = shapes['ILedgerReconcileLedgerOutput'];
 
-return schema !== undefined && matchesShape(value, schema, shapes);}
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
+
+export function isILedgerGetWalletInput(value: unknown): value is ILedgerGetWalletInput {
+  const schema = shapes['ILedgerGetWalletInput'];
+
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}
+
+export function isILedgerGetWalletOutput(value: unknown): value is ILedgerGetWalletOutput {
+  const schema = shapes['ILedgerGetWalletOutput'];
+
+  return schema !== undefined && matchesShape(value, schema, shapes);
+}

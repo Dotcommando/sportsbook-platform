@@ -26,7 +26,7 @@ test('calendar-only birth dates use the configured operator zone and lifecycle c
 test('eligibility evaluates configured KYC/age/intervals independently per capability', ()=> {
   const profile:M.IProfile = {playerId:id, status:M.PlayerStatus.ACTIVE, birthDate:'2000-02-29', locale:'en-US', timeZone:'Asia/Tokyo', version:1n, createdAt:now, updatedAt:now};
   const kyc:M.IKycCase = {caseId:id, playerId:id, requiredLevel:M.KycLevel.BASIC, status:M.KycCaseStatus.APPROVED, policyVersion:'TEST', decisionCode:'APPROVED', validUntil:'2026-10-15T12:00:00Z', version:2n};
-  const policy:M.IOperatorEligibilityPolicy = {policyVersion:'TEST', capability:M.PlayerCapability.PLACE_BET, requiredLevel:M.KycLevel.BASIC, requiredChecks:[M.KycCheckType.IDENTITY], minimumAge:18, maxValidityDays:30, blockingRestrictions:[M.RestrictionType.BETTING_BLOCK]};
+  const policy:M.IOperatorEligibilityPolicy = {policyVersion:'TEST', capability:M.PlayerCapability.PLACE_BET, allowedStatuses:[M.PlayerStatus.ACTIVE], requiredLevel:M.KycLevel.BASIC, requiredChecks:[M.KycCheckType.IDENTITY], minimumAge:18, maxValidityDays:30, blockingRestrictions:[M.RestrictionType.BETTING_BLOCK]};
   const restriction:M.IRestriction = {restrictionId:id, playerId:id, type:M.RestrictionType.BETTING_BLOCK, state:M.RestrictionState.ACTIVE, reasonCode:'TEST', startsAt:'2026-10-14T13:00:00Z'};
   const upcoming = EligibilityPolicy.evaluate(profile, [kyc], [restriction], policy, now, 'UTC');
 
@@ -41,6 +41,11 @@ assert.equal(withdraw.allowed, true);
 
 assert.equal(expired.reasonCode, M.EligibilityReason.KYC_EXPIRED);
   assert.equal('birthDate' in withdraw, false);
+  const suspended = {...profile, status:M.PlayerStatus.SUSPENDED};
+
+  assert.equal(EligibilityPolicy.evaluate(suspended, [kyc], [], policy, now, 'UTC').reasonCode, M.EligibilityReason.PLAYER_INACTIVE);
+  assert.equal(EligibilityPolicy.evaluate(suspended, [kyc], [], {...policy, capability:M.PlayerCapability.WITHDRAW, allowedStatuses:[M.PlayerStatus.ACTIVE, M.PlayerStatus.SUSPENDED]}, now, 'UTC').allowed, true);
+  assert.equal(EligibilityPolicy.evaluate(profile, [kyc], [], {...policy, allowedStatuses:[M.PlayerStatus.SUSPENDED]}, now, 'UTC').allowed, false);
 });
 
 test('protected values bind ciphertext to operator/entity/field; invalid context enums fail guards', ()=> {

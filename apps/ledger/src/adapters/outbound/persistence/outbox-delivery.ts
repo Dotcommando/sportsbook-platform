@@ -1,17 +1,21 @@
+import {MessagingMetric, MessagingMetrics} from '@sportsbook/service-transport';
+
 import { LedgerError } from '../../../domain/ledger.error.js';
 import type { ICallContext, IOutboxLease, IPublicationReceipt, IWorkerBatchInput } from '../../../domain/ledger.model.js';
 import { ErrorCode } from '../../../domain/ledger.model.js';
 import type { ClockPort, IdGeneratorPort, OutboxDeliveryPort } from '../../../ports/outbound/financial.port.js';
 import { decodeEvent, timestamp, uuid } from './ledger.codec.js';
-import type { ISqlTransactionManager } from './sql-session.js';
+import type { ISqlSession, ISqlTransactionManager } from './sql-session.js';
 import { SqlIsolation } from './sql-session.js';
 
 export class SqlOutboxDelivery implements OutboxDeliveryPort {
+  readonly metrics = MessagingMetrics.forService('ledger');
+
   constructor(private readonly manager: ISqlTransactionManager, private readonly ids: IdGeneratorPort, private readonly clock: ClockPort, private readonly leaseMs: number) {}
 
   async claim(input: IWorkerBatchInput): Promise<IOutboxLease[]> {
     return this.manager.transaction(SqlIsolation.READ_COMMITTED, async session => {
-      const now = this.clock.now();
+      await this.backlog(session);const now = this.clock.now();
       const leaseUntil = new Date(Date.parse(now) + this.leaseMs).toISOString();
       const selected = await session.query('SELECT message_id,payload,attempt_count FROM ledger_outbox_events WHERE operator_id=$1::uuid AND published_at IS NULL AND occurred_at<=$2::timestamptz AND next_attempt_at<=$3::timestamptz AND (lease_until IS NULL OR lease_until<=$3::timestamptz) ORDER BY next_attempt_at,ledger_outbox_event_id LIMIT $4 FOR UPDATE SKIP LOCKED', [input.context.operatorId, input.cutoff, now, input.limit]);
       const leases: IOutboxLease[] = [];
@@ -39,7 +43,7 @@ export class SqlOutboxDelivery implements OutboxDeliveryPort {
     await this.manager.transaction(SqlIsolation.READ_COMMITTED, async session => {
       const changed = await session.query('UPDATE ledger_outbox_events SET published_at=$4::timestamptz,lease_id=NULL,lease_until=NULL,failure_reason_code=NULL WHERE operator_id=$1::uuid AND lease_id=$2::uuid AND message_id=$3::uuid AND published_at IS NULL AND lease_until>$5::timestamptz RETURNING message_id', [context.operatorId, leaseId, receipt.messageId, timestamp(receipt.acceptedAt), this.clock.now()]);
 
-      if (changed.length !== 1) throw new LedgerError(ErrorCode.VERSION_CONFLICT);
+      if (changed.length !== 1) throw new LedgerError(ErrorCode.VERSION_CONFLICT);await this.backlog(session);
     });
   }
 
@@ -47,8 +51,12 @@ export class SqlOutboxDelivery implements OutboxDeliveryPort {
     await this.manager.transaction(SqlIsolation.READ_COMMITTED, async session => {
       const changed = await session.query('UPDATE ledger_outbox_events SET lease_id=NULL,lease_until=NULL,next_attempt_at=$3::timestamptz,failure_reason_code=$4 WHERE operator_id=$1::uuid AND lease_id=$2::uuid AND published_at IS NULL AND lease_until>$5::timestamptz RETURNING message_id', [context.operatorId, leaseId, timestamp(nextAttemptAt), reasonCode, this.clock.now()]);
 
-      if (changed.length !== 1) throw new LedgerError(ErrorCode.VERSION_CONFLICT);
+      if (changed.length !== 1) throw new LedgerError(ErrorCode.VERSION_CONFLICT);await this.backlog(session);
     });
   }
+
+  private async backlog(session:ISqlSession):Promise<void> {const rows = await session.query('SELECT count(*)::text AS pending FROM ledger_outbox_events WHERE published_at IS NULL');const pending = rows[0]?.pending;
+
+if (typeof pending !== 'string' || !/^\d+$/.test(pending)) throw new Error('Invalid outbox count');this.metrics.set(MessagingMetric.OUTBOX_BACKLOG, Number(pending));}
 }
 

@@ -30,8 +30,9 @@ export function validateMigrationSql(sql: string): void {
 
     if (statement.CreateFunctionStmt) {
       const definition = record(statement.CreateFunctionStmt);
+      const functionName = Array.isArray(definition.funcname) ? definition.funcname.map((part: unknown) => record(record(part).String).sval).join('.') : '';
 
-      if (!Array.isArray(definition.funcname) || definition.funcname.map((part: unknown) => record(record(part).String).sval).join('.') !== 'public.ledger_append_posting') throw new Error('Unregistered migration function');
+      if (!['public.ledger_append_posting', 'public.reject_event_history_mutation'].includes(functionName)) throw new Error('Unregistered migration function');
       if (!Array.isArray(definition.options)) throw new Error('Missing function options');
 
       for (const option of definition.options) {
@@ -46,9 +47,21 @@ export function validateMigrationSql(sql: string): void {
         for (const part of body.items) {
           const source = record(record(part).String).sval;
 
+          if (functionName === 'public.reject_event_history_mutation' && (typeof source !== 'string' || !/^\s*BEGIN\s+RAISE EXCEPTION 'Event history is immutable';\s*END;?\s*$/.test(source))) throw new Error('Invalid immutable-history function body');
           if (typeof source !== 'string' || /\b(CREATE|ALTER|DROP|TRUNCATE|REFERENCES|FOREIGN|EXECUTE)\b/i.test(source)) throw new Error('DDL and dynamic SQL are forbidden inside posting functions');
         }
       }
+
+      return [];
+    }
+    if (statement.CreateTrigStmt) {
+      const trigger = record(statement.CreateTrigStmt);
+      const relation = record(trigger.relation);
+      const registered = {event_results_immutable:'event_results', event_quotes_immutable:'event_quote_snapshots'};
+      const table = typeof trigger.trigname === 'string' ? Object.entries(registered).find(([name])=>name === trigger.trigname)?.[1] : undefined;
+      const functionName = Array.isArray(trigger.funcname) ? trigger.funcname.map((part: unknown)=>record(record(part).String).sval).join('.') : '';
+
+      if (!table || relation.relname !== table || (relation.schemaname !== undefined && relation.schemaname !== 'public') || functionName !== 'public.reject_event_history_mutation' || trigger.row !== true || trigger.timing !== 2 || trigger.events !== 24 || trigger.whenClause || trigger.args || trigger.replace) throw new Error('Unregistered immutable-history trigger');
 
       return [];
     }

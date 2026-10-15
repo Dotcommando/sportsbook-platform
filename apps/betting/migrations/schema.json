@@ -75,6 +75,12 @@
           "type": "timestamp with time zone",
           "nullable": true,
           "primary": false
+        },
+        {
+          "name": "failure_reason_code",
+          "type": "text",
+          "nullable": true,
+          "primary": false
         }
       ],
       "indexes": [
@@ -278,6 +284,18 @@
         },
         {
           "name": "settled_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "reservation_command_id",
+          "type": "uuid",
+          "nullable": true,
+          "primary": false
+        },
+        {
+          "name": "workflow_lease_until",
           "type": "timestamp with time zone",
           "nullable": true,
           "primary": false
@@ -521,6 +539,12 @@
           "type": "timestamp with time zone",
           "nullable": true,
           "primary": false
+        },
+        {
+          "name": "lease_until",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "primary": false
         }
       ],
       "indexes": [
@@ -736,6 +760,24 @@
           ],
           "name": "bet_command_request_uq",
           "unique": true
+        },
+        {
+          "name": "bet_command_entity_idx",
+          "columns": [
+            "operator_id",
+            "bet_id",
+            "operation"
+          ],
+          "unique": false
+        },
+        {
+          "name": "bet_cancel_pending_uq",
+          "columns": [
+            "operator_id",
+            "bet_id"
+          ],
+          "unique": true,
+          "where": "((operation = 'CancelBet'::text) AND (state = 'IN_PROGRESS'::text))"
         }
       ],
       "checks": []
@@ -891,6 +933,47 @@
         "version >= 1",
         "state IN ('PENDING','COMPLETE')"
       ]
+    },
+    {
+      "name": "bet_audit_runs",
+      "columns": [
+        {
+          "name": "bet_audit_run_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": true
+        },
+        {
+          "name": "operator_id",
+          "type": "uuid",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "snapshot",
+          "type": "jsonb",
+          "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "primary": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "bet_audit_owner_idx",
+          "columns": [
+            "operator_id",
+            "created_at",
+            "bet_audit_run_id"
+          ],
+          "unique": false
+        }
+      ],
+      "checks": []
     }
   ]
 }

@@ -5,7 +5,7 @@ export class EligibilityPolicy {
   static evaluate(player:M.IProfile, cases:readonly M.IKycCase[], restrictions:readonly M.IRestriction[], policy:M.IOperatorEligibilityPolicy, now:string, businessTimeZone:string):M.IEligibility {
     const evaluated = Date.parse(now);let reason = M.EligibilityReason.ELIGIBLE;let until:number | undefined;
 
-    if (player.status !== M.PlayerStatus.ACTIVE)reason = M.EligibilityReason.PLAYER_INACTIVE;
+    if (!policy.allowedStatuses.includes(player.status))reason = M.EligibilityReason.PLAYER_INACTIVE;
 
     const matching = cases.find(value=>value.policyVersion === policy.policyVersion && value.requiredLevel === policy.requiredLevel);
 

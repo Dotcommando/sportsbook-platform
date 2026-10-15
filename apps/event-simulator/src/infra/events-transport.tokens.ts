@@ -1,0 +1,7 @@
+export const EVENTS_OPERATIONS = Symbol('EVENTS_OPERATIONS');
+
+export const EVENTS_IDENTITY = Symbol('EVENTS_IDENTITY');
+
+export const EVENTS_GRAPHQL_SETTINGS = Symbol('EVENTS_GRAPHQL_SETTINGS');
+
+export const EVENTS_BOUNDARY = Symbol('EVENTS_BOUNDARY');

@@ -1,5 +1,13 @@
+import type {IDelivery, IDeliveryBatch, IDurableConsumerSettings} from './durable-consumer.js';
+import {DeliveryDisposition, DurableConsumer} from './durable-consumer.js';
 import type {BrokerCredentials, IDurablePublisherSettings} from './durable-publisher.js';
 import {BrokerCredentialKind, DurablePublisher} from './durable-publisher.js';
+import type {IJetStreamTopology} from './jetstream-topology.js';
+import {configureJetStream} from './jetstream-topology.js';
+import {MessagingMetric, MessagingMetrics} from './messaging-metrics.js';
+
+export {configureJetStream, DeliveryDisposition, DurableConsumer, type IDelivery, type IDeliveryBatch, type IDurableConsumerSettings, type IJetStreamTopology, MessagingMetric, MessagingMetrics};
+
 import type {IGraphqlSettings} from './graphql.js';
 import {businessGraphqlError, FederationBoundary} from './graphql.js';
 import type {IPrivateHost, IPrivateHostSettings} from './host.js';

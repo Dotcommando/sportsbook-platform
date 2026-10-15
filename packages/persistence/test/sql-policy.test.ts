@@ -36,6 +36,16 @@ test('registered posting function supports privilege revocation without allowing
   assert.throws(() => validateMigrationSql('GRANT EXECUTE ON FUNCTION public.ledger_append_posting(jsonb,jsonb) TO PUBLIC;'), /privilege revocation/);
 });
 
+test('only registered Events history guards may reject updates and deletes', () => {
+  const define = "CREATE FUNCTION public.reject_event_history_mutation() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Event history is immutable'; END; $$;";
+  const trigger = 'CREATE TRIGGER event_results_immutable BEFORE UPDATE OR DELETE ON event_results FOR EACH ROW EXECUTE FUNCTION public.reject_event_history_mutation();';
+
+  assert.doesNotThrow(()=>validateMigrationSql(define + trigger));
+  assert.throws(()=>validateMigrationSql(define.replace("RAISE EXCEPTION 'Event history is immutable';", 'PERFORM 1;')), /immutable-history/);
+
+  for (const text of [trigger.replace('BEFORE', 'AFTER'), trigger.replace('event_results FOR', 'wallets FOR'), trigger.replace('UPDATE OR DELETE', 'INSERT'), trigger.replace('public.reject_event_history_mutation', 'public.another_function')]) assert.throws(()=>validateMigrationSql(text), /immutable-history/);
+});
+
 test('unsupported Events persistence and invalid pool fail before connection', async () => {
   await assert.rejects(createPersistenceRuntime({ connectionString: 'postgresql://localhost/test', backend: PersistenceBackend.TypeOrm, poolMax: 1 }, { service: 'events', tables: [] }), /fixed to pg/);
   await assert.rejects(createPersistenceRuntime({ connectionString: 'postgresql://localhost/test', backend: PersistenceBackend.Pg, poolMax: 0 }, { service: 'ledger', tables: [] }), /pool/);

@@ -1,0 +1,10 @@
+{
+  "duplicateWindowMs": 120000,
+  "retentionMs": 604800000,
+  "maxMessages": 1000000,
+  "maxBytes": 268435456,
+  "ackWaitMs": 1000,
+  "maxDeliver": 5,
+  "backoffMs": [1000, 2000, 4000],
+  "maxAckPending": 200
+}

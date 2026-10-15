@@ -75,6 +75,12 @@
           "type": "timestamp with time zone",
           "nullable": true,
           "primary": false
+        },
+        {
+          "name": "failure_reason_code",
+          "type": "text",
+          "nullable": true,
+          "primary": false
         }
       ],
       "indexes": [
@@ -277,6 +283,16 @@
           ],
           "name": "event_match_identity_uq",
           "unique": true
+        },
+        {
+          "name": "event_match_phase_idx",
+          "columns": [
+            "operator_id",
+            "run_id",
+            "phase",
+            "event_id"
+          ],
+          "unique": false
         }
       ],
       "checks": [

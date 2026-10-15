@@ -30,6 +30,10 @@ const ledgerFull = options.includes('--ledger-full');
 
 const playerFeatures = options.includes('--player-features');
 
+const eventsFeatures = options.includes('--events-features');
+
+const bettingFeatures = options.includes('--betting-features');
+
 const allowedStrategies = ['rc_conditional', 'rc_for_update', 'serializable'];
 
 const selectedStrategies = options.find(option => option.startsWith('--strategies='))?.slice('--strategies='.length).split(',') ?? allowedStrategies;
@@ -38,7 +42,7 @@ assert.ok(!ledgerFull || ledgerFinance, '--ledger-full requires --ledger-finance
 
 assert.ok(!ledgerFinance || selectedServices.includes('ledger'), 'Financial checks require the Ledger service');
 
-assert.ok(options.every(option => ['--ledger-fixtures', '--ledger-finance', '--ledger-full', '--player-features'].includes(option) || option.startsWith('--services=') || option.startsWith('--backends=') || option.startsWith('--strategies=')), 'Unknown integration option');
+assert.ok(options.every(option => ['--ledger-fixtures', '--ledger-finance', '--ledger-full', '--player-features', '--events-features', '--betting-features'].includes(option) || option.startsWith('--services=') || option.startsWith('--backends=') || option.startsWith('--strategies=')), 'Unknown integration option');
 
 assert.ok(selectedStrategies.length > 0 && new Set(selectedStrategies).size === selectedStrategies.length && selectedStrategies.every(strategy => allowedStrategies.includes(strategy)), 'Invalid concurrency strategy selection');
 
@@ -209,7 +213,19 @@ try {
         }
         if (service === 'player' && playerFeatures) {const fixture:{verifyPlayerPersistence(owner:Pool, connectionString:string, backend:PersistenceBackend):Promise<void>} = await import(pathToFileURL(path.join(root, 'apps/player/test/player-postgres.fixture.ts')).href);
 
-await fixture.verifyPlayerPersistence(owner, `postgresql://runtime_user:password@${address}/${database}`, backend);assert.deepEqual(await assertSchema(owner, manifest), before, 'Player runtime changed catalog');}
+          await fixture.verifyPlayerPersistence(owner, `postgresql://runtime_user:password@${address}/${database}`, backend);assert.deepEqual(await assertSchema(owner, manifest), before, 'Player runtime changed catalog');}
+        if (service === 'betting' && bettingFeatures) {
+          const fixture:{verifyBettingPersistence(owner:Pool, connectionString:string, backend:PersistenceBackend):Promise<void>} = await import(pathToFileURL(path.join(root, 'apps/betting/test/betting-postgres.fixture.ts')).href);
+
+          await fixture.verifyBettingPersistence(owner, `postgresql://runtime_user:password@${address}/${database}`, backend);
+          assert.deepEqual(await assertSchema(owner, manifest), before, 'Betting runtime changed catalog');
+        }
+        if (service === 'event-simulator' && eventsFeatures) {
+          const fixture:{verifyEventsPersistence(owner:Pool, connectionString:string):Promise<void>} = await import(pathToFileURL(path.join(root, 'apps/event-simulator/test/events-postgres.fixture.ts')).href);
+
+          await fixture.verifyEventsPersistence(owner, `postgresql://runtime_user:password@${address}/${database}`);
+          assert.deepEqual(await assertSchema(owner, manifest), before, 'Events runtime changed catalog');
+        }
 console.log(`${service}/${backend}: rebuilt schema, zero FKs, no runtime DDL, migration replay/rollback and drift checks passed.`);
       } finally {
         await owner.end();

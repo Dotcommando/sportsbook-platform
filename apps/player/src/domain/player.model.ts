@@ -134,7 +134,7 @@ export interface IPlayerCheckEligibilityOutput {eligibility: IEligibility;}
 
 export interface IPlayerProfilePatch {firstName?:string; lastName?:string; birthDate?:LocalDate; residenceCountry?:CountryCode; nationalityCountry?:CountryCode; locale?:Locale; timeZone?:IanaZone;}
 
-export interface IOperatorEligibilityPolicy {policyVersion:string; capability:PlayerCapability; requiredLevel:KycLevel; requiredChecks:KycCheckType[]; minimumAge?:number; maxValidityDays:number; blockingRestrictions:RestrictionType[];}
+export interface IOperatorEligibilityPolicy {policyVersion:string; capability:PlayerCapability; allowedStatuses:PlayerStatus[]; requiredLevel:KycLevel; requiredChecks:KycCheckType[]; minimumAge?:number; maxValidityDays:number; blockingRestrictions:RestrictionType[];}
 
 export interface IWorkerBatchInput {context:ICallContext; batchId:UUID; limit:number; cutoff:Instant;}
 

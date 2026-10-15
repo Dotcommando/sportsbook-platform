@@ -1,0 +1,23 @@
+{
+  "name": "@sportsbook/messaging",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@sportsbook/persistence": "workspace:*",
+    "@sportsbook/service-transport": "workspace:*",
+    "@sportsbook/events-client": "workspace:*",
+    "@sportsbook/ledger-client": "workspace:*",
+    "@sportsbook/player-client": "workspace:*",
+    "nats": "2.29.3",
+    "pg": "8.23.1"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "configure": "tsx src/configure.ts",
+    "test-integration": "tsx test/jetstream.integration.ts"
+  },
+  "nx": {"name": "messaging", "tags": ["scope:tooling", "type:tool"]}
+}

@@ -245,30 +245,78 @@ importers:
 
   apps/betting:
     dependencies:
+      '@apollo/subgraph':
+        specifier: 2.15.1
+        version: 2.15.1(graphql@16.14.2)
+      '@grpc/grpc-js':
+        specifier: 1.14.6
+        version: 1.14.6
+      '@grpc/proto-loader':
+        specifier: 0.8.1
+        version: 0.8.1
       '@nestjs/common':
         specifier: 11.2.7
         version: 11.2.7(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
       '@nestjs/core':
         specifier: 11.2.7
         version: 11.2.7(@nestjs/common@11.2.7(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/microservices@11.2.7)(@nestjs/platform-express@11.2.7)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/microservices':
+        specifier: 11.2.7
+        version: 11.2.7(@grpc/grpc-js@1.14.6)(@nestjs/common@11.2.7(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@11.2.7)(nats@2.29.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/platform-express':
+        specifier: 11.2.7
+        version: 11.2.7(@nestjs/common@11.2.7(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@11.2.7)(supports-color@7.2.0)
       '@prisma/adapter-pg':
         specifier: 7.10.0
         version: 7.10.0
       '@prisma/client':
         specifier: 7.10.0
         version: 7.10.0(prisma@7.10.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@sportsbook/betting-client':
+        specifier: workspace:*
+        version: link:../../packages/betting-client
+      '@sportsbook/events-client':
+        specifier: workspace:*
+        version: link:../../packages/events-client
+      '@sportsbook/ledger-client':
+        specifier: workspace:*
+        version: link:../../packages/ledger-client
       '@sportsbook/observability':
         specifier: workspace:*
         version: link:../../packages/observability
       '@sportsbook/persistence':
         specifier: workspace:*
         version: link:../../packages/persistence
+      '@sportsbook/player-client':
+        specifier: workspace:*
+        version: link:../../packages/player-client
+      '@sportsbook/service-transport':
+        specifier: workspace:*
+        version: link:../../packages/service-transport
+      graphql:
+        specifier: 16.14.2
+        version: 16.14.2
+      jsonc-parser:
+        specifier: 3.3.1
+        version: 3.3.1
+      nats:
+        specifier: 2.29.3
+        version: 2.29.3
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
+      sequelize:
+        specifier: 6.37.8
+        version: 6.37.8(mysql2@3.15.3)(pg@8.23.1)(supports-color@7.2.0)
+      typeorm:
+        specifier: 0.3.31
+        version: 0.3.31(mysql2@3.15.3)(pg@8.23.1)(supports-color@7.2.0)
     devDependencies:
       '@sportsbook/testing':
         specifier: workspace:*
@@ -634,6 +682,30 @@ importers:
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
+
+  tools/messaging:
+    dependencies:
+      '@sportsbook/events-client':
+        specifier: workspace:*
+        version: link:../../packages/events-client
+      '@sportsbook/ledger-client':
+        specifier: workspace:*
+        version: link:../../packages/ledger-client
+      '@sportsbook/persistence':
+        specifier: workspace:*
+        version: link:../../packages/persistence
+      '@sportsbook/player-client':
+        specifier: workspace:*
+        version: link:../../packages/player-client
+      '@sportsbook/service-transport':
+        specifier: workspace:*
+        version: link:../../packages/service-transport
+      nats:
+        specifier: 2.29.3
+        version: 2.29.3
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
 
   tools/migrations:
     dependencies:

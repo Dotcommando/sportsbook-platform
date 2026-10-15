@@ -1,0 +1,20 @@
+name: sportsbook-platform
+services:
+  nats:
+    image: nats:2.12.4-alpine@sha256:31c6ed3b2da61645aaa3ad9217b5a52b34b6ebd555ecb71259cd7723c59ae1ea
+    command: ["--config", "/etc/nats/server.conf"]
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8222:8222"
+    volumes:
+      - ./server.conf:/etc/nats/server.conf:ro
+      - nats_data:/data/jetstream
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8222/healthz?js-enabled-only=true"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+volumes:
+  nats_data:

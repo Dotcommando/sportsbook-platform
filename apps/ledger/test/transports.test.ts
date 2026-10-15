@@ -49,7 +49,7 @@ test('real REST, Nest gRPC and Federation produce identical journal effects and 
 
   for (const entry of Object.values(Entry)) {
     const f = transportFixture(now);const grpcPort = await freePort();
-    const host = await startLedgerTransports(f.operations, identity, graphql, {host:'127.0.0.1', httpPort:0, grpcPort, protoPath:path.resolve('packages/contracts/proto/sportsbook/ledger/v1/ledger.proto'), protobufPackage:'sportsbook.ledger.v1'});
+    const host = await startLedgerTransports(f.operations, identity, graphql, {host:'127.0.0.1', httpPort:0, grpcPort, protoPath:path.resolve(import.meta.dirname, '../../../packages/contracts/proto/sportsbook/ledger/v1/ledger.proto'), protobufPackage:'sportsbook.ledger.v1'});
     const base = (await host.http.getUrl()).replace('[::1]', '127.0.0.1');
     const client = new Wire.LedgerServiceClient('127.0.0.1:' + grpcPort, credentials.createInsecure());
     const token = bearer({iss:identity.issuer, aud:identity.audience, iat:Math.floor(Date.now() / 1000), exp:Math.floor(Date.now() / 1000) + 120, ...f.system});
@@ -127,7 +127,7 @@ function jsonObject(value:unknown):Record<string, unknown> {return objectValue(s
 
 test('all eighteen registered operations work through all three real entry points', async()=> {const now = new Date().toISOString();
 
-for (const entry of Object.values(Entry)) {const f = transportFixture(now);const grpcPort = await freePort();const host = await startLedgerTransports(f.operations, identity, graphql, {host:'127.0.0.1', httpPort:0, grpcPort, protoPath:path.resolve('packages/contracts/proto/sportsbook/ledger/v1/ledger.proto'), protobufPackage:'sportsbook.ledger.v1'});const base = await host.http.getUrl();const client = new Wire.LedgerServiceClient('127.0.0.1:' + grpcPort, credentials.createInsecure());const invoked = new Set<string>();
+for (const entry of Object.values(Entry)) {const f = transportFixture(now);const grpcPort = await freePort();const host = await startLedgerTransports(f.operations, identity, graphql, {host:'127.0.0.1', httpPort:0, grpcPort, protoPath:path.resolve(import.meta.dirname, '../../../packages/contracts/proto/sportsbook/ledger/v1/ledger.proto'), protobufPackage:'sportsbook.ledger.v1'});const base = await host.http.getUrl();const client = new Wire.LedgerServiceClient('127.0.0.1:' + grpcPort, credentials.createInsecure());const invoked = new Set<string>();
 const call = async(operation:string, input:Record<string, unknown>, actor:ICallContext = f.system):Promise<Record<string, unknown>>=>{const token = bearer({iss:identity.issuer, aud:identity.audience, iat:Math.floor(Date.now() / 1000), exp:Math.floor(Date.now() / 1000) + 120, ...actor});const headers = {'authorization':token, 'x-correlation-id':actor.correlationId, 'x-deadline-at':actor.deadlineAt, 'content-type':'application/json'};const metadata = new Metadata();
 
 for (const [key, value] of Object.entries(headers)) if (key !== 'content-type')metadata.set(key, value);let output:unknown;

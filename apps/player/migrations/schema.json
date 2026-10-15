@@ -75,6 +75,12 @@
           "type": "timestamp with time zone",
           "nullable": true,
           "primary": false
+        },
+        {
+          "name": "failure_reason_code",
+          "type": "text",
+          "nullable": true,
+          "primary": false
         }
       ],
       "indexes": [
@@ -520,6 +526,17 @@
             "opened_at"
           ],
           "name": "player_kyc_case_pending_idx"
+        },
+        {
+          "name": "player_kyc_active_uq",
+          "columns": [
+            "operator_id",
+            "player_id",
+            "required_level",
+            "policy_version"
+          ],
+          "unique": true,
+          "where": "status = ANY (ARRAY['OPEN'::text, 'IN_REVIEW'::text])"
         }
       ],
       "checks": [
@@ -711,6 +728,12 @@
           "name": "updated_at",
           "type": "timestamp with time zone",
           "nullable": false,
+          "primary": false
+        },
+        {
+          "name": "clear_reason_code",
+          "type": "text",
+          "nullable": true,
           "primary": false
         }
       ],

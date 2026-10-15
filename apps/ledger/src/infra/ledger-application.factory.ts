@@ -25,31 +25,11 @@ import { ReserveStakeUseCase } from '../app/use-cases/reserve-stake.use-case.js'
 import { SettleLossUseCase } from '../app/use-cases/settle-loss.use-case.js';
 import { SettleWinUseCase } from '../app/use-cases/settle-win.use-case.js';
 import type { IOperatorFinancialPolicy } from '../domain/ledger.model.js';
-import type { CancelBetPort, CompleteWithdrawalPort, CreateWalletPort, DepositTestFundsPort, GetBalancePort, GetBetFinancialStatusPort, GetCommandOutcomePort, GetLedgerEntriesPort, GetTransactionPort, GetWalletPort, GetWalletTransactionsPort, GetWithdrawalPort, ProvisionPlayerWalletPort, PublishOutboxBatchPort, ReconcileLedgerPort, RejectWithdrawalPort, RequestWithdrawalPort, ReserveStakePort, SettleLossPort, SettleWinPort } from '../ports/inbound/ledger-operations.port.js';
-import type { ClockPort, MessagePublicationPort } from '../ports/outbound/financial.port.js';
+import type { ILedgerOperationPorts } from '../ports/inbound/ledger-application.port.js';
 
-export interface ILedgerOperationPorts {
-  createWallet:CreateWalletPort;
-  depositTestFunds:DepositTestFundsPort;
-  requestWithdrawal:RequestWithdrawalPort;
-  completeWithdrawal:CompleteWithdrawalPort;
-  rejectWithdrawal:RejectWithdrawalPort;
-  reserveStake:ReserveStakePort;
-  settleWin:SettleWinPort;
-  settleLoss:SettleLossPort;
-  cancelBet:CancelBetPort;
-  getBalance:GetBalancePort;
-  getTransaction:GetTransactionPort;
-  getLedgerEntries:GetLedgerEntriesPort;
-  getWalletTransactions:GetWalletTransactionsPort;
-  getBetFinancialStatus:GetBetFinancialStatusPort;
-  getWithdrawal:GetWithdrawalPort;
-  getCommandOutcome:GetCommandOutcomePort;
-  getWallet:GetWalletPort;
-  reconcileLedger:ReconcileLedgerPort;
-  publishOutboxBatch:PublishOutboxBatchPort;
-  provisionPlayerWallet:ProvisionPlayerWalletPort;
-}
+export type { ILedgerOperationPorts } from '../ports/inbound/ledger-application.port.js';
+
+import type { ClockPort, MessagePublicationPort } from '../ports/outbound/financial.port.js';
 
 export interface ILedgerApplication { operations:ILedgerOperationPorts; persistence:ILedgerPersistence; close():Promise<void>; }
 

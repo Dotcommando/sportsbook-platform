@@ -29,7 +29,7 @@ const allowedLayers: Readonly<Record<string, ReadonlySet<string>>> = {
   adapters: new Set(['ports', 'domain']),
 };
 
-const forbiddenCorePackages = /^(?:@nestjs\/|@apollo\/|@grpc\/|@bufbuild\/|@prisma\/|@sequelize\/|@nats-io\/|typeorm(?:\/|$)|sequelize(?:\/|$)|pg(?:\/|$)|prisma(?:\/|$)|nats(?:\/|$)|graphql(?:\/|$)|protobufjs(?:\/|$)|@sportsbook\/(?:contracts|.*-client|observability|testing|persistence)(?:\/|$))/;
+const forbiddenCorePackages = /^(?:@nestjs\/|@apollo\/|@grpc\/|@bufbuild\/|@prisma\/|@sequelize\/|@nats-io\/|typeorm(?:\/|$)|sequelize(?:\/|$)|pg(?:\/|$)|prisma(?:\/|$)|nats(?:\/|$)|graphql(?:\/|$)|protobufjs(?:\/|$)|@sportsbook\/(?:contracts|.*-client|observability|testing|persistence|service-transport)(?:\/|$))/;
 
 function normalize(filePath: string): string {
   return path.resolve(filePath).replaceAll('\\', '/');

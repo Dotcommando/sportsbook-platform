@@ -7,9 +7,9 @@ import { losslessJson } from '../src/adapters/outbound/ids/command-fingerprint.j
 import { CommandFingerprint } from '../src/adapters/outbound/ids/command-fingerprint.js';
 import { UuidGenerator } from '../src/adapters/outbound/ids/uuid-generator.js';
 import type { ILedgerPersistenceSettings } from '../src/adapters/outbound/persistence/financial-persistence.factory.js';
-import { PgConditionalWriter, PgForUpdateWriter, PgSerializableWriter } from '../src/adapters/outbound/persistence/ledger.writers.js';
+import * as Writers from '../src/adapters/outbound/persistence/ledger.writers.js';
 import { LedgerConcurrencyStrategy } from '../src/adapters/outbound/persistence/sql-session.js';
-import { PgTransactionManager } from '../src/adapters/outbound/persistence/transaction-managers.js';
+import { PgTransactionManager, PrismaTransactionManager, SequelizeTransactionManager, TypeOrmTransactionManager } from '../src/adapters/outbound/persistence/transaction-managers.js';
 import { ReserveStakeUseCase } from '../src/app/use-cases/reserve-stake.use-case.js';
 import { MAX_INT64 } from '../src/domain/ledger.error.js';
 import type { ICallContext, IOperatorFinancialPolicy } from '../src/domain/ledger.model.js';
@@ -81,9 +81,13 @@ assert.equal(foreign.ok, false);
 
 assert.ok(current.ok);assert.equal(current.value.wallet.availableMinor, 12000n);
 
-      if (backend === PersistenceBackend.Pg) {
-        const probe = new FaultInjectingTransactionManager(new PgTransactionManager(settings));
-        const Writer = strategy === LedgerConcurrencyStrategy.CONDITIONAL ? PgConditionalWriter : strategy === LedgerConcurrencyStrategy.FOR_UPDATE ? PgForUpdateWriter : PgSerializableWriter;
+      {
+        const manager = backend === PersistenceBackend.TypeOrm ? await TypeOrmTransactionManager.create(settings) : backend === PersistenceBackend.Prisma ? new PrismaTransactionManager(settings) : backend === PersistenceBackend.Sequelize ? new SequelizeTransactionManager(settings) : new PgTransactionManager(settings);
+        const probe = new FaultInjectingTransactionManager(manager);
+        const selected = backend === PersistenceBackend.TypeOrm ? [Writers.TypeOrmConditionalWriter, Writers.TypeOrmForUpdateWriter, Writers.TypeOrmSerializableWriter] : backend === PersistenceBackend.Prisma ? [Writers.PrismaConditionalWriter, Writers.PrismaForUpdateWriter, Writers.PrismaSerializableWriter] : backend === PersistenceBackend.Sequelize ? [Writers.SequelizeConditionalWriter, Writers.SequelizeForUpdateWriter, Writers.SequelizeSerializableWriter] : [Writers.PgConditionalWriter, Writers.PgForUpdateWriter, Writers.PgSerializableWriter];
+        const Writer = selected[strategy === LedgerConcurrencyStrategy.CONDITIONAL ? 0 : strategy === LedgerConcurrencyStrategy.FOR_UPDATE ? 1 : 2];
+
+        assert.ok(Writer);
         const ids = new UuidGenerator('6ba7b810-9dad-11d1-80b4-00c04fd430c8');
         const faulting = new ReserveStakeUseCase({unitOfWork:new Writer({manager:probe, ids, clock, retry:settings.retry, jitter:settings.jitter}), clock, ids, fingerprint:new CommandFingerprint(), policies});
 

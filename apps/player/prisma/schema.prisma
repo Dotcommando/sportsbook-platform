@@ -21,6 +21,7 @@ model PlayerOutboxEvents {
   nextAttemptAt DateTime @map("next_attempt_at") @db.Timestamptz(6)
   leaseId String? @map("lease_id") @db.Uuid
   leaseUntil DateTime? @map("lease_until") @db.Timestamptz(6)
+  failureReasonCode String? @map("failure_reason_code")
   @@map("player_outbox_events")
 }
 
@@ -127,6 +128,7 @@ model PlayerRestrictions {
   clearedAt DateTime? @map("cleared_at") @db.Timestamptz(6)
   createdAt DateTime @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  clearReasonCode String? @map("clear_reason_code")
   @@map("player_restrictions")
 }
 

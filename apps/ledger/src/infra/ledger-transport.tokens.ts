@@ -1,0 +1,7 @@
+export const LEDGER_OPERATIONS = Symbol('LEDGER_OPERATIONS');
+
+export const LEDGER_IDENTITY = Symbol('LEDGER_IDENTITY');
+
+export const LEDGER_GRAPHQL_SETTINGS = Symbol('LEDGER_GRAPHQL_SETTINGS');
+
+export const LEDGER_BOUNDARY = Symbol('LEDGER_BOUNDARY');

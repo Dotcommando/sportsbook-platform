@@ -11,7 +11,19 @@
     "rxjs": "7.8.2",
     "@sportsbook/persistence": "workspace:*",
     "@prisma/adapter-pg": "7.10.0",
-    "@prisma/client": "7.10.0"
+    "@prisma/client": "7.10.0",
+    "@nestjs/microservices": "11.2.7",
+    "@nestjs/platform-express": "11.2.7",
+    "@grpc/grpc-js": "1.14.6",
+    "@grpc/proto-loader": "0.8.1",
+    "@apollo/subgraph": "2.15.1",
+    "graphql": "16.14.2",
+    "jsonc-parser": "3.3.1",
+    "@sportsbook/service-transport": "workspace:*",
+    "@sportsbook/player-client": "workspace:*",
+    "pg": "8.23.1",
+    "typeorm": "0.3.31",
+    "sequelize": "6.37.8"
   },
   "devDependencies": {
     "@sportsbook/testing": "workspace:*"

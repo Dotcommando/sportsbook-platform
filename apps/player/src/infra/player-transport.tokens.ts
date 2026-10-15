@@ -1,0 +1,7 @@
+export const PLAYER_OPERATIONS = Symbol('PLAYER_OPERATIONS');
+
+export const PLAYER_IDENTITY = Symbol('PLAYER_IDENTITY');
+
+export const PLAYER_GRAPHQL_SETTINGS = Symbol('PLAYER_GRAPHQL_SETTINGS');
+
+export const PLAYER_BOUNDARY = Symbol('PLAYER_BOUNDARY');

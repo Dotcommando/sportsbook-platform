@@ -28,6 +28,8 @@ const ledgerFinance = options.includes('--ledger-finance');
 
 const ledgerFull = options.includes('--ledger-full');
 
+const playerFeatures = options.includes('--player-features');
+
 const allowedStrategies = ['rc_conditional', 'rc_for_update', 'serializable'];
 
 const selectedStrategies = options.find(option => option.startsWith('--strategies='))?.slice('--strategies='.length).split(',') ?? allowedStrategies;
@@ -36,7 +38,7 @@ assert.ok(!ledgerFull || ledgerFinance, '--ledger-full requires --ledger-finance
 
 assert.ok(!ledgerFinance || selectedServices.includes('ledger'), 'Financial checks require the Ledger service');
 
-assert.ok(options.every(option => ['--ledger-fixtures', '--ledger-finance', '--ledger-full'].includes(option) || option.startsWith('--services=') || option.startsWith('--backends=') || option.startsWith('--strategies=')), 'Unknown integration option');
+assert.ok(options.every(option => ['--ledger-fixtures', '--ledger-finance', '--ledger-full', '--player-features'].includes(option) || option.startsWith('--services=') || option.startsWith('--backends=') || option.startsWith('--strategies=')), 'Unknown integration option');
 
 assert.ok(selectedStrategies.length > 0 && new Set(selectedStrategies).size === selectedStrategies.length && selectedStrategies.every(strategy => allowedStrategies.includes(strategy)), 'Invalid concurrency strategy selection');
 
@@ -132,7 +134,11 @@ try {
           await ddlDenied.end();
         }
 
-        const logStart = new Date(Date.now() - 2000).toISOString();
+        const serverClock = await owner.query<{instant:Date}>('SELECT clock_timestamp() AS instant');
+        const logInstant = serverClock.rows[0]?.instant;
+
+        assert.ok(logInstant instanceof Date, 'PostgreSQL log clock unavailable');
+        const logStart = new Date(logInstant.getTime() - 100).toISOString();
         const runtime = await module.createServicePersistence(Object.freeze({ connectionString: `postgresql://runtime_user:password@${address}/${database}`, backend, poolMax: 1 }), manifest);
 
         try {
@@ -144,7 +150,7 @@ try {
         let delta = '';
 
         for (let attempt = 0; attempt < 20; attempt++) {
-          const logAfter = spawnSync('docker', ['logs', '--since', logStart, startedContainer], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
+          const logAfter = spawnSync('docker', ['logs', '--since', logStart, '--tail', '3000', startedContainer], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
 
           assert.equal(logAfter.status, 0, 'Runtime SQL log capture failed');
           delta = logAfter.stdout + logAfter.stderr;
@@ -201,7 +207,10 @@ try {
           await fixture.verifyFinancialPersistence(owner, `postgresql://runtime_user:password@${address}/${database}`, backend, selectedStrategies, ledgerFull);
           assert.deepEqual(await assertSchema(owner, manifest), before, 'Financial runtime changed catalog');
         }
-        console.log(`${service}/${backend}: rebuilt schema, zero FKs, no runtime DDL, migration replay/rollback and drift checks passed.`);
+        if (service === 'player' && playerFeatures) {const fixture:{verifyPlayerPersistence(owner:Pool, connectionString:string, backend:PersistenceBackend):Promise<void>} = await import(pathToFileURL(path.join(root, 'apps/player/test/player-postgres.fixture.ts')).href);
+
+await fixture.verifyPlayerPersistence(owner, `postgresql://runtime_user:password@${address}/${database}`, backend);assert.deepEqual(await assertSchema(owner, manifest), before, 'Player runtime changed catalog');}
+console.log(`${service}/${backend}: rebuilt schema, zero FKs, no runtime DDL, migration replay/rollback and drift checks passed.`);
       } finally {
         await owner.end();
       }

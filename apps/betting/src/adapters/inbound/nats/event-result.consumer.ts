@@ -1,6 +1,6 @@
 import * as Wire from '@sportsbook/events-client';
 import type {IDelivery} from '@sportsbook/service-transport';
-import {DeliveryDisposition, objectValue} from '@sportsbook/service-transport';
+import {DeliveryDisposition, NATS_LIMITS, objectValue} from '@sportsbook/service-transport';
 
 import * as M from '../../../domain/betting.model.js';
 import * as Output from '../../../domain/betting-output.policy.js';
@@ -17,7 +17,7 @@ export class EventResultConsumer {
     let input:M.IBettingRecordEventResultInput;
 
     try {
-      if (delivery.subject !== 'sportsbook.events.v1.event_result' || delivery.data.byteLength > 65536) throw new Error('Invalid result subject');
+      if (delivery.subject !== 'sportsbook.events.v1.event_result' || delivery.data.byteLength > NATS_LIMITS.eventBytes) throw new Error('Invalid result subject');
 
       const raw = objectValue(Wire.EventEnvelope.toJSON(Wire.EventEnvelope.decode(delivery.data)));const payload = objectValue(raw.payload).eventResult;const route = this.routes.find(route=>route.operatorId === raw.operatorId);
 

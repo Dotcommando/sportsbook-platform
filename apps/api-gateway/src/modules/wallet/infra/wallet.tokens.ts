@@ -1,0 +1,3 @@
+export const WALLET_OPERATIONS = Symbol('WALLET_OPERATIONS');
+
+export const WALLET_IDENTITY = Symbol('WALLET_IDENTITY');

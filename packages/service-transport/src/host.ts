@@ -4,6 +4,8 @@ import type { DynamicModule, INestApplication, INestMicroservice } from '@nestjs
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 
+import {installHttpResponseLimits} from './http-limits.js';
+import {GRAPHQL_LIMITS, GRPC_LIMITS, REST_LIMITS} from './transport-limits.js';
 import { objectValue, strictJson } from './wire.js';
 
 export interface IPrivateHostSettings { host:string; httpPort:number; grpcPort:number; protoPath:string; protobufPackage:string; }
@@ -18,6 +20,8 @@ export async function startPrivateHost(module:DynamicModule, settings:IPrivateHo
   validatePrivateHost(settings);
   const http = await NestFactory.create(module, {logger:false, bodyParser:false});
 
+  installHttpResponseLimits(http);
+
   http.use((request:IncomingMessage & {body?:unknown}, response:ServerResponse, next:()=>void):void=> {
     if (!['POST', 'PUT', 'PATCH'].includes(request.method ?? '')) {next();
 
@@ -26,15 +30,16 @@ return;}
 
 return;}
 
+    const maximumBytes = new URL(request.url ?? '/', 'http://localhost').pathname === '/internal/graphql' ? GRAPHQL_LIMITS.requestBytes : REST_LIMITS.requestBytes;
     const chunks:Buffer[] = [];let length = 0;let rejected = false;
 
     request.on('data', (chunk:Buffer)=>{length += chunk.length;
 
-if (length > 65536) {rejected = true;chunks.length = 0;} else if (!rejected)chunks.push(chunk);});
+if (length > maximumBytes) {rejected = true;chunks.length = 0;} else if (!rejected)chunks.push(chunk);});
     request.on('end', ()=>{try {if (rejected) throw new Error('Body too large');request.body = objectValue(strictJson(new TextDecoder('utf-8', {fatal:true}).decode(Buffer.concat(chunks))));next();} catch {response.writeHead(400, {'Content-Type':'application/json'});response.end('{"code":"INVALID_INPUT"}');}});
     request.on('error', ()=>{if (!response.writableEnded)response.end();});
   });
-  const grpc = await NestFactory.createMicroservice(module, {logger:false, transport:Transport.GRPC, options:{url:`${settings.host.includes(':') ? '[' + settings.host + ']' : settings.host}:${settings.grpcPort}`, package:settings.protobufPackage, protoPath:settings.protoPath, loader:{longs:String, enums:String, defaults:false, arrays:true, objects:false, keepCase:false}, maxReceiveMessageLength:65536, maxSendMessageLength:65536}});
+  const grpc = await NestFactory.createMicroservice(module, {logger:false, transport:Transport.GRPC, options:{url:`${settings.host.includes(':') ? '[' + settings.host + ']' : settings.host}:${settings.grpcPort}`, package:settings.protobufPackage, protoPath:settings.protoPath, loader:{longs:String, enums:String, defaults:false, arrays:true, objects:false, keepCase:false}, maxReceiveMessageLength:GRPC_LIMITS.requestBytes, maxSendMessageLength:GRPC_LIMITS.responseBytes}});
 
   try {await grpc.listen();await http.listen(settings.httpPort, settings.host);
 

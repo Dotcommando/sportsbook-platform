@@ -1,0 +1,24 @@
+{
+  "compositionVersion": "2.14.0",
+  "roverImage": "ghcr.io/apollographql/rover:0.39.1@sha256:cf3ab6f67aaaef4da8744c580f62f747c346bb06e945b4303b82fd9c245d01aa",
+  "routerImage": "ghcr.io/apollographql/router:v2.14.0@sha256:fa2485b940b262b8b5383b508b5c0aaec4a3a2ef48be9c6bbd02970105673d0c",
+  "sha256": "e88342dcb27db47bf0b1d1dee04fdb0d0c9a820250f4b27c36185c150113d7de",
+  "subgraphs": [
+    {
+      "name": "ledger",
+      "sha256": "acf2abba261617dced0d0253982f482be3f0adc54a48addb9a71d8d4c55ebbc0"
+    },
+    {
+      "name": "player",
+      "sha256": "4c4c1593a550839c965c9e75cc8c5b9d3bc3f1dd7223cf7ffebab629b07e4248"
+    },
+    {
+      "name": "events",
+      "sha256": "668e06304015f1814c2bef2cc21c5b1f33b246e1f8cf6b49b96054ecdf014103"
+    },
+    {
+      "name": "betting",
+      "sha256": "b4bb43641914ed78fde2cf7a217e1f90fa4b374a7ee7abec965921b63186378e"
+    }
+  ]
+}

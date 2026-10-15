@@ -220,15 +220,36 @@ importers:
 
   apps/api-gateway:
     dependencies:
+      '@grpc/grpc-js':
+        specifier: 1.14.6
+        version: 1.14.6
       '@nestjs/common':
         specifier: 11.2.7
         version: 11.2.7(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
       '@nestjs/core':
         specifier: 11.2.7
         version: 11.2.7(@nestjs/common@11.2.7(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/microservices@11.2.7)(@nestjs/platform-express@11.2.7)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/platform-express':
+        specifier: 11.2.7
+        version: 11.2.7(@nestjs/common@11.2.7(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@11.2.7)(supports-color@7.2.0)
+      '@sportsbook/betting-client':
+        specifier: workspace:*
+        version: link:../../packages/betting-client
+      '@sportsbook/events-client':
+        specifier: workspace:*
+        version: link:../../packages/events-client
+      '@sportsbook/ledger-client':
+        specifier: workspace:*
+        version: link:../../packages/ledger-client
       '@sportsbook/observability':
         specifier: workspace:*
         version: link:../../packages/observability
+      '@sportsbook/player-client':
+        specifier: workspace:*
+        version: link:../../packages/player-client
+      '@sportsbook/service-transport':
+        specifier: workspace:*
+        version: link:../../packages/service-transport
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2
@@ -236,9 +257,6 @@ importers:
         specifier: 7.8.2
         version: 7.8.2
     devDependencies:
-      '@sportsbook/ledger-client':
-        specifier: workspace:*
-        version: link:../../packages/ledger-client
       '@sportsbook/testing':
         specifier: workspace:*
         version: link:../../packages/testing
@@ -682,6 +700,27 @@ importers:
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
+
+  tools/federation:
+    dependencies:
+      '@apollo/composition':
+        specifier: 2.14.4
+        version: 2.14.4(graphql@16.14.2)
+      '@sportsbook/persistence':
+        specifier: workspace:*
+        version: link:../../packages/persistence
+      '@sportsbook/service-transport':
+        specifier: workspace:*
+        version: link:../../packages/service-transport
+      graphql:
+        specifier: 16.14.2
+        version: 16.14.2
+      pg:
+        specifier: 8.23.1
+        version: 8.23.1
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   tools/messaging:
     dependencies:

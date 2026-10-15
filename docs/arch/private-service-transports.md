@@ -15,11 +15,15 @@ camelCase and string money/version fields. gRPC retains the versioned Protobuf
 schema and performs its enum/oneof conversion at the boundary. All entry points
 call the same business operation ports and preserve typed error/unknown outcomes.
 
-Requests are limited to 64 KiB. GraphQL admission limits depth to eight, root fields
-to twenty and expanded cost to 1000; list multiplicity uses the requested bounded
-page size. Fragment cycles and unknown fields fail before execution. Introspection
+Requests are limited to 64 KiB and responses separately to 1 MiB per synchronous
+protocol. GraphQL limits depth to eight, root fields to twenty and selected field
+occurrences to 1000, without multiplying by page/list sizes. Fragment cycles and unknown fields fail before execution. Introspection
 requires explicit enablement; Federation's authenticated service/entity operations
 remain available for composition and query planning.
+
+See [Transport limits](transport-limits.md) and
+[the admission decision](../adr/0005-independent-transport-limits.md) for the
+independent REST, gRPC, GraphQL and NATS limits and their units.
 
 The host accepts explicit loopback/private IP bindings, with separate HTTP and
 gRPC ports. Network policies must also restrict callers in deployment. Tests start

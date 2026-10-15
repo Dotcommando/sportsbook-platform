@@ -134,6 +134,12 @@ Protobuf with versioned `sportsbook.<service>.v1` packages, Buf lint/format/brea
 checks and deterministic typed-client generation. Federation composition has its
 own compatibility checks; it does not replace Buf or application workflows.
 
+Keep pagination/batch counts, encoded message sizes and protocol-specific
+structural limits separate. Each exchange method and direction owns its limits;
+record their units and approved values in `docs/arch/transport-limits.md`.
+Do not silently truncate business results or change pagination when switching
+internal transports.
+
 Gateway modules follow public capabilities rather than mirror downstream
 services. Their use cases compose small ports; business decisions and workflow
 recovery remain with the service owning the business outcome. Concrete service

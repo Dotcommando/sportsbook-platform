@@ -21,7 +21,7 @@ enum Entry { REST = 'REST', GRPC = 'GRPC', GRAPHQL = 'GRAPHQL' }
 
 const identity = {issuer:'synthetic-tests', audience:'ledger', key:'synthetic-test-key-32-bytes-minimum', maximumDeadlineMs:60000};
 
-const graphql = {maximumBytes:65536, maximumDepth:8, maximumRootFields:20, maximumCost:1000, introspection:false};
+const graphql = {maximumBytes:65536, maximumDepth:8, maximumRootFields:20, maximumSelectedFields:1000, maximumResponseBytes:1048576, introspection:false};
 
 function bearer(claims:unknown):string {
   const header = Buffer.from(JSON.stringify({alg:'HS256', typ:'JWT'})).toString('base64url');
@@ -328,9 +328,9 @@ if (page !== undefined)Object.assign(body, objectValue(page));
 const response = await fetch(base + route, {method:'POST', headers, body:JSON.stringify(jsonWire(input, true))});
 
 output = await response.json();assert.ok(response.ok, JSON.stringify(output));} break;}
-case 'CancelBet': {if (entry === Entry.GRPC)output = await new Promise<unknown>((resolve, reject)=>client.cancelBet(Wire.CancelBetRequest.fromJSON(protobufOutput({...input, context:actor}, 'CancelBetRequest')), metadata, (error, response)=>error ? reject(error) : resolve(objectValue(Wire.CancelBetResponse.toJSON(response)).value)));else if (entry === Entry.GRAPHQL) {const response = objectValue(await(await fetch(base + '/internal/graphql', {method:'POST', headers, body:JSON.stringify({query:'mutation($input:LedgerLedgerCancelBetInputInput!){cancelBet(input:$input){reservation{betId state} outcome{transactionId}}}', variables:{input}})})).json());
+case 'CancelBet': {if (entry === Entry.GRPC)output = await new Promise<unknown>((resolve, reject)=>client.cancelBet(Wire.CancelBetRequest.fromJSON(protobufOutput({...input, context:actor}, 'CancelBetRequest')), metadata, (error, response)=>error ? reject(error) : resolve(objectValue(Wire.CancelBetResponse.toJSON(response)).value)));else if (entry === Entry.GRAPHQL) {const response = objectValue(await(await fetch(base + '/internal/graphql', {method:'POST', headers, body:JSON.stringify({query:'mutation($input:LedgerLedgerCancelBetInputInput!){cancelStakeReservation(input:$input){reservation{betId state} outcome{transactionId}}}', variables:{input}})})).json());
 
-assert.equal(response.errors, undefined, JSON.stringify(response));output = objectValue(response.data).cancelBet;} else {let route = '/internal/v1/bets/:bet_id/reservation-cancellations';const body = objectValue(jsonWire(input, true));
+assert.equal(response.errors, undefined, JSON.stringify(response));output = objectValue(response.data).cancelStakeReservation;} else {let route = '/internal/v1/bets/:bet_id/reservation-cancellations';const body = objectValue(jsonWire(input, true));
 
 for (const [name, value] of Object.entries(body)) if (route.includes(':' + name)) {route = route.replace(':' + name, encodeURIComponent(String(value)));delete body[name];} const page = body.page;
 

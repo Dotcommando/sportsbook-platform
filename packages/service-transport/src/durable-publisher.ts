@@ -2,6 +2,7 @@ import type { NatsConnection } from 'nats';
 import { connect } from 'nats';
 
 import {MessagingMetric, MessagingMetrics} from './messaging-metrics.js';
+import {NATS_LIMITS} from './transport-limits.js';
 
 export enum BrokerCredentialKind { TOKEN = 'TOKEN', USER = 'USER' }
 
@@ -22,7 +23,7 @@ const connection = await connect({servers:[...settings.servers], timeout:setting
 
 return new DurablePublisher(connection, settings.timeoutMs, metrics);}
 
-  async publish(subject:string, messageId:string, data:Uint8Array, remainingMs:number):Promise<void> {if (!/^[a-z][a-z0-9_.]+$/.test(subject) || !messageId || data.byteLength > 65536 || !Number.isFinite(remainingMs) || remainingMs <= 0) throw new Error('Invalid bounded publication');
+  async publish(subject:string, messageId:string, data:Uint8Array, remainingMs:number):Promise<void> {if (!/^[a-z][a-z0-9_.]+$/.test(subject) || !messageId || data.byteLength > NATS_LIMITS.eventBytes || !Number.isFinite(remainingMs) || remainingMs <= 0) throw new Error('Invalid bounded publication');
 
 try {const receipt = await this.connection.jetstream({timeout:Math.min(this.timeoutMs, remainingMs)}).publish(subject, data, {msgID:messageId});
 

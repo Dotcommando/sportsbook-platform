@@ -1,0 +1,18 @@
+federation_version: "=2.14.0"
+subgraphs:
+  ledger:
+    routing_url: http://ledger:4101/internal/graphql
+    schema:
+      file: subgraphs/ledger.graphql
+  player:
+    routing_url: http://player:4102/internal/graphql
+    schema:
+      file: subgraphs/player.graphql
+  events:
+    routing_url: http://event-simulator:4103/internal/graphql
+    schema:
+      file: subgraphs/events.graphql
+  betting:
+    routing_url: http://betting:4104/internal/graphql
+    schema:
+      file: subgraphs/betting.graphql

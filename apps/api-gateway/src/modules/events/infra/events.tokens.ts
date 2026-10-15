@@ -1,0 +1,3 @@
+export const EVENTS_OPERATIONS = Symbol('EVENTS_OPERATIONS');
+
+export const EVENTS_IDENTITY = Symbol('EVENTS_IDENTITY');

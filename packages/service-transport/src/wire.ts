@@ -10,8 +10,8 @@ export function stringValue(value:unknown):string {if (typeof value !== 'string'
 
 return value;}
 
-export function strictJson(text:string):unknown {
-  if (Buffer.byteLength(text) > 65536) throw new Error('Request too large');
+export function strictJson(text:string, maximumBytes = 65536):unknown {
+  if (!Number.isSafeInteger(maximumBytes) || maximumBytes < 1 || maximumBytes > 1048576 || Buffer.byteLength(text) > maximumBytes) throw new Error('JSON payload too large');
 
   const stack:Set<string>[] = [];
 
@@ -53,6 +53,29 @@ export enum ShapeKind { STRING = 'string', BIGINT = 'bigint', NUMBER = 'number',
 export enum StringFormat { UUID = 'UUID', INSTANT = 'INSTANT', CURRENCY = 'CURRENCY' }
 
 export interface IShape {kind:ShapeKind;fields?:Record<string, IShape>;optional?:boolean;items?:IShape;values?:readonly string[];members?:readonly IShape[];name?:string;literal?:boolean;format?:StringFormat;}
+
+export function decodeGraphqlShape(value:unknown, shape:IShape, registry:Readonly<Record<string, IShape>> = {}):unknown {
+  function normalize(v:unknown, s:IShape, depth:number):unknown {
+    if (depth > 64) throw new Error('Shape too deep');if (v === null && s.optional) return undefined;
+    if (s.kind === ShapeKind.REFERENCE) {const target = registry[s.name ?? ''];
+
+if (!target) throw new Error('Unregistered shape');
+
+return normalize(v, target, depth + 1);}
+    if (s.kind === ShapeKind.ARRAY && Array.isArray(v) && s.items) {const item = s.items;
+
+return v.map(x=>normalize(x, item, depth + 1));}
+    if (s.kind === ShapeKind.OBJECT && v !== null && typeof v === 'object' && !Array.isArray(v)) {const fields = s.fields ?? {};
+
+return Object.fromEntries(Object.entries(v).flatMap(([key, item])=>{const field = fields[key];const normalized = field ? normalize(item, field, depth + 1) : item;
+
+return normalized === undefined ? [] : [[key, normalized]];}));}
+
+    return v;
+  }
+
+  return decodeShape(normalize(value, shape, 0), shape, false, registry);
+}
 
 function validString(value:string, format?:StringFormat):boolean {
   if (format === StringFormat.UUID) return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value) && value !== '00000000-0000-0000-0000-000000000000';

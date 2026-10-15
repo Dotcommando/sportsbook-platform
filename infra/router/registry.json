@@ -1,0 +1,13 @@
+{
+  "compositionVersion":"2.14.0",
+  "compatibilityVersion":"2.14.4",
+  "pluginArchiveSha256":"dbbc2816d09f4bf7e55bac04b6e5cdd114e88884d7c1ba049338fc7bc6d84ec5",
+  "routerImage":"ghcr.io/apollographql/router:v2.14.0@sha256:fa2485b940b262b8b5383b508b5c0aaec4a3a2ef48be9c6bbd02970105673d0c",
+  "roverImage":"ghcr.io/apollographql/rover:0.39.1@sha256:cf3ab6f67aaaef4da8744c580f62f747c346bb06e945b4303b82fd9c245d01aa",
+  "subgraphs":[
+    {"name":"ledger","source":"apps/ledger/src/adapters/inbound/graphql/ledger.resolver.ts","symbol":"ledgerSdl","file":"ledger.graphql","url":"http://ledger:4101/internal/graphql"},
+    {"name":"player","source":"apps/player/src/adapters/inbound/graphql/player.sdl.ts","symbol":"playerSdl","file":"player.graphql","url":"http://player:4102/internal/graphql"},
+    {"name":"events","source":"apps/event-simulator/src/adapters/inbound/graphql/events.resolver.ts","symbol":"eventsSdl","file":"events.graphql","url":"http://event-simulator:4103/internal/graphql"},
+    {"name":"betting","source":"apps/betting/src/adapters/inbound/graphql/betting.resolver.ts","symbol":"bettingSdl","file":"betting.graphql","url":"http://betting:4104/internal/graphql"}
+  ]
+}

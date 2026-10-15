@@ -1,0 +1,15 @@
+name: sportsbook-platform
+services:
+  router:
+    image: ghcr.io/apollographql/router:v2.14.0@sha256:fa2485b940b262b8b5383b508b5c0aaec4a3a2ef48be9c6bbd02970105673d0c
+    command: ["--config", "/dist/config/router.yaml", "--supergraph", "/dist/schema/supergraph.graphql"]
+    volumes:
+      - ./router.yaml:/dist/config/router.yaml:ro
+      - ./supergraph.graphql:/dist/schema/supergraph.graphql:ro
+    networks:
+      - private
+    restart: unless-stopped
+networks:
+  private:
+    name: sportsbook-platform-private
+    internal: true

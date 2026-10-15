@@ -18,7 +18,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
+      - name: Reproduce the pinned Rover supergraph artifact
+        run: pnpm --filter @sportsbook/federation exec tsx src/cli.ts --check-rover
       - name: Contract compatibility against the base revision
         if: github.event_name == 'pull_request'
         run: pnpm contracts:breaking -- "${{ github.event.pull_request.base.sha }}"
       - run: pnpm test:postgres
+      - name: Private Router and Gateway financial workflows
+        run: pnpm --filter @sportsbook/federation test-integration

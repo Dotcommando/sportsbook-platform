@@ -1,0 +1,57 @@
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
+type Player @key(fields: "operatorId playerId") {operatorId:String! playerId:String! exists:Boolean!}
+scalar PlayerSavedOutcome
+input PlayerPlayerRegisterPlayerInputInput { requestId: String! externalRef: String locale: String! timeZone: String! }
+type PlayerPlayerRegisterPlayerOutput { profile: PlayerProfile! created: Boolean! }
+type PlayerProfile { playerId: String! status: PlayerPlayerStatus! firstName: String lastName: String birthDate: String residenceCountry: String nationalityCountry: String locale: String! timeZone: String! version: String! createdAt: String! updatedAt: String! }
+enum PlayerPlayerStatus { REGISTERED ACTIVE SUSPENDED CLOSED }
+input PlayerPlayerGetPlayerInputInput { playerId: String! }
+type PlayerPlayerGetPlayerOutput { profile: PlayerProfile! contacts: [PlayerContact!]! }
+type PlayerContact { contactId: String! kind: PlayerContactKind! displayValue: String! isPrimary: Boolean! verifiedAt: String }
+enum PlayerContactKind { EMAIL PHONE }
+input PlayerPlayerUpdatePlayerProfileInputInput { requestId: String! playerId: String! expectedVersion: String! patch: PlayerShape10Input! }
+input PlayerShape10Input { firstName: String lastName: String birthDate: String residenceCountry: String nationalityCountry: String locale: String timeZone: String }
+type PlayerPlayerUpdatePlayerProfileOutput { profile: PlayerProfile! }
+input PlayerPlayerAddContactInputInput { requestId: String! playerId: String! kind: PlayerContactKind! value: String! isPrimary: Boolean! }
+type PlayerPlayerAddContactOutput { contact: PlayerContact! }
+input PlayerPlayerVerifyContactInputInput { requestId: String! playerId: String! contactId: String! proofRef: String! }
+type PlayerPlayerVerifyContactOutput { contact: PlayerContact! }
+input PlayerPlayerChangePlayerStatusInputInput { requestId: String! playerId: String! expectedVersion: String! status: PlayerPlayerStatusTarget! reasonCode: String! }
+enum PlayerPlayerStatusTarget { ACTIVE SUSPENDED CLOSED }
+type PlayerPlayerChangePlayerStatusOutput { profile: PlayerProfile! }
+input PlayerPlayerOpenKycCaseInputInput { requestId: String! playerId: String! requiredLevel: PlayerKycLevel! }
+enum PlayerKycLevel { BASIC ENHANCED }
+type PlayerPlayerOpenKycCaseOutput { kycCase: PlayerKycCase! }
+type PlayerKycCase { caseId: String! playerId: String! requiredLevel: PlayerKycLevel! status: PlayerKycCaseStatus! policyVersion: String! decisionCode: String validUntil: String version: String! }
+enum PlayerKycCaseStatus { OPEN IN_REVIEW APPROVED REJECTED EXPIRED }
+input PlayerPlayerRecordKycCheckInputInput { requestId: String! playerId: String! caseId: String! check: PlayerKycCheckInput! }
+input PlayerKycCheckInput { checkId: String! caseId: String! checkType: PlayerKycCheckType! attemptNo: Int! provider: PlayerKycProvider! providerCheckRef: String! status: PlayerKycCheckStatus! resultCode: String! completedAt: String! }
+enum PlayerKycCheckType { IDENTITY AGE RESIDENCE }
+enum PlayerKycProvider { SYNTHETIC }
+enum PlayerKycCheckStatus { PASSED FAILED }
+type PlayerPlayerRecordKycCheckOutput { check: PlayerKycCheck! kycCase: PlayerKycCase! }
+type PlayerKycCheck { checkId: String! caseId: String! checkType: PlayerKycCheckType! attemptNo: Int! provider: PlayerKycProvider! providerCheckRef: String! status: PlayerKycCheckStatus! resultCode: String! completedAt: String! }
+input PlayerPlayerDecideKycCaseInputInput { requestId: String! playerId: String! caseId: String! expectedVersion: String! decision: PlayerKycDecision! decisionCode: String! validUntil: String }
+enum PlayerKycDecision { APPROVED REJECTED }
+type PlayerPlayerDecideKycCaseOutput { kycCase: PlayerKycCase! }
+input PlayerPlayerGetKycStatusInputInput { playerId: String! }
+type PlayerPlayerGetKycStatusOutput { cases: [PlayerKycCase!]! evaluatedAt: String! }
+input PlayerPlayerApplyRestrictionInputInput { requestId: String! playerId: String! type: PlayerRestrictionType! reasonCode: String! startsAt: String! endsAt: String }
+enum PlayerRestrictionType { BETTING_BLOCK DEPOSIT_BLOCK WITHDRAWAL_REVIEW }
+type PlayerPlayerApplyRestrictionOutput { restriction: PlayerRestriction! }
+type PlayerRestriction { restrictionId: String! playerId: String! type: PlayerRestrictionType! state: PlayerRestrictionState! reasonCode: String! startsAt: String! endsAt: String clearedAt: String }
+enum PlayerRestrictionState { ACTIVE CLEARED EXPIRED }
+input PlayerPlayerClearRestrictionInputInput { requestId: String! playerId: String! restrictionId: String! reasonCode: String! }
+type PlayerPlayerClearRestrictionOutput { restriction: PlayerRestriction! }
+input PlayerPlayerGetRestrictionsInputInput { playerId: String! page: PlayerPageInputInput! state: PlayerRestrictionState }
+input PlayerPageInputInput { limit: Int! cursor: String from: String to: String }
+type PlayerPlayerGetRestrictionsOutput { restrictions: [PlayerRestriction!]! nextCursor: String evaluatedAt: String! }
+input PlayerPlayerCheckEligibilityInputInput { playerId: String! capability: PlayerPlayerCapability! }
+enum PlayerPlayerCapability { PLACE_BET DEPOSIT WITHDRAW }
+type PlayerPlayerCheckEligibilityOutput { eligibility: PlayerEligibility! }
+type PlayerEligibility { allowed: Boolean! reasonCode: PlayerEligibilityReason! policyVersion: String! evaluatedAt: String! validUntil: String playerVersion: String! }
+enum PlayerEligibilityReason { ELIGIBLE PLAYER_INACTIVE KYC_REQUIRED KYC_EXPIRED CAPABILITY_RESTRICTED }
+input PlayerPlayerGetPlayerReferenceInputInput { playerId: String! }
+type PlayerPlayerGetPlayerReferenceOutput { operatorId: String! playerId: String! exists: Boolean! }
+type Query { getPlayer(input: PlayerPlayerGetPlayerInputInput!): PlayerPlayerGetPlayerOutput! getKycStatus(input: PlayerPlayerGetKycStatusInputInput!): PlayerPlayerGetKycStatusOutput! getRestrictions(input: PlayerPlayerGetRestrictionsInputInput!): PlayerPlayerGetRestrictionsOutput! checkEligibility(input: PlayerPlayerCheckEligibilityInputInput!): PlayerPlayerCheckEligibilityOutput! getPlayerReference(input: PlayerPlayerGetPlayerReferenceInputInput!): PlayerPlayerGetPlayerReferenceOutput! }
+type Mutation { registerPlayer(input: PlayerPlayerRegisterPlayerInputInput!): PlayerPlayerRegisterPlayerOutput! updatePlayerProfile(input: PlayerPlayerUpdatePlayerProfileInputInput!): PlayerPlayerUpdatePlayerProfileOutput! addContact(input: PlayerPlayerAddContactInputInput!): PlayerPlayerAddContactOutput! verifyContact(input: PlayerPlayerVerifyContactInputInput!): PlayerPlayerVerifyContactOutput! changePlayerStatus(input: PlayerPlayerChangePlayerStatusInputInput!): PlayerPlayerChangePlayerStatusOutput! openKycCase(input: PlayerPlayerOpenKycCaseInputInput!): PlayerPlayerOpenKycCaseOutput! recordKycCheck(input: PlayerPlayerRecordKycCheckInputInput!): PlayerPlayerRecordKycCheckOutput! decideKycCase(input: PlayerPlayerDecideKycCaseInputInput!): PlayerPlayerDecideKycCaseOutput! applyRestriction(input: PlayerPlayerApplyRestrictionInputInput!): PlayerPlayerApplyRestrictionOutput! clearRestriction(input: PlayerPlayerClearRestrictionInputInput!): PlayerPlayerClearRestrictionOutput! }

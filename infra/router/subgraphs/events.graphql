@@ -1,0 +1,31 @@
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
+scalar EventsSavedOutcome
+input EventsEventsListEventsInputInput { page: EventsPageInputInput! phase: EventsEventPhase }
+input EventsPageInputInput { limit: Int! cursor: String from: String to: String }
+enum EventsEventPhase { PRE_MATCH LIVE HALF_TIME SUSPENDED FINISHED }
+type EventsEventsListEventsOutput { events: [Event!]! nextCursor: String observedAt: String! }
+type Event @key(fields: "operatorId eventId") { operatorId: String! eventId: String! runId: String! sport: EventsSport! homeTeam: String! awayTeam: String! startsAt: String! phase: EventsEventPhase! phaseSeq: String! simulatedAt: String! resultRef: String }
+enum EventsSport { FOOTBALL }
+input EventsEventsGetEventInputInput { eventId: String! }
+type EventsEventsGetEventOutput { event: Event! }
+input EventsEventsGetMarketsInputInput { eventId: String! }
+type EventsEventsGetMarketsOutput { markets: [EventsMarket!]! observedAt: String! }
+type EventsMarket { marketId: String! eventId: String! type: EventsMarketType! state: EventsMarketState! selections: [EventsQuote!]! }
+enum EventsMarketType { MATCH_RESULT }
+enum EventsMarketState { OPEN SUSPENDED CLOSED }
+type EventsQuote { quoteId: String! quoteVersion: String! eventId: String! marketId: String! selectionId: String! selection: EventsSelection! odds: String! validUntil: String! state: EventsMarketState! }
+enum EventsSelection { HOME DRAW AWAY }
+input EventsEventsValidateSelectionQuoteInputInput { playerId: String! eventId: String! marketId: String! selectionId: String! quoteId: String! quoteVersion: String! }
+type EventsEventsValidateSelectionQuoteOutput { acceptedQuote: EventsQuote! evaluatedAt: String! }
+input EventsEventsGetEventResultInputInput { eventId: String! }
+type EventsEventsGetEventResultOutput { result: EventsEventResult ready: Boolean! }
+type EventsEventResult { resultId: String! eventId: String! runId: String! resultSeq: String! homeGoals: Int! awayGoals: Int! outcome: EventsResultOutcome! occurredAt: String! }
+enum EventsResultOutcome { HOME DRAW AWAY VOID }
+input EventsEventsAdvanceMatchPhaseInputInput { requestId: String! eventId: String! expectedPhaseSeq: String! nextPhase: EventsEventPhase! simulatedAt: String! }
+type EventsEventsAdvanceMatchPhaseOutput { event: Event! }
+input EventsEventsCompleteEventInputInput { requestId: String! eventId: String! expectedPhaseSeq: String! result: EventsEventResultInput! }
+input EventsEventResultInput { resultId: String! eventId: String! runId: String! resultSeq: String! homeGoals: Int! awayGoals: Int! outcome: EventsResultOutcome! occurredAt: String! }
+type EventsEventsCompleteEventOutput { event: Event! result: EventsEventResult! delivery: EventsDeliveryState! }
+enum EventsDeliveryState { PENDING ACKNOWLEDGED }
+type Query { listEvents(input: EventsEventsListEventsInputInput!): EventsEventsListEventsOutput! getEvent(input: EventsEventsGetEventInputInput!): EventsEventsGetEventOutput! getMarkets(input: EventsEventsGetMarketsInputInput!): EventsEventsGetMarketsOutput! validateSelectionQuote(input: EventsEventsValidateSelectionQuoteInputInput!): EventsEventsValidateSelectionQuoteOutput! getEventResult(input: EventsEventsGetEventResultInputInput!): EventsEventsGetEventResultOutput! }
+type Mutation { advanceMatchPhase(input: EventsEventsAdvanceMatchPhaseInputInput!): EventsEventsAdvanceMatchPhaseOutput! completeEvent(input: EventsEventsCompleteEventInputInput!): EventsEventsCompleteEventOutput! }

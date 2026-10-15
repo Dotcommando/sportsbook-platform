@@ -1,0 +1,24 @@
+{
+  "name":"@sportsbook/federation",
+  "version":"0.0.0",
+  "private":true,
+  "type":"module",
+  "dependencies":{
+    "@apollo/composition":"2.14.4",
+    "@sportsbook/service-transport":"workspace:*",
+    "@sportsbook/persistence":"workspace:*",
+    "graphql":"16.14.2",
+    "typescript":"5.9.3",
+    "pg":"8.23.1"
+  },
+  "scripts":{
+    "build":"tsc -p tsconfig.json",
+    "typecheck":"tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "lint":"eslint .",
+    "test":"tsx --tsconfig ../../tsconfig.base.json --test test/*.test.ts",
+    "compose":"tsx src/cli.ts --compose",
+    "check":"tsx src/cli.ts --check",
+    "test-integration":"tsx --tsconfig ../../tsconfig.base.json test/router.integration.ts && tsx --tsconfig ../../tsconfig.base.json test/financial.integration.ts"
+  },
+  "nx":{"name":"federation","tags":["scope:tooling","type:tool"],"targets":{"test":{"inputs":["default","^production","{workspaceRoot}/infra/router/**/*","{workspaceRoot}/apps/*/src/adapters/inbound/graphql/**/*"]}}}
+}

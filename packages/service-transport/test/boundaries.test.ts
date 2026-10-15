@@ -40,15 +40,45 @@ test('strict JSON and shapes reject duplicate fields, unsafe keys, numeric money
   assert.throws(()=>decodeShape({amount:'1', extra:true}, schema));
 });
 
-test('GraphQL cost counts requested list multiplicity once and rejects fragment/alias/depth abuse', async()=> {
+test('GraphQL structural limits reject fragment, root-alias and depth abuse independently of pagination', async()=> {
   let calls = 0;
   const boundary = new FederationBoundary('type Item { value:String! nested:Item } input Page {limit:Int!} type Query {items(page:Page!):[Item!]!}', {Query:{items:()=>{calls++;
 
-return [{value:'ok'}];}}}, {maximumBytes:65536, maximumDepth:8, maximumRootFields:20, maximumCost:1000, introspection:false});
+return [{value:'ok'}];}}}, {maximumBytes:65536, maximumDepth:8, maximumRootFields:20, maximumSelectedFields:1000, maximumResponseBytes:1048576, introspection:false});
   const result = await boundary.execute({query:'query($page:Page!){items(page:$page){value}}', variables:{page:{limit:1}}}, {});
 
   assert.ok(result);assert.equal(calls, 1);
   await boundary.execute({query:'{' + Array.from({length:21}, (_, index)=>'a' + index + ':items(page:{limit:1}){value}').join(' ') + '}'}, {});assert.equal(calls, 1);
   await boundary.execute({query:'query{items(page:{limit:1}){...A}} fragment A on Item{...A}'}, {});assert.equal(calls, 1);
   await boundary.execute({query:'{items(page:{limit:1}){nested{nested{nested{nested{nested{nested{nested{nested{value}}}}}}}}}}'}, {});assert.equal(calls, 1);
+});
+
+test('GraphQL accepts page 200 with nested entries and counts expanded selected fields without cardinality weights', async()=>{
+  let calls = 0;const boundary = new FederationBoundary('type Entry {value:String!} type Journal {entries:[Entry!]!} input Page {limit:Int!} type Query {transactions(page:Page!):[Journal!]!}', {Query:{transactions:()=>{calls++;
+
+return Array.from({length:200}, ()=>({entries:[{value:'debit'}, {value:'credit'}]}));}}}, {maximumBytes:65536, maximumResponseBytes:1048576, maximumDepth:8, maximumRootFields:20, maximumSelectedFields:1000, introspection:false});
+  const response = await boundary.execute({query:'query($page:Page!){transactions(page:$page){entries{value}}}', variables:{page:{limit:200}}}, {});
+
+  assert.equal(JSON.stringify(response).includes('errors'), false);assert.equal(calls, 1);
+  await boundary.execute({query:'{transactions(page:{limit:201}){entries{value}}}'}, {});assert.equal(calls, 1);
+  const aliases = Array.from({length:1000}, (_, i)=>'f' + i + ':value').join(' ');
+
+  await boundary.execute({query:'{transactions(page:{limit:1}){entries{' + aliases + '}}}'}, {});assert.equal(calls, 1);
+  await boundary.execute({query:'{transactions(page:{limit:1}){entries{...F ...F}}} fragment F on Entry{' + Array.from({length:500}, (_, i)=>'a' + i + ':value').join(' ') + '}'}, {});assert.equal(calls, 1);
+});
+
+test('GraphQL separately bounds the envelope and response and preserves unknown mutation outcome after execution', async()=>{
+  let writes = 0;const boundary = new FederationBoundary('type Query {large:String!} type Mutation {large:String!}', {Query:{large:()=>'x'.repeat(1048576)},
+Mutation:{large:()=>{writes++;
+
+return 'x'.repeat(1048576);}}}, {maximumBytes:65536, maximumResponseBytes:1048576, maximumDepth:8, maximumRootFields:20, maximumSelectedFields:1000, introspection:false});
+  const read = await boundary.execute({query:'{large}'}, {});
+
+assert.match(JSON.stringify(read), /OVERLOADED/);assert.match(JSON.stringify(read), /"outcomeUnknown":false/);
+  const write = await boundary.execute({query:'mutation{large}'}, {});
+
+assert.equal(writes, 1);assert.match(JSON.stringify(write), /"outcomeUnknown":true/);
+  const oversized = await boundary.execute({query:'{large}', variables:{padding:'x'.repeat(65536)}}, {});
+
+assert.match(JSON.stringify(oversized), /INVALID_INPUT/);
 });

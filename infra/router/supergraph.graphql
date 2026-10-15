@@ -1,0 +1,1748 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION)
+{
+  query: Query
+  mutation: Mutation
+}
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+type Bet
+  @join__type(graph: BETTING, key: "operatorId betId")
+{
+  operatorId: String!
+  player: Player!
+  event: Event!
+  betId: String!
+  playerId: String!
+  type: BettingBetType!
+  status: BettingBetStatus!
+  stake: BettingMoney!
+  potentialPayoutMinor: String!
+  actualPayoutMinor: String
+  legs: [BettingBetLeg!]!
+  createdAt: String!
+  acceptedAt: String
+  settledAt: String
+  reasonCode: BettingErrorCode
+  version: String!
+}
+
+type BettingBatchReport
+  @join__type(graph: BETTING)
+{
+  selected: Int!
+  applied: Int!
+  replayed: Int!
+  rejected: Int!
+  pending: Int!
+  failed: Int!
+  nextCursor: String
+}
+
+type BettingBetLeg
+  @join__type(graph: BETTING)
+{
+  legId: String!
+  legNo: Int!
+  eventId: String!
+  marketId: String!
+  selectionId: String!
+  quote: BettingQuote
+  state: BettingBetLegState!
+  resultRef: String
+}
+
+enum BettingBetLegState
+  @join__type(graph: BETTING)
+{
+  PENDING @join__enumValue(graph: BETTING)
+  WON @join__enumValue(graph: BETTING)
+  LOST @join__enumValue(graph: BETTING)
+  VOID @join__enumValue(graph: BETTING)
+}
+
+enum BettingBetStatus
+  @join__type(graph: BETTING)
+{
+  PENDING_RESERVATION @join__enumValue(graph: BETTING)
+  ACCEPTED @join__enumValue(graph: BETTING)
+  REJECTED @join__enumValue(graph: BETTING)
+  SETTLEMENT_PENDING @join__enumValue(graph: BETTING)
+  WON @join__enumValue(graph: BETTING)
+  LOST @join__enumValue(graph: BETTING)
+  VOID @join__enumValue(graph: BETTING)
+  CANCELED @join__enumValue(graph: BETTING)
+}
+
+input BettingBettingCancelBetInputInput
+  @join__type(graph: BETTING)
+{
+  requestId: String!
+  playerId: String!
+  betId: String!
+  expectedVersion: String!
+}
+
+type BettingBettingCancelBetOutput
+  @join__type(graph: BETTING)
+{
+  bet: Bet!
+  outcome: BettingCancelOutcome!
+}
+
+input BettingBettingGetBetInputInput
+  @join__type(graph: BETTING)
+{
+  betId: String!
+  playerId: String!
+}
+
+type BettingBettingGetBetOutput
+  @join__type(graph: BETTING)
+{
+  bet: Bet!
+}
+
+input BettingBettingGetBetStatusInputInput
+  @join__type(graph: BETTING)
+{
+  playerId: String!
+  betId: String!
+}
+
+type BettingBettingGetBetStatusOutput
+  @join__type(graph: BETTING)
+{
+  betId: String!
+  status: BettingBetStatus!
+  financialState: BettingFinancialState!
+  version: String!
+  observedAt: String!
+}
+
+input BettingBettingListPlayerBetsInputInput
+  @join__type(graph: BETTING)
+{
+  playerId: String!
+  page: BettingPageInputInput!
+  status: BettingBetStatus
+}
+
+type BettingBettingListPlayerBetsOutput
+  @join__type(graph: BETTING)
+{
+  bets: [Bet!]!
+  nextCursor: String
+  observedAt: String!
+}
+
+input BettingBettingPlaceBetInputInput
+  @join__type(graph: BETTING)
+{
+  requestId: String!
+  playerId: String!
+  stake: BettingMoneyInput!
+  type: BettingBetType!
+  selection: BettingShape4Input!
+}
+
+type BettingBettingPlaceBetOutput
+  @join__type(graph: BETTING)
+{
+  bet: Bet!
+  outcome: BettingPlaceOutcome!
+}
+
+input BettingBettingReconcileBetWithLedgerInputInput
+  @join__type(graph: BETTING)
+{
+  requestId: String!
+  runId: String!
+  page: BettingPageInputInput!
+  cutoff: String!
+}
+
+type BettingBettingReconcileBetWithLedgerOutput
+  @join__type(graph: BETTING)
+{
+  report: BettingReconciliationReport!
+}
+
+input BettingBettingRecordEventResultInputInput
+  @join__type(graph: BETTING)
+{
+  envelope: BettingEventEnvelopeInput!
+  result: BettingEventResultInput!
+}
+
+type BettingBettingRecordEventResultOutput
+  @join__type(graph: BETTING)
+{
+  accepted: Boolean!
+  duplicate: Boolean!
+  sweepId: String!
+}
+
+input BettingBettingRetryPendingCancellationInputInput
+  @join__type(graph: BETTING)
+{
+  batchId: String!
+  page: BettingPageInputInput!
+  pendingBefore: String!
+}
+
+type BettingBettingRetryPendingCancellationOutput
+  @join__type(graph: BETTING)
+{
+  report: BettingBatchReport!
+}
+
+input BettingBettingRetryPendingReservationInputInput
+  @join__type(graph: BETTING)
+{
+  batchId: String!
+  page: BettingPageInputInput!
+  pendingBefore: String!
+}
+
+type BettingBettingRetryPendingReservationOutput
+  @join__type(graph: BETTING)
+{
+  report: BettingBatchReport!
+}
+
+input BettingBettingRetryPendingSettlementInputInput
+  @join__type(graph: BETTING)
+{
+  batchId: String!
+  page: BettingPageInputInput!
+  pendingBefore: String!
+}
+
+type BettingBettingRetryPendingSettlementOutput
+  @join__type(graph: BETTING)
+{
+  report: BettingBatchReport!
+}
+
+input BettingBettingSettleBetInputInput
+  @join__type(graph: BETTING)
+{
+  requestId: String!
+  betId: String!
+  resultId: String!
+  settlementSeq: String!
+}
+
+type BettingBettingSettleBetOutput
+  @join__type(graph: BETTING)
+{
+  bet: Bet!
+  outcome: BettingSettleOutcome!
+}
+
+enum BettingBetType
+  @join__type(graph: BETTING)
+{
+  SINGLE @join__enumValue(graph: BETTING)
+}
+
+enum BettingCancelOutcome
+  @join__type(graph: BETTING)
+{
+  CANCELED @join__enumValue(graph: BETTING)
+  PENDING @join__enumValue(graph: BETTING)
+}
+
+enum BettingErrorCode
+  @join__type(graph: BETTING)
+{
+  INVALID_INPUT @join__enumValue(graph: BETTING)
+  AMOUNT_OUT_OF_RANGE @join__enumValue(graph: BETTING)
+  CURRENCY_MISMATCH @join__enumValue(graph: BETTING)
+  UNAUTHENTICATED @join__enumValue(graph: BETTING)
+  PERMISSION_DENIED @join__enumValue(graph: BETTING)
+  NOT_FOUND @join__enumValue(graph: BETTING)
+  IDEMPOTENCY_CONFLICT @join__enumValue(graph: BETTING)
+  VERSION_CONFLICT @join__enumValue(graph: BETTING)
+  INSUFFICIENT_FUNDS @join__enumValue(graph: BETTING)
+  INELIGIBLE @join__enumValue(graph: BETTING)
+  STALE_QUOTE @join__enumValue(graph: BETTING)
+  MARKET_CLOSED @join__enumValue(graph: BETTING)
+  INVALID_STATE @join__enumValue(graph: BETTING)
+  IN_PROGRESS @join__enumValue(graph: BETTING)
+  OVERLOADED @join__enumValue(graph: BETTING)
+  DEADLINE_EXCEEDED @join__enumValue(graph: BETTING)
+  DEPENDENCY_UNAVAILABLE @join__enumValue(graph: BETTING)
+  ADAPTER_CONTRACT_VIOLATION @join__enumValue(graph: BETTING)
+  INVARIANT_VIOLATION @join__enumValue(graph: BETTING)
+}
+
+input BettingEventEnvelopeInput
+  @join__type(graph: BETTING)
+{
+  messageId: String!
+  source: BettingEventSource!
+  eventType: BettingEventType!
+  schemaVersion: Int!
+  operatorId: String!
+  correlationId: String!
+  occurredAt: String!
+  payload: BettingSavedOutcome!
+}
+
+input BettingEventResultInput
+  @join__type(graph: BETTING)
+{
+  resultId: String!
+  eventId: String!
+  runId: String!
+  resultSeq: String!
+  homeGoals: Int!
+  awayGoals: Int!
+  outcome: BettingResultOutcome!
+  occurredAt: String!
+}
+
+enum BettingEventSource
+  @join__type(graph: BETTING)
+{
+  EVENTS @join__enumValue(graph: BETTING)
+  BETTING @join__enumValue(graph: BETTING)
+}
+
+enum BettingEventType
+  @join__type(graph: BETTING)
+{
+  EVENT_RESULT @join__enumValue(graph: BETTING)
+  BET_STATE_CHANGED @join__enumValue(graph: BETTING)
+}
+
+enum BettingFinancialState
+  @join__type(graph: BETTING)
+{
+  UNCONFIRMED @join__enumValue(graph: BETTING)
+  RESERVED @join__enumValue(graph: BETTING)
+  SETTLED @join__enumValue(graph: BETTING)
+  REFUNDED @join__enumValue(graph: BETTING)
+}
+
+enum BettingMarketState
+  @join__type(graph: BETTING)
+{
+  OPEN @join__enumValue(graph: BETTING)
+  SUSPENDED @join__enumValue(graph: BETTING)
+  CLOSED @join__enumValue(graph: BETTING)
+}
+
+type BettingMoney
+  @join__type(graph: BETTING)
+{
+  amountMinor: String!
+  currency: String!
+}
+
+input BettingMoneyInput
+  @join__type(graph: BETTING)
+{
+  amountMinor: String!
+  currency: String!
+}
+
+input BettingPageInputInput
+  @join__type(graph: BETTING)
+{
+  limit: Int!
+  cursor: String
+  from: String
+  to: String
+}
+
+enum BettingPlaceOutcome
+  @join__type(graph: BETTING)
+{
+  ACCEPTED @join__enumValue(graph: BETTING)
+  REJECTED @join__enumValue(graph: BETTING)
+  PENDING @join__enumValue(graph: BETTING)
+}
+
+type BettingQuote
+  @join__type(graph: BETTING)
+{
+  quoteId: String!
+  quoteVersion: String!
+  eventId: String!
+  marketId: String!
+  selectionId: String!
+  selection: BettingSelection!
+  odds: String!
+  validUntil: String!
+  state: BettingMarketState!
+}
+
+type BettingReconciliationReport
+  @join__type(graph: BETTING)
+{
+  runId: String!
+  snapshotAt: String!
+  status: BettingReconciliationStatus!
+  counts: BettingShape46!
+  violations: [BettingShape47!]!
+  nextCursor: String
+}
+
+enum BettingReconciliationStatus
+  @join__type(graph: BETTING)
+{
+  PASS @join__enumValue(graph: BETTING)
+  FAIL @join__enumValue(graph: BETTING)
+}
+
+enum BettingResultOutcome
+  @join__type(graph: BETTING)
+{
+  HOME @join__enumValue(graph: BETTING)
+  DRAW @join__enumValue(graph: BETTING)
+  AWAY @join__enumValue(graph: BETTING)
+  VOID @join__enumValue(graph: BETTING)
+}
+
+scalar BettingSavedOutcome
+  @join__type(graph: BETTING)
+
+enum BettingSelection
+  @join__type(graph: BETTING)
+{
+  HOME @join__enumValue(graph: BETTING)
+  DRAW @join__enumValue(graph: BETTING)
+  AWAY @join__enumValue(graph: BETTING)
+}
+
+enum BettingSettleOutcome
+  @join__type(graph: BETTING)
+{
+  SETTLED @join__enumValue(graph: BETTING)
+  PENDING @join__enumValue(graph: BETTING)
+}
+
+type BettingShape46
+  @join__type(graph: BETTING)
+{
+  transactions: String!
+  entries: String!
+  violations: String!
+}
+
+type BettingShape47
+  @join__type(graph: BETTING)
+{
+  code: String!
+  businessRef: String
+}
+
+input BettingShape4Input
+  @join__type(graph: BETTING)
+{
+  eventId: String!
+  marketId: String!
+  selectionId: String!
+  quoteId: String!
+  quoteVersion: String!
+}
+
+type Event
+  @join__type(graph: BETTING, key: "operatorId eventId", resolvable: false)
+  @join__type(graph: EVENTS, key: "operatorId eventId")
+{
+  operatorId: String!
+  eventId: String!
+  runId: String! @join__field(graph: EVENTS)
+  sport: EventsSport! @join__field(graph: EVENTS)
+  homeTeam: String! @join__field(graph: EVENTS)
+  awayTeam: String! @join__field(graph: EVENTS)
+  startsAt: String! @join__field(graph: EVENTS)
+  phase: EventsEventPhase! @join__field(graph: EVENTS)
+  phaseSeq: String! @join__field(graph: EVENTS)
+  simulatedAt: String! @join__field(graph: EVENTS)
+  resultRef: String @join__field(graph: EVENTS)
+}
+
+enum EventsDeliveryState
+  @join__type(graph: EVENTS)
+{
+  PENDING @join__enumValue(graph: EVENTS)
+  ACKNOWLEDGED @join__enumValue(graph: EVENTS)
+}
+
+enum EventsEventPhase
+  @join__type(graph: EVENTS)
+{
+  PRE_MATCH @join__enumValue(graph: EVENTS)
+  LIVE @join__enumValue(graph: EVENTS)
+  HALF_TIME @join__enumValue(graph: EVENTS)
+  SUSPENDED @join__enumValue(graph: EVENTS)
+  FINISHED @join__enumValue(graph: EVENTS)
+}
+
+type EventsEventResult
+  @join__type(graph: EVENTS)
+{
+  resultId: String!
+  eventId: String!
+  runId: String!
+  resultSeq: String!
+  homeGoals: Int!
+  awayGoals: Int!
+  outcome: EventsResultOutcome!
+  occurredAt: String!
+}
+
+input EventsEventResultInput
+  @join__type(graph: EVENTS)
+{
+  resultId: String!
+  eventId: String!
+  runId: String!
+  resultSeq: String!
+  homeGoals: Int!
+  awayGoals: Int!
+  outcome: EventsResultOutcome!
+  occurredAt: String!
+}
+
+input EventsEventsAdvanceMatchPhaseInputInput
+  @join__type(graph: EVENTS)
+{
+  requestId: String!
+  eventId: String!
+  expectedPhaseSeq: String!
+  nextPhase: EventsEventPhase!
+  simulatedAt: String!
+}
+
+type EventsEventsAdvanceMatchPhaseOutput
+  @join__type(graph: EVENTS)
+{
+  event: Event!
+}
+
+input EventsEventsCompleteEventInputInput
+  @join__type(graph: EVENTS)
+{
+  requestId: String!
+  eventId: String!
+  expectedPhaseSeq: String!
+  result: EventsEventResultInput!
+}
+
+type EventsEventsCompleteEventOutput
+  @join__type(graph: EVENTS)
+{
+  event: Event!
+  result: EventsEventResult!
+  delivery: EventsDeliveryState!
+}
+
+input EventsEventsGetEventInputInput
+  @join__type(graph: EVENTS)
+{
+  eventId: String!
+}
+
+type EventsEventsGetEventOutput
+  @join__type(graph: EVENTS)
+{
+  event: Event!
+}
+
+input EventsEventsGetEventResultInputInput
+  @join__type(graph: EVENTS)
+{
+  eventId: String!
+}
+
+type EventsEventsGetEventResultOutput
+  @join__type(graph: EVENTS)
+{
+  result: EventsEventResult
+  ready: Boolean!
+}
+
+input EventsEventsGetMarketsInputInput
+  @join__type(graph: EVENTS)
+{
+  eventId: String!
+}
+
+type EventsEventsGetMarketsOutput
+  @join__type(graph: EVENTS)
+{
+  markets: [EventsMarket!]!
+  observedAt: String!
+}
+
+input EventsEventsListEventsInputInput
+  @join__type(graph: EVENTS)
+{
+  page: EventsPageInputInput!
+  phase: EventsEventPhase
+}
+
+type EventsEventsListEventsOutput
+  @join__type(graph: EVENTS)
+{
+  events: [Event!]!
+  nextCursor: String
+  observedAt: String!
+}
+
+input EventsEventsValidateSelectionQuoteInputInput
+  @join__type(graph: EVENTS)
+{
+  playerId: String!
+  eventId: String!
+  marketId: String!
+  selectionId: String!
+  quoteId: String!
+  quoteVersion: String!
+}
+
+type EventsEventsValidateSelectionQuoteOutput
+  @join__type(graph: EVENTS)
+{
+  acceptedQuote: EventsQuote!
+  evaluatedAt: String!
+}
+
+type EventsMarket
+  @join__type(graph: EVENTS)
+{
+  marketId: String!
+  eventId: String!
+  type: EventsMarketType!
+  state: EventsMarketState!
+  selections: [EventsQuote!]!
+}
+
+enum EventsMarketState
+  @join__type(graph: EVENTS)
+{
+  OPEN @join__enumValue(graph: EVENTS)
+  SUSPENDED @join__enumValue(graph: EVENTS)
+  CLOSED @join__enumValue(graph: EVENTS)
+}
+
+enum EventsMarketType
+  @join__type(graph: EVENTS)
+{
+  MATCH_RESULT @join__enumValue(graph: EVENTS)
+}
+
+input EventsPageInputInput
+  @join__type(graph: EVENTS)
+{
+  limit: Int!
+  cursor: String
+  from: String
+  to: String
+}
+
+type EventsQuote
+  @join__type(graph: EVENTS)
+{
+  quoteId: String!
+  quoteVersion: String!
+  eventId: String!
+  marketId: String!
+  selectionId: String!
+  selection: EventsSelection!
+  odds: String!
+  validUntil: String!
+  state: EventsMarketState!
+}
+
+enum EventsResultOutcome
+  @join__type(graph: EVENTS)
+{
+  HOME @join__enumValue(graph: EVENTS)
+  DRAW @join__enumValue(graph: EVENTS)
+  AWAY @join__enumValue(graph: EVENTS)
+  VOID @join__enumValue(graph: EVENTS)
+}
+
+scalar EventsSavedOutcome
+  @join__type(graph: EVENTS)
+
+enum EventsSelection
+  @join__type(graph: EVENTS)
+{
+  HOME @join__enumValue(graph: EVENTS)
+  DRAW @join__enumValue(graph: EVENTS)
+  AWAY @join__enumValue(graph: EVENTS)
+}
+
+enum EventsSport
+  @join__type(graph: EVENTS)
+{
+  FOOTBALL @join__enumValue(graph: EVENTS)
+}
+
+scalar join__FieldSet
+
+enum join__Graph {
+  BETTING @join__graph(name: "betting", url: "http://betting:4104/internal/graphql")
+  EVENTS @join__graph(name: "events", url: "http://event-simulator:4103/internal/graphql")
+  LEDGER @join__graph(name: "ledger", url: "http://ledger:4101/internal/graphql")
+  PLAYER @join__graph(name: "player", url: "http://player:4102/internal/graphql")
+}
+
+enum LedgerAuditState
+  @join__type(graph: LEDGER)
+{
+  PASS @join__enumValue(graph: LEDGER)
+  FAIL @join__enumValue(graph: LEDGER)
+}
+
+enum LedgerCommandState
+  @join__type(graph: LEDGER)
+{
+  IN_PROGRESS @join__enumValue(graph: LEDGER)
+  COMPLETED @join__enumValue(graph: LEDGER)
+  FAILED_FINAL @join__enumValue(graph: LEDGER)
+}
+
+type LedgerEntry
+  @join__type(graph: LEDGER)
+{
+  entryId: String!
+  accountId: String!
+  transactionId: String!
+  entryNo: Int!
+  side: LedgerSide!
+  amountMinor: String!
+  currency: String!
+  postedAt: String!
+}
+
+enum LedgerErrorCode
+  @join__type(graph: LEDGER)
+{
+  INVALID_INPUT @join__enumValue(graph: LEDGER)
+  AMOUNT_OUT_OF_RANGE @join__enumValue(graph: LEDGER)
+  CURRENCY_MISMATCH @join__enumValue(graph: LEDGER)
+  UNAUTHENTICATED @join__enumValue(graph: LEDGER)
+  PERMISSION_DENIED @join__enumValue(graph: LEDGER)
+  NOT_FOUND @join__enumValue(graph: LEDGER)
+  IDEMPOTENCY_CONFLICT @join__enumValue(graph: LEDGER)
+  VERSION_CONFLICT @join__enumValue(graph: LEDGER)
+  INSUFFICIENT_FUNDS @join__enumValue(graph: LEDGER)
+  INELIGIBLE @join__enumValue(graph: LEDGER)
+  STALE_QUOTE @join__enumValue(graph: LEDGER)
+  MARKET_CLOSED @join__enumValue(graph: LEDGER)
+  INVALID_STATE @join__enumValue(graph: LEDGER)
+  IN_PROGRESS @join__enumValue(graph: LEDGER)
+  OVERLOADED @join__enumValue(graph: LEDGER)
+  DEADLINE_EXCEEDED @join__enumValue(graph: LEDGER)
+  DEPENDENCY_UNAVAILABLE @join__enumValue(graph: LEDGER)
+  ADAPTER_CONTRACT_VIOLATION @join__enumValue(graph: LEDGER)
+  INVARIANT_VIOLATION @join__enumValue(graph: LEDGER)
+}
+
+type LedgerFinancialOutcome
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  state: LedgerFinancialState!
+  transactionId: String
+  businessRef: String!
+  wallet: Wallet!
+  reasonCode: LedgerErrorCode
+  replayed: Boolean!
+}
+
+enum LedgerFinancialState
+  @join__type(graph: LEDGER)
+{
+  COMPLETED @join__enumValue(graph: LEDGER)
+  REJECTED @join__enumValue(graph: LEDGER)
+}
+
+enum LedgerJournalStatus
+  @join__type(graph: LEDGER)
+{
+  POSTED @join__enumValue(graph: LEDGER)
+  REJECTED @join__enumValue(graph: LEDGER)
+}
+
+type LedgerJournalView
+  @join__type(graph: LEDGER)
+{
+  transactionId: String!
+  requestId: String!
+  transactionType: LedgerTransactionType!
+  businessRef: String!
+  currency: String!
+  status: LedgerJournalStatus!
+  postedAt: String
+  entries: [LedgerEntry!]!
+}
+
+input LedgerLedgerCancelBetInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  betId: String!
+  reasonCode: LedgerRefundReason!
+}
+
+type LedgerLedgerCancelBetOutput
+  @join__type(graph: LEDGER)
+{
+  reservation: LedgerReservationView!
+  outcome: LedgerFinancialOutcome!
+}
+
+input LedgerLedgerCompleteWithdrawalInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  withdrawalId: String!
+  providerRef: String!
+}
+
+type LedgerLedgerCompleteWithdrawalOutput
+  @join__type(graph: LEDGER)
+{
+  withdrawal: LedgerWithdrawalView!
+  outcome: LedgerFinancialOutcome!
+}
+
+input LedgerLedgerCreateWalletInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  playerId: String!
+  currency: String!
+}
+
+type LedgerLedgerCreateWalletOutput
+  @join__type(graph: LEDGER)
+{
+  wallet: Wallet!
+  created: Boolean!
+}
+
+input LedgerLedgerDepositTestFundsInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  walletId: String!
+  amount: LedgerMoneyInput!
+  providerRef: String!
+}
+
+type LedgerLedgerDepositTestFundsOutput
+  @join__type(graph: LEDGER)
+{
+  outcome: LedgerFinancialOutcome!
+}
+
+input LedgerLedgerGetBalanceInputInput
+  @join__type(graph: LEDGER)
+{
+  walletId: String!
+}
+
+type LedgerLedgerGetBalanceOutput
+  @join__type(graph: LEDGER)
+{
+  wallet: Wallet!
+}
+
+input LedgerLedgerGetBetFinancialStatusInputInput
+  @join__type(graph: LEDGER)
+{
+  betId: String!
+}
+
+type LedgerLedgerGetBetFinancialStatusOutput
+  @join__type(graph: LEDGER)
+{
+  reservation: LedgerReservationView
+  observedAt: String!
+}
+
+input LedgerLedgerGetCommandOutcomeInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+}
+
+type LedgerLedgerGetCommandOutcomeOutput
+  @join__type(graph: LEDGER)
+{
+  found: Boolean!
+  operation: String
+  state: LedgerCommandState
+  result: LedgerSavedOutcome
+}
+
+input LedgerLedgerGetLedgerEntriesInputInput
+  @join__type(graph: LEDGER)
+{
+  walletId: String!
+  page: LedgerPageInputInput!
+}
+
+type LedgerLedgerGetLedgerEntriesOutput
+  @join__type(graph: LEDGER)
+{
+  entries: [LedgerEntry!]!
+  nextCursor: String
+  observedAt: String!
+}
+
+input LedgerLedgerGetTransactionInputInput
+  @join__type(graph: LEDGER)
+{
+  transactionId: String!
+}
+
+type LedgerLedgerGetTransactionOutput
+  @join__type(graph: LEDGER)
+{
+  transaction: LedgerJournalView!
+}
+
+input LedgerLedgerGetWalletInputInput
+  @join__type(graph: LEDGER)
+{
+  playerId: String!
+  currency: String!
+}
+
+type LedgerLedgerGetWalletOutput
+  @join__type(graph: LEDGER)
+{
+  wallet: Wallet!
+}
+
+input LedgerLedgerGetWalletTransactionsInputInput
+  @join__type(graph: LEDGER)
+{
+  walletId: String!
+  page: LedgerPageInputInput!
+}
+
+type LedgerLedgerGetWalletTransactionsOutput
+  @join__type(graph: LEDGER)
+{
+  transactions: [LedgerJournalView!]!
+  nextCursor: String
+  observedAt: String!
+}
+
+input LedgerLedgerGetWithdrawalInputInput
+  @join__type(graph: LEDGER)
+{
+  withdrawalId: String!
+}
+
+type LedgerLedgerGetWithdrawalOutput
+  @join__type(graph: LEDGER)
+{
+  withdrawal: LedgerWithdrawalView!
+}
+
+input LedgerLedgerReconcileLedgerInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  runId: String!
+  cutoff: String!
+  page: LedgerPageInputInput!
+}
+
+type LedgerLedgerReconcileLedgerOutput
+  @join__type(graph: LEDGER)
+{
+  report: LedgerReconciliationReport!
+}
+
+input LedgerLedgerRejectWithdrawalInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  withdrawalId: String!
+  reasonCode: String!
+}
+
+type LedgerLedgerRejectWithdrawalOutput
+  @join__type(graph: LEDGER)
+{
+  withdrawal: LedgerWithdrawalView!
+  outcome: LedgerFinancialOutcome!
+}
+
+input LedgerLedgerRequestWithdrawalInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  walletId: String!
+  withdrawalId: String!
+  amount: LedgerMoneyInput!
+}
+
+type LedgerLedgerRequestWithdrawalOutput
+  @join__type(graph: LEDGER)
+{
+  withdrawal: LedgerWithdrawalView!
+  outcome: LedgerFinancialOutcome!
+}
+
+input LedgerLedgerReserveStakeInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  betId: String!
+  walletId: String!
+  stake: LedgerMoneyInput!
+}
+
+type LedgerLedgerReserveStakeOutput
+  @join__type(graph: LEDGER)
+{
+  reservation: LedgerReservationView!
+  outcome: LedgerFinancialOutcome!
+}
+
+input LedgerLedgerSettleLossInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  betId: String!
+  settlementSeq: String!
+}
+
+type LedgerLedgerSettleLossOutput
+  @join__type(graph: LEDGER)
+{
+  reservation: LedgerReservationView!
+  outcome: LedgerFinancialOutcome!
+}
+
+input LedgerLedgerSettleWinInputInput
+  @join__type(graph: LEDGER)
+{
+  requestId: String!
+  betId: String!
+  settlementSeq: String!
+  grossPayout: LedgerMoneyInput!
+}
+
+type LedgerLedgerSettleWinOutput
+  @join__type(graph: LEDGER)
+{
+  reservation: LedgerReservationView!
+  outcome: LedgerFinancialOutcome!
+}
+
+type LedgerMoney
+  @join__type(graph: LEDGER)
+{
+  amountMinor: String!
+  currency: String!
+}
+
+input LedgerMoneyInput
+  @join__type(graph: LEDGER)
+{
+  amountMinor: String!
+  currency: String!
+}
+
+input LedgerPageInputInput
+  @join__type(graph: LEDGER)
+{
+  limit: Int!
+  cursor: String
+  from: String
+  to: String
+}
+
+type LedgerReconciliationReport
+  @join__type(graph: LEDGER)
+{
+  runId: String!
+  snapshotAt: String!
+  status: LedgerAuditState!
+  counts: LedgerShape56!
+  violations: [LedgerShape57!]!
+  nextCursor: String
+}
+
+enum LedgerRefundReason
+  @join__type(graph: LEDGER)
+{
+  VOID @join__enumValue(graph: LEDGER)
+  CANCELED @join__enumValue(graph: LEDGER)
+  ACCEPTANCE_FAILED @join__enumValue(graph: LEDGER)
+}
+
+enum LedgerReservationState
+  @join__type(graph: LEDGER)
+{
+  RESERVED @join__enumValue(graph: LEDGER)
+  WON @join__enumValue(graph: LEDGER)
+  LOST @join__enumValue(graph: LEDGER)
+  CANCELED @join__enumValue(graph: LEDGER)
+}
+
+type LedgerReservationView
+  @join__type(graph: LEDGER)
+{
+  betId: String!
+  walletId: String!
+  stake: LedgerMoney!
+  state: LedgerReservationState!
+  reservationTransactionId: String!
+  settlementTransactionId: String
+  settlementSeq: String
+  grossPayoutMinor: String
+}
+
+scalar LedgerSavedOutcome
+  @join__type(graph: LEDGER)
+
+type LedgerShape56
+  @join__type(graph: LEDGER)
+{
+  transactions: String!
+  entries: String!
+  violations: String!
+}
+
+type LedgerShape57
+  @join__type(graph: LEDGER)
+{
+  code: String!
+  businessRef: String
+}
+
+enum LedgerSide
+  @join__type(graph: LEDGER)
+{
+  DEBIT @join__enumValue(graph: LEDGER)
+  CREDIT @join__enumValue(graph: LEDGER)
+}
+
+enum LedgerTransactionType
+  @join__type(graph: LEDGER)
+{
+  DEPOSIT @join__enumValue(graph: LEDGER)
+  RESERVE_STAKE @join__enumValue(graph: LEDGER)
+  SETTLE_WIN @join__enumValue(graph: LEDGER)
+  SETTLE_LOSS @join__enumValue(graph: LEDGER)
+  CANCEL_RESERVATION @join__enumValue(graph: LEDGER)
+  WITHDRAWAL_HOLD @join__enumValue(graph: LEDGER)
+  WITHDRAWAL_COMPLETE @join__enumValue(graph: LEDGER)
+  WITHDRAWAL_REJECT @join__enumValue(graph: LEDGER)
+}
+
+enum LedgerWalletState
+  @join__type(graph: LEDGER)
+{
+  ACTIVE @join__enumValue(graph: LEDGER)
+  CLOSED @join__enumValue(graph: LEDGER)
+}
+
+enum LedgerWithdrawalState
+  @join__type(graph: LEDGER)
+{
+  HELD @join__enumValue(graph: LEDGER)
+  COMPLETED @join__enumValue(graph: LEDGER)
+  REJECTED @join__enumValue(graph: LEDGER)
+}
+
+type LedgerWithdrawalView
+  @join__type(graph: LEDGER)
+{
+  withdrawalId: String!
+  walletId: String!
+  amount: LedgerMoney!
+  state: LedgerWithdrawalState!
+  holdTransactionId: String!
+  resolutionTransactionId: String
+  providerRef: String
+  reasonCode: String
+  createdAt: String!
+  resolvedAt: String
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+type Mutation
+  @join__type(graph: BETTING)
+  @join__type(graph: EVENTS)
+  @join__type(graph: LEDGER)
+  @join__type(graph: PLAYER)
+{
+  placeBet(input: BettingBettingPlaceBetInputInput!): BettingBettingPlaceBetOutput! @join__field(graph: BETTING)
+  cancelBet(input: BettingBettingCancelBetInputInput!): BettingBettingCancelBetOutput! @join__field(graph: BETTING)
+  recordEventResult(input: BettingBettingRecordEventResultInputInput!): BettingBettingRecordEventResultOutput! @join__field(graph: BETTING)
+  settleBet(input: BettingBettingSettleBetInputInput!): BettingBettingSettleBetOutput! @join__field(graph: BETTING)
+  retryPendingReservation(input: BettingBettingRetryPendingReservationInputInput!): BettingBettingRetryPendingReservationOutput! @join__field(graph: BETTING)
+  retryPendingSettlement(input: BettingBettingRetryPendingSettlementInputInput!): BettingBettingRetryPendingSettlementOutput! @join__field(graph: BETTING)
+  reconcileBetWithLedger(input: BettingBettingReconcileBetWithLedgerInputInput!): BettingBettingReconcileBetWithLedgerOutput! @join__field(graph: BETTING)
+  retryPendingCancellation(input: BettingBettingRetryPendingCancellationInputInput!): BettingBettingRetryPendingCancellationOutput! @join__field(graph: BETTING)
+  advanceMatchPhase(input: EventsEventsAdvanceMatchPhaseInputInput!): EventsEventsAdvanceMatchPhaseOutput! @join__field(graph: EVENTS)
+  completeEvent(input: EventsEventsCompleteEventInputInput!): EventsEventsCompleteEventOutput! @join__field(graph: EVENTS)
+  createWallet(input: LedgerLedgerCreateWalletInputInput!): LedgerLedgerCreateWalletOutput! @join__field(graph: LEDGER)
+  depositTestFunds(input: LedgerLedgerDepositTestFundsInputInput!): LedgerLedgerDepositTestFundsOutput! @join__field(graph: LEDGER)
+  requestWithdrawal(input: LedgerLedgerRequestWithdrawalInputInput!): LedgerLedgerRequestWithdrawalOutput! @join__field(graph: LEDGER)
+  completeWithdrawal(input: LedgerLedgerCompleteWithdrawalInputInput!): LedgerLedgerCompleteWithdrawalOutput! @join__field(graph: LEDGER)
+  rejectWithdrawal(input: LedgerLedgerRejectWithdrawalInputInput!): LedgerLedgerRejectWithdrawalOutput! @join__field(graph: LEDGER)
+  reserveStake(input: LedgerLedgerReserveStakeInputInput!): LedgerLedgerReserveStakeOutput! @join__field(graph: LEDGER)
+  settleWin(input: LedgerLedgerSettleWinInputInput!): LedgerLedgerSettleWinOutput! @join__field(graph: LEDGER)
+  settleLoss(input: LedgerLedgerSettleLossInputInput!): LedgerLedgerSettleLossOutput! @join__field(graph: LEDGER)
+  cancelStakeReservation(input: LedgerLedgerCancelBetInputInput!): LedgerLedgerCancelBetOutput! @join__field(graph: LEDGER)
+  reconcileLedger(input: LedgerLedgerReconcileLedgerInputInput!): LedgerLedgerReconcileLedgerOutput! @join__field(graph: LEDGER)
+  registerPlayer(input: PlayerPlayerRegisterPlayerInputInput!): PlayerPlayerRegisterPlayerOutput! @join__field(graph: PLAYER)
+  updatePlayerProfile(input: PlayerPlayerUpdatePlayerProfileInputInput!): PlayerPlayerUpdatePlayerProfileOutput! @join__field(graph: PLAYER)
+  addContact(input: PlayerPlayerAddContactInputInput!): PlayerPlayerAddContactOutput! @join__field(graph: PLAYER)
+  verifyContact(input: PlayerPlayerVerifyContactInputInput!): PlayerPlayerVerifyContactOutput! @join__field(graph: PLAYER)
+  changePlayerStatus(input: PlayerPlayerChangePlayerStatusInputInput!): PlayerPlayerChangePlayerStatusOutput! @join__field(graph: PLAYER)
+  openKycCase(input: PlayerPlayerOpenKycCaseInputInput!): PlayerPlayerOpenKycCaseOutput! @join__field(graph: PLAYER)
+  recordKycCheck(input: PlayerPlayerRecordKycCheckInputInput!): PlayerPlayerRecordKycCheckOutput! @join__field(graph: PLAYER)
+  decideKycCase(input: PlayerPlayerDecideKycCaseInputInput!): PlayerPlayerDecideKycCaseOutput! @join__field(graph: PLAYER)
+  applyRestriction(input: PlayerPlayerApplyRestrictionInputInput!): PlayerPlayerApplyRestrictionOutput! @join__field(graph: PLAYER)
+  clearRestriction(input: PlayerPlayerClearRestrictionInputInput!): PlayerPlayerClearRestrictionOutput! @join__field(graph: PLAYER)
+}
+
+type Player
+  @join__type(graph: BETTING, key: "operatorId playerId")
+  @join__type(graph: LEDGER, key: "operatorId playerId", resolvable: false)
+  @join__type(graph: PLAYER, key: "operatorId playerId")
+{
+  operatorId: String!
+  playerId: String!
+  bets(limit: Int!, cursor: String): BettingBettingListPlayerBetsOutput! @join__field(graph: BETTING)
+  exists: Boolean! @join__field(graph: PLAYER)
+}
+
+type PlayerContact
+  @join__type(graph: PLAYER)
+{
+  contactId: String!
+  kind: PlayerContactKind!
+  displayValue: String!
+  isPrimary: Boolean!
+  verifiedAt: String
+}
+
+enum PlayerContactKind
+  @join__type(graph: PLAYER)
+{
+  EMAIL @join__enumValue(graph: PLAYER)
+  PHONE @join__enumValue(graph: PLAYER)
+}
+
+type PlayerEligibility
+  @join__type(graph: PLAYER)
+{
+  allowed: Boolean!
+  reasonCode: PlayerEligibilityReason!
+  policyVersion: String!
+  evaluatedAt: String!
+  validUntil: String
+  playerVersion: String!
+}
+
+enum PlayerEligibilityReason
+  @join__type(graph: PLAYER)
+{
+  ELIGIBLE @join__enumValue(graph: PLAYER)
+  PLAYER_INACTIVE @join__enumValue(graph: PLAYER)
+  KYC_REQUIRED @join__enumValue(graph: PLAYER)
+  KYC_EXPIRED @join__enumValue(graph: PLAYER)
+  CAPABILITY_RESTRICTED @join__enumValue(graph: PLAYER)
+}
+
+type PlayerKycCase
+  @join__type(graph: PLAYER)
+{
+  caseId: String!
+  playerId: String!
+  requiredLevel: PlayerKycLevel!
+  status: PlayerKycCaseStatus!
+  policyVersion: String!
+  decisionCode: String
+  validUntil: String
+  version: String!
+}
+
+enum PlayerKycCaseStatus
+  @join__type(graph: PLAYER)
+{
+  OPEN @join__enumValue(graph: PLAYER)
+  IN_REVIEW @join__enumValue(graph: PLAYER)
+  APPROVED @join__enumValue(graph: PLAYER)
+  REJECTED @join__enumValue(graph: PLAYER)
+  EXPIRED @join__enumValue(graph: PLAYER)
+}
+
+type PlayerKycCheck
+  @join__type(graph: PLAYER)
+{
+  checkId: String!
+  caseId: String!
+  checkType: PlayerKycCheckType!
+  attemptNo: Int!
+  provider: PlayerKycProvider!
+  providerCheckRef: String!
+  status: PlayerKycCheckStatus!
+  resultCode: String!
+  completedAt: String!
+}
+
+input PlayerKycCheckInput
+  @join__type(graph: PLAYER)
+{
+  checkId: String!
+  caseId: String!
+  checkType: PlayerKycCheckType!
+  attemptNo: Int!
+  provider: PlayerKycProvider!
+  providerCheckRef: String!
+  status: PlayerKycCheckStatus!
+  resultCode: String!
+  completedAt: String!
+}
+
+enum PlayerKycCheckStatus
+  @join__type(graph: PLAYER)
+{
+  PASSED @join__enumValue(graph: PLAYER)
+  FAILED @join__enumValue(graph: PLAYER)
+}
+
+enum PlayerKycCheckType
+  @join__type(graph: PLAYER)
+{
+  IDENTITY @join__enumValue(graph: PLAYER)
+  AGE @join__enumValue(graph: PLAYER)
+  RESIDENCE @join__enumValue(graph: PLAYER)
+}
+
+enum PlayerKycDecision
+  @join__type(graph: PLAYER)
+{
+  APPROVED @join__enumValue(graph: PLAYER)
+  REJECTED @join__enumValue(graph: PLAYER)
+}
+
+enum PlayerKycLevel
+  @join__type(graph: PLAYER)
+{
+  BASIC @join__enumValue(graph: PLAYER)
+  ENHANCED @join__enumValue(graph: PLAYER)
+}
+
+enum PlayerKycProvider
+  @join__type(graph: PLAYER)
+{
+  SYNTHETIC @join__enumValue(graph: PLAYER)
+}
+
+input PlayerPageInputInput
+  @join__type(graph: PLAYER)
+{
+  limit: Int!
+  cursor: String
+  from: String
+  to: String
+}
+
+input PlayerPlayerAddContactInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  playerId: String!
+  kind: PlayerContactKind!
+  value: String!
+  isPrimary: Boolean!
+}
+
+type PlayerPlayerAddContactOutput
+  @join__type(graph: PLAYER)
+{
+  contact: PlayerContact!
+}
+
+input PlayerPlayerApplyRestrictionInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  playerId: String!
+  type: PlayerRestrictionType!
+  reasonCode: String!
+  startsAt: String!
+  endsAt: String
+}
+
+type PlayerPlayerApplyRestrictionOutput
+  @join__type(graph: PLAYER)
+{
+  restriction: PlayerRestriction!
+}
+
+enum PlayerPlayerCapability
+  @join__type(graph: PLAYER)
+{
+  PLACE_BET @join__enumValue(graph: PLAYER)
+  DEPOSIT @join__enumValue(graph: PLAYER)
+  WITHDRAW @join__enumValue(graph: PLAYER)
+}
+
+input PlayerPlayerChangePlayerStatusInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  playerId: String!
+  expectedVersion: String!
+  status: PlayerPlayerStatusTarget!
+  reasonCode: String!
+}
+
+type PlayerPlayerChangePlayerStatusOutput
+  @join__type(graph: PLAYER)
+{
+  profile: PlayerProfile!
+}
+
+input PlayerPlayerCheckEligibilityInputInput
+  @join__type(graph: PLAYER)
+{
+  playerId: String!
+  capability: PlayerPlayerCapability!
+}
+
+type PlayerPlayerCheckEligibilityOutput
+  @join__type(graph: PLAYER)
+{
+  eligibility: PlayerEligibility!
+}
+
+input PlayerPlayerClearRestrictionInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  playerId: String!
+  restrictionId: String!
+  reasonCode: String!
+}
+
+type PlayerPlayerClearRestrictionOutput
+  @join__type(graph: PLAYER)
+{
+  restriction: PlayerRestriction!
+}
+
+input PlayerPlayerDecideKycCaseInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  playerId: String!
+  caseId: String!
+  expectedVersion: String!
+  decision: PlayerKycDecision!
+  decisionCode: String!
+  validUntil: String
+}
+
+type PlayerPlayerDecideKycCaseOutput
+  @join__type(graph: PLAYER)
+{
+  kycCase: PlayerKycCase!
+}
+
+input PlayerPlayerGetKycStatusInputInput
+  @join__type(graph: PLAYER)
+{
+  playerId: String!
+}
+
+type PlayerPlayerGetKycStatusOutput
+  @join__type(graph: PLAYER)
+{
+  cases: [PlayerKycCase!]!
+  evaluatedAt: String!
+}
+
+input PlayerPlayerGetPlayerInputInput
+  @join__type(graph: PLAYER)
+{
+  playerId: String!
+}
+
+type PlayerPlayerGetPlayerOutput
+  @join__type(graph: PLAYER)
+{
+  profile: PlayerProfile!
+  contacts: [PlayerContact!]!
+}
+
+input PlayerPlayerGetPlayerReferenceInputInput
+  @join__type(graph: PLAYER)
+{
+  playerId: String!
+}
+
+type PlayerPlayerGetPlayerReferenceOutput
+  @join__type(graph: PLAYER)
+{
+  operatorId: String!
+  playerId: String!
+  exists: Boolean!
+}
+
+input PlayerPlayerGetRestrictionsInputInput
+  @join__type(graph: PLAYER)
+{
+  playerId: String!
+  page: PlayerPageInputInput!
+  state: PlayerRestrictionState
+}
+
+type PlayerPlayerGetRestrictionsOutput
+  @join__type(graph: PLAYER)
+{
+  restrictions: [PlayerRestriction!]!
+  nextCursor: String
+  evaluatedAt: String!
+}
+
+input PlayerPlayerOpenKycCaseInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  playerId: String!
+  requiredLevel: PlayerKycLevel!
+}
+
+type PlayerPlayerOpenKycCaseOutput
+  @join__type(graph: PLAYER)
+{
+  kycCase: PlayerKycCase!
+}
+
+input PlayerPlayerRecordKycCheckInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  playerId: String!
+  caseId: String!
+  check: PlayerKycCheckInput!
+}
+
+type PlayerPlayerRecordKycCheckOutput
+  @join__type(graph: PLAYER)
+{
+  check: PlayerKycCheck!
+  kycCase: PlayerKycCase!
+}
+
+input PlayerPlayerRegisterPlayerInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  externalRef: String
+  locale: String!
+  timeZone: String!
+}
+
+type PlayerPlayerRegisterPlayerOutput
+  @join__type(graph: PLAYER)
+{
+  profile: PlayerProfile!
+  created: Boolean!
+}
+
+enum PlayerPlayerStatus
+  @join__type(graph: PLAYER)
+{
+  REGISTERED @join__enumValue(graph: PLAYER)
+  ACTIVE @join__enumValue(graph: PLAYER)
+  SUSPENDED @join__enumValue(graph: PLAYER)
+  CLOSED @join__enumValue(graph: PLAYER)
+}
+
+enum PlayerPlayerStatusTarget
+  @join__type(graph: PLAYER)
+{
+  ACTIVE @join__enumValue(graph: PLAYER)
+  SUSPENDED @join__enumValue(graph: PLAYER)
+  CLOSED @join__enumValue(graph: PLAYER)
+}
+
+input PlayerPlayerUpdatePlayerProfileInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  playerId: String!
+  expectedVersion: String!
+  patch: PlayerShape10Input!
+}
+
+type PlayerPlayerUpdatePlayerProfileOutput
+  @join__type(graph: PLAYER)
+{
+  profile: PlayerProfile!
+}
+
+input PlayerPlayerVerifyContactInputInput
+  @join__type(graph: PLAYER)
+{
+  requestId: String!
+  playerId: String!
+  contactId: String!
+  proofRef: String!
+}
+
+type PlayerPlayerVerifyContactOutput
+  @join__type(graph: PLAYER)
+{
+  contact: PlayerContact!
+}
+
+type PlayerProfile
+  @join__type(graph: PLAYER)
+{
+  playerId: String!
+  status: PlayerPlayerStatus!
+  firstName: String
+  lastName: String
+  birthDate: String
+  residenceCountry: String
+  nationalityCountry: String
+  locale: String!
+  timeZone: String!
+  version: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type PlayerRestriction
+  @join__type(graph: PLAYER)
+{
+  restrictionId: String!
+  playerId: String!
+  type: PlayerRestrictionType!
+  state: PlayerRestrictionState!
+  reasonCode: String!
+  startsAt: String!
+  endsAt: String
+  clearedAt: String
+}
+
+enum PlayerRestrictionState
+  @join__type(graph: PLAYER)
+{
+  ACTIVE @join__enumValue(graph: PLAYER)
+  CLEARED @join__enumValue(graph: PLAYER)
+  EXPIRED @join__enumValue(graph: PLAYER)
+}
+
+enum PlayerRestrictionType
+  @join__type(graph: PLAYER)
+{
+  BETTING_BLOCK @join__enumValue(graph: PLAYER)
+  DEPOSIT_BLOCK @join__enumValue(graph: PLAYER)
+  WITHDRAWAL_REVIEW @join__enumValue(graph: PLAYER)
+}
+
+scalar PlayerSavedOutcome
+  @join__type(graph: PLAYER)
+
+input PlayerShape10Input
+  @join__type(graph: PLAYER)
+{
+  firstName: String
+  lastName: String
+  birthDate: String
+  residenceCountry: String
+  nationalityCountry: String
+  locale: String
+  timeZone: String
+}
+
+type Query
+  @join__type(graph: BETTING)
+  @join__type(graph: EVENTS)
+  @join__type(graph: LEDGER)
+  @join__type(graph: PLAYER)
+{
+  getBet(input: BettingBettingGetBetInputInput!): BettingBettingGetBetOutput! @join__field(graph: BETTING)
+  listPlayerBets(input: BettingBettingListPlayerBetsInputInput!): BettingBettingListPlayerBetsOutput! @join__field(graph: BETTING)
+  getBetStatus(input: BettingBettingGetBetStatusInputInput!): BettingBettingGetBetStatusOutput! @join__field(graph: BETTING)
+  listEvents(input: EventsEventsListEventsInputInput!): EventsEventsListEventsOutput! @join__field(graph: EVENTS)
+  getEvent(input: EventsEventsGetEventInputInput!): EventsEventsGetEventOutput! @join__field(graph: EVENTS)
+  getMarkets(input: EventsEventsGetMarketsInputInput!): EventsEventsGetMarketsOutput! @join__field(graph: EVENTS)
+  validateSelectionQuote(input: EventsEventsValidateSelectionQuoteInputInput!): EventsEventsValidateSelectionQuoteOutput! @join__field(graph: EVENTS)
+  getEventResult(input: EventsEventsGetEventResultInputInput!): EventsEventsGetEventResultOutput! @join__field(graph: EVENTS)
+  getBalance(input: LedgerLedgerGetBalanceInputInput!): LedgerLedgerGetBalanceOutput! @join__field(graph: LEDGER)
+  getTransaction(input: LedgerLedgerGetTransactionInputInput!): LedgerLedgerGetTransactionOutput! @join__field(graph: LEDGER)
+  getLedgerEntries(input: LedgerLedgerGetLedgerEntriesInputInput!): LedgerLedgerGetLedgerEntriesOutput! @join__field(graph: LEDGER)
+  getWalletTransactions(input: LedgerLedgerGetWalletTransactionsInputInput!): LedgerLedgerGetWalletTransactionsOutput! @join__field(graph: LEDGER)
+  getBetFinancialStatus(input: LedgerLedgerGetBetFinancialStatusInputInput!): LedgerLedgerGetBetFinancialStatusOutput! @join__field(graph: LEDGER)
+  getWithdrawal(input: LedgerLedgerGetWithdrawalInputInput!): LedgerLedgerGetWithdrawalOutput! @join__field(graph: LEDGER)
+  getCommandOutcome(input: LedgerLedgerGetCommandOutcomeInputInput!): LedgerLedgerGetCommandOutcomeOutput! @join__field(graph: LEDGER)
+  getWallet(input: LedgerLedgerGetWalletInputInput!): LedgerLedgerGetWalletOutput! @join__field(graph: LEDGER)
+  getPlayer(input: PlayerPlayerGetPlayerInputInput!): PlayerPlayerGetPlayerOutput! @join__field(graph: PLAYER)
+  getKycStatus(input: PlayerPlayerGetKycStatusInputInput!): PlayerPlayerGetKycStatusOutput! @join__field(graph: PLAYER)
+  getRestrictions(input: PlayerPlayerGetRestrictionsInputInput!): PlayerPlayerGetRestrictionsOutput! @join__field(graph: PLAYER)
+  checkEligibility(input: PlayerPlayerCheckEligibilityInputInput!): PlayerPlayerCheckEligibilityOutput! @join__field(graph: PLAYER)
+  getPlayerReference(input: PlayerPlayerGetPlayerReferenceInputInput!): PlayerPlayerGetPlayerReferenceOutput! @join__field(graph: PLAYER)
+}
+
+type Wallet
+  @join__type(graph: LEDGER, key: "operatorId walletId")
+{
+  operatorId: String!
+  player: Player!
+  walletId: String!
+  playerId: String!
+  currency: String!
+  status: LedgerWalletState!
+  availableMinor: String!
+  reservedMinor: String!
+  withdrawalHoldMinor: String!
+  version: String!
+  observedAt: String!
+}

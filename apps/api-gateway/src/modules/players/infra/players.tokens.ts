@@ -1,0 +1,3 @@
+export const PLAYERS_OPERATIONS = Symbol('PLAYERS_OPERATIONS');
+
+export const PLAYERS_IDENTITY = Symbol('PLAYERS_IDENTITY');

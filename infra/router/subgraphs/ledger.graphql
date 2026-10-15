@@ -1,0 +1,64 @@
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
+scalar LedgerSavedOutcome
+type Player @key(fields: "operatorId playerId", resolvable: false) {operatorId: String! playerId: String!}
+input LedgerLedgerCreateWalletInputInput { requestId: String! playerId: String! currency: String! }
+type LedgerLedgerCreateWalletOutput { wallet: Wallet! created: Boolean! }
+type Wallet @key(fields: "operatorId walletId") { operatorId: String! player: Player! walletId: String! playerId: String! currency: String! status: LedgerWalletState! availableMinor: String! reservedMinor: String! withdrawalHoldMinor: String! version: String! observedAt: String! }
+enum LedgerWalletState { ACTIVE CLOSED }
+input LedgerLedgerGetBalanceInputInput { walletId: String! }
+type LedgerLedgerGetBalanceOutput { wallet: Wallet! }
+input LedgerLedgerGetTransactionInputInput { transactionId: String! }
+type LedgerLedgerGetTransactionOutput { transaction: LedgerJournalView! }
+type LedgerJournalView { transactionId: String! requestId: String! transactionType: LedgerTransactionType! businessRef: String! currency: String! status: LedgerJournalStatus! postedAt: String entries: [LedgerEntry!]! }
+enum LedgerTransactionType { DEPOSIT RESERVE_STAKE SETTLE_WIN SETTLE_LOSS CANCEL_RESERVATION WITHDRAWAL_HOLD WITHDRAWAL_COMPLETE WITHDRAWAL_REJECT }
+enum LedgerJournalStatus { POSTED REJECTED }
+type LedgerEntry { entryId: String! accountId: String! transactionId: String! entryNo: Int! side: LedgerSide! amountMinor: String! currency: String! postedAt: String! }
+enum LedgerSide { DEBIT CREDIT }
+input LedgerLedgerGetLedgerEntriesInputInput { walletId: String! page: LedgerPageInputInput! }
+input LedgerPageInputInput { limit: Int! cursor: String from: String to: String }
+type LedgerLedgerGetLedgerEntriesOutput { entries: [LedgerEntry!]! nextCursor: String observedAt: String! }
+input LedgerLedgerGetWalletTransactionsInputInput { walletId: String! page: LedgerPageInputInput! }
+type LedgerLedgerGetWalletTransactionsOutput { transactions: [LedgerJournalView!]! nextCursor: String observedAt: String! }
+input LedgerLedgerGetBetFinancialStatusInputInput { betId: String! }
+type LedgerLedgerGetBetFinancialStatusOutput { reservation: LedgerReservationView observedAt: String! }
+type LedgerReservationView { betId: String! walletId: String! stake: LedgerMoney! state: LedgerReservationState! reservationTransactionId: String! settlementTransactionId: String settlementSeq: String grossPayoutMinor: String }
+type LedgerMoney { amountMinor: String! currency: String! }
+enum LedgerReservationState { RESERVED WON LOST CANCELED }
+input LedgerLedgerGetWithdrawalInputInput { withdrawalId: String! }
+type LedgerLedgerGetWithdrawalOutput { withdrawal: LedgerWithdrawalView! }
+type LedgerWithdrawalView { withdrawalId: String! walletId: String! amount: LedgerMoney! state: LedgerWithdrawalState! holdTransactionId: String! resolutionTransactionId: String providerRef: String reasonCode: String createdAt: String! resolvedAt: String }
+enum LedgerWithdrawalState { HELD COMPLETED REJECTED }
+input LedgerLedgerGetCommandOutcomeInputInput { requestId: String! }
+type LedgerLedgerGetCommandOutcomeOutput { found: Boolean! operation: String state: LedgerCommandState result: LedgerSavedOutcome }
+enum LedgerCommandState { IN_PROGRESS COMPLETED FAILED_FINAL }
+input LedgerLedgerDepositTestFundsInputInput { requestId: String! walletId: String! amount: LedgerMoneyInput! providerRef: String! }
+input LedgerMoneyInput { amountMinor: String! currency: String! }
+type LedgerLedgerDepositTestFundsOutput { outcome: LedgerFinancialOutcome! }
+type LedgerFinancialOutcome { requestId: String! state: LedgerFinancialState! transactionId: String businessRef: String! wallet: Wallet! reasonCode: LedgerErrorCode replayed: Boolean! }
+enum LedgerFinancialState { COMPLETED REJECTED }
+enum LedgerErrorCode { INVALID_INPUT AMOUNT_OUT_OF_RANGE CURRENCY_MISMATCH UNAUTHENTICATED PERMISSION_DENIED NOT_FOUND IDEMPOTENCY_CONFLICT VERSION_CONFLICT INSUFFICIENT_FUNDS INELIGIBLE STALE_QUOTE MARKET_CLOSED INVALID_STATE IN_PROGRESS OVERLOADED DEADLINE_EXCEEDED DEPENDENCY_UNAVAILABLE ADAPTER_CONTRACT_VIOLATION INVARIANT_VIOLATION }
+input LedgerLedgerRequestWithdrawalInputInput { requestId: String! walletId: String! withdrawalId: String! amount: LedgerMoneyInput! }
+type LedgerLedgerRequestWithdrawalOutput { withdrawal: LedgerWithdrawalView! outcome: LedgerFinancialOutcome! }
+input LedgerLedgerCompleteWithdrawalInputInput { requestId: String! withdrawalId: String! providerRef: String! }
+type LedgerLedgerCompleteWithdrawalOutput { withdrawal: LedgerWithdrawalView! outcome: LedgerFinancialOutcome! }
+input LedgerLedgerRejectWithdrawalInputInput { requestId: String! withdrawalId: String! reasonCode: String! }
+type LedgerLedgerRejectWithdrawalOutput { withdrawal: LedgerWithdrawalView! outcome: LedgerFinancialOutcome! }
+input LedgerLedgerReserveStakeInputInput { requestId: String! betId: String! walletId: String! stake: LedgerMoneyInput! }
+type LedgerLedgerReserveStakeOutput { reservation: LedgerReservationView! outcome: LedgerFinancialOutcome! }
+input LedgerLedgerSettleWinInputInput { requestId: String! betId: String! settlementSeq: String! grossPayout: LedgerMoneyInput! }
+type LedgerLedgerSettleWinOutput { reservation: LedgerReservationView! outcome: LedgerFinancialOutcome! }
+input LedgerLedgerSettleLossInputInput { requestId: String! betId: String! settlementSeq: String! }
+type LedgerLedgerSettleLossOutput { reservation: LedgerReservationView! outcome: LedgerFinancialOutcome! }
+input LedgerLedgerCancelBetInputInput { requestId: String! betId: String! reasonCode: LedgerRefundReason! }
+enum LedgerRefundReason { VOID CANCELED ACCEPTANCE_FAILED }
+type LedgerLedgerCancelBetOutput { reservation: LedgerReservationView! outcome: LedgerFinancialOutcome! }
+input LedgerLedgerReconcileLedgerInputInput { requestId: String! runId: String! cutoff: String! page: LedgerPageInputInput! }
+type LedgerLedgerReconcileLedgerOutput { report: LedgerReconciliationReport! }
+type LedgerReconciliationReport { runId: String! snapshotAt: String! status: LedgerAuditState! counts: LedgerShape56! violations: [LedgerShape57!]! nextCursor: String }
+enum LedgerAuditState { PASS FAIL }
+type LedgerShape56 { transactions: String! entries: String! violations: String! }
+type LedgerShape57 { code: String! businessRef: String }
+input LedgerLedgerGetWalletInputInput { playerId: String! currency: String! }
+type LedgerLedgerGetWalletOutput { wallet: Wallet! }
+type Query { getBalance(input: LedgerLedgerGetBalanceInputInput!): LedgerLedgerGetBalanceOutput! getTransaction(input: LedgerLedgerGetTransactionInputInput!): LedgerLedgerGetTransactionOutput! getLedgerEntries(input: LedgerLedgerGetLedgerEntriesInputInput!): LedgerLedgerGetLedgerEntriesOutput! getWalletTransactions(input: LedgerLedgerGetWalletTransactionsInputInput!): LedgerLedgerGetWalletTransactionsOutput! getBetFinancialStatus(input: LedgerLedgerGetBetFinancialStatusInputInput!): LedgerLedgerGetBetFinancialStatusOutput! getWithdrawal(input: LedgerLedgerGetWithdrawalInputInput!): LedgerLedgerGetWithdrawalOutput! getCommandOutcome(input: LedgerLedgerGetCommandOutcomeInputInput!): LedgerLedgerGetCommandOutcomeOutput! getWallet(input: LedgerLedgerGetWalletInputInput!): LedgerLedgerGetWalletOutput! }
+type Mutation { createWallet(input: LedgerLedgerCreateWalletInputInput!): LedgerLedgerCreateWalletOutput! depositTestFunds(input: LedgerLedgerDepositTestFundsInputInput!): LedgerLedgerDepositTestFundsOutput! requestWithdrawal(input: LedgerLedgerRequestWithdrawalInputInput!): LedgerLedgerRequestWithdrawalOutput! completeWithdrawal(input: LedgerLedgerCompleteWithdrawalInputInput!): LedgerLedgerCompleteWithdrawalOutput! rejectWithdrawal(input: LedgerLedgerRejectWithdrawalInputInput!): LedgerLedgerRejectWithdrawalOutput! reserveStake(input: LedgerLedgerReserveStakeInputInput!): LedgerLedgerReserveStakeOutput! settleWin(input: LedgerLedgerSettleWinInputInput!): LedgerLedgerSettleWinOutput! settleLoss(input: LedgerLedgerSettleLossInputInput!): LedgerLedgerSettleLossOutput! cancelStakeReservation(input: LedgerLedgerCancelBetInputInput!): LedgerLedgerCancelBetOutput! reconcileLedger(input: LedgerLedgerReconcileLedgerInputInput!): LedgerLedgerReconcileLedgerOutput! }
